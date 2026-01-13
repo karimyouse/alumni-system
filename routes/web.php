@@ -1,0 +1,65 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Alumni\JobsController;
+
+
+Route::view('/', 'home')->name('home');
+Route::view('/test-theme', 'test-theme');
+
+
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth');
+
+
+Route::view('/register', 'auth.register-company')->name('register');
+
+
+Route::prefix('alumni')->middleware(['auth', 'role:alumni'])->group(function () {
+
+    Route::view('/', 'alumni.index')->name('alumni.dashboard');
+    Route::view('/profile', 'alumni.profile')->name('alumni.profile');
+
+
+    Route::get('/jobs', [JobsController::class, 'index'])->name('alumni.jobs');
+    Route::post('/jobs/{job}/apply', [JobsController::class, 'apply'])->name('alumni.jobs.apply');
+
+    Route::view('/workshops', 'alumni.workshops')->name('alumni.workshops');
+    Route::view('/scholarships', 'alumni.scholarships')->name('alumni.scholarships');
+    Route::view('/recommendations', 'alumni.recommendations')->name('alumni.recommendations');
+    Route::view('/leaderboard', 'alumni.leaderboard')->name('alumni.leaderboard');
+    Route::view('/applications', 'alumni.applications')->name('alumni.applications');
+});
+
+
+Route::prefix('college')->middleware(['auth', 'role:college'])->group(function () {
+    Route::view('/', 'college.index')->name('college.dashboard');
+    Route::view('/alumni', 'college.alumni-management')->name('college.alumni');
+    Route::view('/workshops', 'college.workshops')->name('college.workshops');
+    Route::view('/jobs', 'college.jobs')->name('college.jobs');
+    Route::view('/announcements', 'college.announcements')->name('college.announcements');
+    Route::view('/scholarships', 'college.scholarships')->name('college.scholarships');
+    Route::view('/success-stories', 'college.success-stories')->name('college.successStories');
+    Route::view('/reports', 'college.reports')->name('college.reports');
+});
+
+
+Route::prefix('company')->middleware(['auth', 'role:company'])->group(function () {
+    Route::view('/', 'company.index')->name('company.dashboard');
+    Route::view('/jobs', 'company.jobs')->name('company.jobs');
+    Route::view('/alumni', 'company.alumni-browse')->name('company.alumni');
+    Route::view('/applications', 'company.applications')->name('company.applications');
+    Route::view('/workshops', 'company.workshops')->name('company.workshops');
+});
+
+
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::view('/', 'admin.index')->name('admin.dashboard');
+    Route::view('/users', 'admin.users')->name('admin.users');
+    Route::view('/content', 'admin.content')->name('admin.content');
+    Route::view('/reports', 'admin.reports')->name('admin.reports');
+    Route::view('/settings', 'admin.settings')->name('admin.settings');
+    Route::view('/support', 'admin.support')->name('admin.support');
+});
