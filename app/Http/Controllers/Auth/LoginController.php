@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+
 class LoginController extends Controller
 {
     public function show()
@@ -23,7 +24,7 @@ class LoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        // React role "Super Admin" => نخزنها super_admin في DB
+
         $role = $data['role'] === 'admin' ? 'super_admin' : $data['role'];
 
         $query = User::query()->where('role', $role);

@@ -1,72 +1,101 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Scholarships';
-  $role  = 'Alumni';
+  $title='Scholarships';
+  $role='Alumni';
+
   $nav = [
     ['label'=>'Overview','href'=>'/alumni','icon'=>'layout-dashboard'],
     ['label'=>'My Profile','href'=>'/alumni/profile','icon'=>'user'],
-    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase','badge'=>12],
-    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days','badge'=>3],
+    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase'],
+    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days'],
     ['label'=>'Scholarships','href'=>'/alumni/scholarships','icon'=>'graduation-cap'],
     ['label'=>'Recommendations','href'=>'/alumni/recommendations','icon'=>'message-square'],
     ['label'=>'Leaderboard','href'=>'/alumni/leaderboard','icon'=>'trophy'],
     ['label'=>'My Applications','href'=>'/alumni/applications','icon'=>'file-text'],
   ];
 
-  $scholarships = [
-    ['title'=>'Graduate Excellence Award','desc'=>'GPA 3.5+ • Active participation','amount'=>'$5,000','deadline'=>'Feb 15, 2026','closing'=>false],
-    ['title'=>'Tech Innovation Scholarship','desc'=>'Tech-related project submission','amount'=>'$3,000','deadline'=>'Mar 1, 2026','closing'=>false],
-    ['title'=>'Community Leadership Grant','desc'=>'Community service record','amount'=>'$2,500','deadline'=>'Mar 15, 2026','closing'=>false],
-    ['title'=>'Research Excellence Fund','desc'=>'Published research paper','amount'=>'$4,000','deadline'=>'Jan 30, 2026','closing'=>true],
-  ];
+  $statusPill = fn($s) => match($s) {
+    'open' => ['Open','bg-green-500/15 text-green-400'],
+    'closing_soon' => ['Closing Soon','bg-orange-500/15 text-orange-400'],
+    'closed' => ['Closed','bg-red-500/15 text-red-400'],
+    default => [ucfirst($s),'bg-secondary text-secondary-foreground'],
+  };
 @endphp
 
 @section('content')
 <div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-bold">Scholarships</h1>
-    <p class="text-sm text-muted-foreground">Available scholarships and grants</p>
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">Scholarships</h1>
+      <p class="text-sm text-muted-foreground">Browse scholarships and apply online</p>
+    </div>
   </div>
 
   <div class="space-y-4">
     @foreach($scholarships as $s)
-      <div class="rounded-xl border border-border bg-card p-5">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex gap-4">
-            <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <i data-lucide="graduation-cap" class="h-5 w-5"></i>
-            </div>
+      @php
+        [$pillTxt, $pillCls] = $statusPill($s->status ?? 'open');
+        $applied = in_array($s->id, $appliedIds ?? []);
+      @endphp
 
-            <div>
-              <div class="flex items-center gap-2">
-                <div class="font-semibold">{{ $s['title'] }}</div>
-                @if($s['closing'])
-                  <span class="inline-flex items-center rounded-full bg-red-500/15 px-2 py-0.5 text-xs text-red-400">
-                    Closing Soon
-                  </span>
-                @endif
-              </div>
-
-              <div class="text-sm text-muted-foreground">{{ $s['desc'] }}</div>
-
-              <div class="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mt-2">
-                <span class="text-primary font-semibold">{{ $s['amount'] }}</span>
-                <span class="inline-flex items-center gap-1">
-                  <i data-lucide="calendar" class="h-3 w-3"></i>
-                  Deadline: {{ $s['deadline'] }}
-                </span>
-              </div>
-            </div>
+      <div class="rounded-xl border border-border bg-card p-6 flex items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+            <i data-lucide="graduation-cap" class="h-5 w-5"></i>
           </div>
 
-          <div class="flex gap-2">
-            <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">Details</button>
-            <button class="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90">Apply</button>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-semibold">{{ $s->title }}</h3>
+              <span class="text-xs rounded-full px-2 py-1 {{ $pillCls }}">{{ $pillTxt }}</span>
+              @if($applied)
+                <span class="text-xs rounded-full px-2 py-1 bg-blue-500/15 text-blue-400">Applied</span>
+              @endif
+            </div>
+
+            <div class="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+              @if($s->amount)
+                <span class="inline-flex items-center gap-1"><i data-lucide="dollar-sign" class="h-3 w-3"></i> {{ $s->amount }}</span>
+              @endif
+              @if($s->deadline)
+                <span class="inline-flex items-center gap-1"><i data-lucide="calendar" class="h-3 w-3"></i> Deadline: {{ $s->deadline }}</span>
+              @endif
+            </div>
+
+            @if($s->description)
+              <p class="text-sm text-muted-foreground mt-2 max-w-3xl">
+                {{ $s->description }}
+              </p>
+            @endif
           </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a href="{{ route('alumni.scholarships.show', $s) }}"
+             class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+            Details
+          </a>
+
+          @if(!$applied && ($s->status ?? 'open') !== 'closed')
+            <form method="POST" action="{{ route('alumni.scholarships.apply', $s) }}">
+              @csrf
+              <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+                Apply
+              </button>
+            </form>
+          @else
+            <button class="rounded-md border border-border px-4 py-2 text-sm opacity-70 cursor-not-allowed" disabled>
+              {{ $applied ? 'Applied' : 'Closed' }}
+            </button>
+          @endif
         </div>
       </div>
     @endforeach
+  </div>
+
+  <div>
+    {{ $scholarships->links() }}
   </div>
 </div>
 @endsection

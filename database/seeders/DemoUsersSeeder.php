@@ -10,24 +10,32 @@ class DemoUsersSeeder extends Seeder
 {
     public function run(): void
     {
-
-
         User::updateOrCreate(
-            ['email' => 'alumni@ptc.edu'],
+            ['academic_id' => '2141091038'],
             [
                 'name' => 'Demo Alumni',
-                'academic_id' => '2141091038',
+                'email' => 'alumni@ptc.edu',
                 'role' => 'alumni',
                 'password' => Hash::make('demo123'),
             ]
         );
 
 
+        User::updateOrCreate(
+    ['academic_id' => '2141091051'],
+    [
+        'name' => 'Ali Yousef',
+        'email' => 'ali@gmail.com',
+        'role' => 'alumni',
+        'password' => Hash::make('ali@123'),
+    ]
+);
+
 
         User::updateOrCreate(
             ['email' => 'college@ptc.edu'],
             [
-                'name' => 'Demo College',
+                'name' => 'PTC College',
                 'academic_id' => null,
                 'role' => 'college',
                 'password' => Hash::make('college123'),
@@ -38,13 +46,12 @@ class DemoUsersSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'company@techcorp.com'],
             [
-                'name' => 'TechCorp',
+                'name' => 'TechCorp Company',
                 'academic_id' => null,
                 'role' => 'company',
                 'password' => Hash::make('company123'),
             ]
         );
-
 
         
         User::updateOrCreate(
@@ -52,7 +59,7 @@ class DemoUsersSeeder extends Seeder
             [
                 'name' => 'System Admin',
                 'academic_id' => null,
-                'role' => 'super_admin',
+                'role' => 'admin',
                 'password' => Hash::make('admin123'),
             ]
         );
