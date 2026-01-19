@@ -6,7 +6,9 @@ use App\Http\Controllers\Alumni\JobsController;
 use App\Http\Controllers\Alumni\ApplicationsController;
 use App\Http\Controllers\Alumni\WorkshopsController;
 use App\Http\Controllers\Alumni\ScholarshipsController;
-
+use App\Http\Controllers\Alumni\RecommendationsController;
+use App\Http\Controllers\Alumni\ProfileController;
+use App\Http\Controllers\Alumni\DashboardController;
 
 Route::view('/', 'home')->name('home');
 Route::view('/test-theme', 'test-theme');
@@ -22,8 +24,9 @@ Route::view('/register', 'auth.register-company')->name('register');
 
 Route::prefix('alumni')->middleware(['auth', 'role:alumni'])->group(function () {
 
-    Route::view('/', 'alumni.index')->name('alumni.dashboard');
-    Route::view('/profile', 'alumni.profile')->name('alumni.profile');
+    Route::get('/', [DashboardController::class, 'index'])->name('alumni.dashboard');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('alumni.profile');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('alumni.profile.update');
 
 
     Route::get('/jobs', [JobsController::class, 'index'])->name('alumni.jobs');
@@ -39,7 +42,9 @@ Route::prefix('alumni')->middleware(['auth', 'role:alumni'])->group(function () 
     Route::get('/scholarships', [ScholarshipsController::class, 'index'])->name('alumni.scholarships');
     Route::get('/scholarships/{scholarship}', [ScholarshipsController::class, 'show'])->name('alumni.scholarships.show');
     Route::post('/scholarships/{scholarship}/apply', [ScholarshipsController::class, 'apply'])->name('alumni.scholarships.apply');
-    Route::view('/recommendations', 'alumni.recommendations')->name('alumni.recommendations');
+    Route::get('/recommendations', [RecommendationsController::class, 'index'])->name('alumni.recommendations');
+    Route::post('/recommendations', [RecommendationsController::class, 'store'])->name('alumni.recommendations.store');
+    Route::delete('/recommendations/{recommendation}', [RecommendationsController::class, 'destroy'])->name('alumni.recommendations.destroy');
     Route::view('/leaderboard', 'alumni.leaderboard')->name('alumni.leaderboard');
     Route::get('/applications', [ApplicationsController::class, 'index'])->name('alumni.applications');
     Route::post('/jobs/{job}/save', [JobsController::class, 'toggleSave'])->name('alumni.jobs.save');
