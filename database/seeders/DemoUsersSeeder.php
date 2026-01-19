@@ -23,8 +23,7 @@ class DemoUsersSeeder extends Seeder
         );
 
 
-<<<<<<< ali
-=======
+
         User::updateOrCreate(
     ['academic_id' => '2141091051'],
     [
@@ -45,7 +44,6 @@ class DemoUsersSeeder extends Seeder
     ]
 );
 
->>>>>>> local
 
         User::updateOrCreate(
             ['email' => 'college@ptc.edu'],
@@ -69,10 +67,7 @@ class DemoUsersSeeder extends Seeder
         );
 
 
-<<<<<<< ali
-        
-=======
->>>>>>> local
+
         User::updateOrCreate(
             ['email' => 'admin@ptc.edu'],
             [
