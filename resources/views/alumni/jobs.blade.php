@@ -88,7 +88,15 @@
                 <span class="text-xs rounded-full bg-secondary px-3 py-1">{{ $job->salary }}</span>
               @endif
 
-              <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">Save</button>
+              @php $saved = isset($savedJobIds) && in_array($job->id, $savedJobIds); @endphp
+<form method="POST" action="{{ route('alumni.jobs.save', $job) }}">
+  @csrf
+  <button type="submit"
+          class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
+    {{ $saved ? 'Saved' : 'Save' }}
+  </button>
+</form>
+
 
               <form method="POST" action="{{ route('alumni.jobs.apply', $job) }}">
                 @csrf

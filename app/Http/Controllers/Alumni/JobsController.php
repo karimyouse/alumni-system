@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\JobApplication;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\SavedJob;
 
 class JobsController extends Controller
 {
@@ -27,12 +29,42 @@ class JobsController extends Controller
 
         $jobs = $jobsQuery->paginate(10)->withQueryString();
 
-        $appliedJobIds = JobApplication::where('alumni_user_id', auth()->id())
+        $appliedJobIds = JobApplication::where('alumni_user_id', Auth::id())
             ->pluck('job_id')
             ->toArray();
 
-        return view('alumni.jobs', compact('jobs', 'q', 'appliedJobIds'));
+        $savedJobIds = SavedJob::where('alumni_user_id', Auth::id())
+            ->pluck('job_id')
+            ->toArray();
+
+
+        return view('alumni.jobs', compact('jobs', 'q', 'appliedJobIds', 'savedJobIds'));
     }
+
+    public function toggleSave(Job $job)
+    {
+    $userId = Auth::id();
+
+    $exists = SavedJob::where('job_id', $job->id)
+        ->where('alumni_user_id', $userId)
+        ->exists();
+
+    if ($exists) {
+        SavedJob::where('job_id', $job->id)
+            ->where('alumni_user_id', $userId)
+            ->delete();
+
+        return back()->with('toast_success', 'Removed from saved jobs.');
+    }
+
+    SavedJob::create([
+        'job_id' => $job->id,
+        'alumni_user_id' => $userId,
+    ]);
+
+    return back()->with('toast_success', 'Saved job successfully.');
+    }
+
 
     public function apply(Job $job)
     {
@@ -42,7 +74,7 @@ class JobsController extends Controller
         }
 
         JobApplication::updateOrCreate(
-            ['job_id' => $job->id, 'alumni_user_id' => auth()->id()],
+            ['job_id' => $job->id, 'alumni_user_id' => Auth::id()],
             ['status' => 'pending', 'applied_date' => now()->format('M d, Y')]
         );
 
