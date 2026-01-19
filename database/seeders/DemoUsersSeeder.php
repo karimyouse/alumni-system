@@ -23,6 +23,29 @@ class DemoUsersSeeder extends Seeder
         );
 
 
+<<<<<<< ali
+=======
+        User::updateOrCreate(
+    ['academic_id' => '2141091051'],
+    [
+        'name' => 'Ali Yousef',
+        'email' => 'ali@gmail.com',
+        'role' => 'alumni',
+        'password' => Hash::make('ali@123'),
+    ]
+);
+
+     User::updateOrCreate(
+    ['academic_id' => '2141091010'],
+    [
+        'name' => 'Ahmed Saleh',
+        'email' => 'ahmed@gmail.com',
+        'role' => 'alumni',
+        'password' => Hash::make('ahmed@123'),
+    ]
+);
+
+>>>>>>> local
 
         User::updateOrCreate(
             ['email' => 'college@ptc.edu'],
@@ -46,7 +69,10 @@ class DemoUsersSeeder extends Seeder
         );
 
 
+<<<<<<< ali
         
+=======
+>>>>>>> local
         User::updateOrCreate(
             ['email' => 'admin@ptc.edu'],
             [
