@@ -1,96 +1,133 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Alumni';
-  $role  = 'Company';
+  $title='Browse Alumni';
+  $role='Company';
 
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],
     ['label'=>'Jobs','href'=>'/company/jobs','icon'=>'briefcase'],
-    ['label'=>'Alumni','href'=>'/company/alumni','icon'=>'users'],
+    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users'],
     ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text'],
     ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days'],
-  ];
-
-  $alumni = [
-    ['id'=>'1','name'=>'Ahmed Al-Hassan','avatar'=>'AH','major'=>'Computer Science','year'=>2024,'location'=>'Gaza','skills'=>['React','Node.js','TypeScript'],'status'=>'Available'],
-    ['id'=>'2','name'=>'Sara Ali','avatar'=>'SA','major'=>'Information Technology','year'=>2023,'location'=>'Ramallah','skills'=>['Python','Data Analysis','SQL'],'status'=>'Available'],
-    ['id'=>'3','name'=>'Omar Khalil','avatar'=>'OK','major'=>'Software Engineering','year'=>2022,'location'=>'Gaza','skills'=>['Java','Spring','AWS'],'status'=>'Employed'],
-    ['id'=>'4','name'=>'Layla Hassan','avatar'=>'LH','major'=>'Computer Science','year'=>2024,'location'=>'Remote','skills'=>['UI/UX','Figma','Design'],'status'=>'Available'],
   ];
 @endphp
 
 @section('content')
 <div class="space-y-6">
-  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-    <div>
-      <h1 class="text-2xl font-bold">Alumni</h1>
-      <p class="text-muted-foreground">Browse and connect with qualified graduates</p>
-    </div>
 
-    <div class="flex items-center gap-2 w-full sm:w-auto">
-      <div class="relative flex-1 sm:w-64">
-        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></i>
-        <input placeholder="Search by skills, major..." class="w-full rounded-md border border-input bg-background/60 pl-9 pr-3 py-2 text-sm"
-               data-testid="input-search-alumni" />
+  <div>
+    <h1 class="text-2xl font-bold">Browse Alumni</h1>
+    <p class="text-sm text-muted-foreground">Search and filter alumni profiles</p>
+  </div>
+
+  {{-- Filters --}}
+  <form method="GET" action="{{ route('company.alumni') }}" class="rounded-xl border border-border bg-card p-5 space-y-4">
+    <div class="grid md:grid-cols-4 gap-3">
+      <div class="space-y-2">
+        <label class="text-sm font-medium">Search</label>
+        <input name="q" value="{{ $q }}"
+               class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
+               placeholder="Name / Email / Academic ID">
       </div>
 
-      <button class="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50"
-              data-testid="button-filter">
-        <i data-lucide="filter" class="h-4 w-4"></i>
+      <div class="space-y-2">
+        <label class="text-sm font-medium">Major</label>
+        <select name="major" class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm">
+          <option value="">All</option>
+          @foreach($majors as $m)
+            <option value="{{ $m }}" {{ $major===$m?'selected':'' }}>{{ $m }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-medium">Location</label>
+        <select name="location" class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm">
+          <option value="">All</option>
+          @foreach($locations as $l)
+            <option value="{{ $l }}" {{ $location===$l?'selected':'' }}>{{ $l }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-medium">Skill</label>
+        <input name="skill" value="{{ $skill }}"
+               class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
+               placeholder="e.g. Laravel">
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+        Apply Filters
       </button>
+
+      <a href="{{ route('company.alumni') }}" class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+        Reset
+      </a>
+    </div>
+  </form>
+
+  {{-- List --}}
+  <div class="rounded-xl border border-border bg-card overflow-hidden">
+    <div class="overflow-auto">
+      <table class="w-full">
+        <thead class="border-b bg-muted/40">
+          <tr>
+            <th class="text-left p-4 font-medium">Alumnus</th>
+            <th class="text-left p-4 font-medium">Major</th>
+            <th class="text-left p-4 font-medium">Location</th>
+            <th class="text-left p-4 font-medium">Skills</th>
+            <th class="text-left p-4 font-medium">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($alumni as $a)
+            @php
+              $p = $a->alumniProfile;
+              $skills = collect(explode(',', $p->skills ?? ''))->map(fn($s)=>trim($s))->filter()->take(4)->values();
+            @endphp
+            <tr class="border-b last:border-0">
+              <td class="p-4">
+                <div class="font-semibold">{{ $a->name }}</div>
+                <div class="text-xs text-muted-foreground">{{ $a->academic_id }} • {{ $a->email }}</div>
+              </td>
+
+              <td class="p-4 text-sm text-muted-foreground">{{ $p->major ?? '—' }}</td>
+              <td class="p-4 text-sm text-muted-foreground">{{ $p->location ?? '—' }}</td>
+
+              <td class="p-4">
+                <div class="flex flex-wrap gap-2">
+                  @forelse($skills as $sk)
+                    <span class="text-xs rounded-full border border-border px-2 py-1">{{ $sk }}</span>
+                  @empty
+                    <span class="text-sm text-muted-foreground">—</span>
+                  @endforelse
+                </div>
+              </td>
+
+              <td class="p-4">
+                <a href="{{ route('company.alumni.show', $a) }}"
+                   class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
+                  View Profile
+                </a>
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td class="p-6 text-sm text-muted-foreground" colspan="5">No alumni found.</td>
+            </tr>
+          @endforelse
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    @foreach($alumni as $a)
-      <div class="rounded-xl border border-border bg-card hover:bg-accent/20 transition"
-           data-testid="card-alumni-{{ $a['id'] }}">
-        <div class="p-6">
-          <div class="flex items-start gap-4">
-            <div class="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
-              {{ $a['avatar'] }}
-            </div>
-
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-2">
-                <div>
-                  <div class="font-semibold">{{ $a['name'] }}</div>
-                  <div class="text-sm text-muted-foreground">{{ $a['major'] }} ({{ $a['year'] }})</div>
-                </div>
-
-                <span class="inline-flex items-center rounded-full px-2 py-1 text-xs
-                  {{ $a['status']==='Available' ? 'bg-green-500/10 text-green-400' : 'bg-secondary text-secondary-foreground' }}">
-                  {{ $a['status'] }}
-                </span>
-              </div>
-
-              <div class="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-                <i data-lucide="map-pin" class="h-3 w-3"></i>
-                {{ $a['location'] }}
-              </div>
-
-              <div class="flex flex-wrap gap-1 mt-3">
-                @foreach($a['skills'] as $s)
-                  <span class="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs">{{ $s }}</span>
-                @endforeach
-              </div>
-
-              <div class="flex gap-2 mt-4">
-                <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50"
-                        data-testid="button-view-profile-{{ $a['id'] }}">View Profile</button>
-
-                <button class="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90"
-                        data-testid="button-contact-{{ $a['id'] }}">
-                  <i data-lucide="mail" class="h-3 w-3 mr-1 inline"></i>
-                  Contact
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    @endforeach
+  <div>
+    {{ $alumni->links() }}
   </div>
+
 </div>
 @endsection

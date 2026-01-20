@@ -24,7 +24,25 @@
 
   <div class="space-y-4">
     @foreach($workshops as $w)
-      @php $isReg = in_array($w->id, $registeredIds); @endphp
+      @php
+        $isReg = in_array($w->id, $registeredIds);
+
+        // ✅ capacity: null = unlimited
+        $cap = $w->capacity ?? null;
+
+        // ✅ registered_count: الأفضل يكون جاي من controller via withCount()
+        // لو مش موجود، fallback: اعتبره 0 (بدون ما يعطّل زر)
+        $registeredCount = $w->registered_count ?? 0;
+
+        // ✅ spots left
+        $spotsLeft = is_null($cap) ? null : max(0, (int)$cap - (int)$registeredCount);
+
+        // ✅ full only if capacity is not null and spotsLeft == 0
+        $isFull = (!is_null($cap) && $spotsLeft <= 0);
+
+        // ✅ register button enabled when not registered and not full
+        $canRegister = (!$isReg && !$isFull);
+      @endphp
 
       <div class="rounded-xl border border-border bg-card p-6 flex items-center justify-between">
         <div class="flex items-start gap-4">
@@ -35,16 +53,35 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-lg">{{ $w->title }}</h3>
+
               @if($isReg)
                 <span class="text-xs rounded-full bg-green-500/15 text-green-400 px-2 py-1">Registered</span>
+              @elseif($isFull)
+                <span class="text-xs rounded-full bg-red-500/15 text-red-400 px-2 py-1">Full</span>
               @endif
             </div>
 
             <div class="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-              <span class="inline-flex items-center gap-1"><i data-lucide="calendar" class="h-3 w-3"></i> {{ $w->date }}</span>
-              <span class="inline-flex items-center gap-1"><i data-lucide="clock" class="h-3 w-3"></i> {{ $w->time }}</span>
-              <span class="inline-flex items-center gap-1"><i data-lucide="map-pin" class="h-3 w-3"></i> {{ $w->location }}</span>
-              <span class="inline-flex items-center gap-1"><i data-lucide="users" class="h-3 w-3"></i> {{ $w->spots }} spots left</span>
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="calendar" class="h-3 w-3"></i> {{ $w->date }}
+              </span>
+
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="clock" class="h-3 w-3"></i> {{ $w->time }}
+              </span>
+
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="map-pin" class="h-3 w-3"></i> {{ $w->location }}
+              </span>
+
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="users" class="h-3 w-3"></i>
+                @if(is_null($cap))
+                  Unlimited spots
+                @else
+                  {{ $spotsLeft }} spots left
+                @endif
+              </span>
             </div>
           </div>
         </div>
@@ -60,8 +97,8 @@
           @else
             <form method="POST" action="{{ route('alumni.workshops.register', $w) }}">
               @csrf
-              <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90"
-                      {{ $w->spots <= 0 ? 'disabled' : '' }}>
+              <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      {{ $canRegister ? '' : 'disabled' }}>
                 Register
               </button>
             </form>

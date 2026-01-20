@@ -3,30 +3,27 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Workshop extends Model
 {
     protected $fillable = [
-        'organizer_user_id',
-        'organizer_role',
         'title',
         'date',
         'time',
         'location',
-        'spots',
-        'max_spots',
         'status',
+        'company_user_id',
+        'proposal_status',
+        'capacity',
     ];
 
-    public function organizer(): BelongsTo
+    public function registrations()
     {
-        return $this->belongsTo(User::class, 'organizer_user_id');
+        return $this->hasMany(\App\Models\WorkshopRegistration::class);
     }
 
-    public function registrations(): HasMany
+    public function company()
     {
-        return $this->hasMany(WorkshopRegistration::class);
+        return $this->belongsTo(\App\Models\User::class, 'company_user_id');
     }
 }

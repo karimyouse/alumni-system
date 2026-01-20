@@ -19,8 +19,8 @@ class JobApplication extends Model
         return $this->belongsTo(Job::class);
     }
 
-    public function alumni(): BelongsTo
+    public function alumni()
     {
-        return $this->belongsTo(User::class, 'alumni_user_id');
+    return $this->belongsTo(\App\Models\User::class, 'alumni_user_id');
     }
 }

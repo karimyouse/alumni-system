@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Workshop;
 use App\Models\WorkshopRegistration;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class WorkshopsController extends Controller
 {
@@ -14,11 +14,27 @@ class WorkshopsController extends Controller
     {
         $userId = Auth::id();
 
-        $workshops = Workshop::orderByDesc('id')->get();
+        // ✅ Load workshops + count registered users for each workshop
+        $workshops = Workshop::query()
+            ->withCount([
+                'registrations as registered_count' => function ($q) {
+                    // لو جدول workshop_registrations فيه status
+                    if (Schema::hasColumn('workshop_registrations', 'status')) {
+                        $q->where('status', 'registered');
+                    }
+                }
+            ])
+            ->orderByDesc('id')
+            ->get();
 
-        $registeredIds = WorkshopRegistration::where('alumni_user_id', $userId)
-            ->pluck('workshop_id')
-            ->toArray();
+        // ✅ which workshops this alumni is registered in (status=registered if column exists)
+        $regQuery = WorkshopRegistration::where('alumni_user_id', $userId);
+
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $regQuery->where('status', 'registered');
+        }
+
+        $registeredIds = $regQuery->pluck('workshop_id')->toArray();
 
         return view('alumni.workshops', compact('workshops', 'registeredIds'));
     }
@@ -27,31 +43,60 @@ class WorkshopsController extends Controller
     {
         $userId = Auth::id();
 
-        $exists = WorkshopRegistration::where('workshop_id', $workshop->id)
-            ->where('alumni_user_id', $userId)
-            ->exists();
-
-        if ($exists) {
-            return back()->with('toast_success', 'You are already registered.');
+        // ✅ proposal_status: allow only approved
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            if (($workshop->proposal_status ?? 'approved') !== 'approved') {
+                return back()->with('toast_success', 'This workshop is not available yet.');
+            }
         }
 
-        DB::transaction(function () use ($workshop, $userId) {
-            $w = Workshop::lockForUpdate()->find($workshop->id);
+        // ✅ if registrations table has status, prevent double register (already registered)
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $already = WorkshopRegistration::where('workshop_id', $workshop->id)
+                ->where('alumni_user_id', $userId)
+                ->where('status', 'registered')
+                ->exists();
 
-            if ($w->spots <= 0) {
-                throw new \RuntimeException('No spots left');
+            if ($already) {
+                return back()->with('toast_success', 'You are already registered.');
             }
+        }
 
-            WorkshopRegistration::create([
-                'workshop_id' => $w->id,
-                'alumni_user_id' => $userId,
-                'status' => 'registered',
-            ]);
+        // ✅ capacity check (null = unlimited)
+        if (Schema::hasColumn('workshops', 'capacity')) {
+            $cap = $workshop->capacity;
 
-            $w->decrement('spots');
-        });
+            if (!is_null($cap)) {
+                $countQuery = WorkshopRegistration::where('workshop_id', $workshop->id);
 
-        return back()->with('toast_success', 'Registered successfully!');
+                if (Schema::hasColumn('workshop_registrations', 'status')) {
+                    $countQuery->where('status', 'registered');
+                }
+
+                $count = $countQuery->count();
+
+                if ($count >= (int)$cap) {
+                    return back()->with('toast_success', 'Workshop is full.');
+                }
+            }
+        }
+
+        // ✅ Register (update or create)
+        $attrs = [
+            'workshop_id' => $workshop->id,
+            'alumni_user_id' => $userId,
+        ];
+
+        $values = [];
+
+        // If status column exists, use it
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $values['status'] = 'registered';
+        }
+
+        WorkshopRegistration::updateOrCreate($attrs, $values);
+
+        return back()->with('toast_success', 'Successfully registered!');
     }
 
     public function cancel(Workshop $workshop)
@@ -66,11 +111,13 @@ class WorkshopsController extends Controller
             return back()->with('toast_success', 'No registration found.');
         }
 
-        DB::transaction(function () use ($workshop, $reg) {
-            $w = Workshop::lockForUpdate()->find($workshop->id);
+        // ✅ if status column exists => set cancelled (do NOT delete)
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $reg->update(['status' => 'cancelled']);
+        } else {
+            // fallback: delete if no status column
             $reg->delete();
-            $w->increment('spots');
-        });
+        }
 
         return back()->with('toast_success', 'Registration cancelled.');
     }

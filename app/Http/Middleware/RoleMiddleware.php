@@ -7,17 +7,20 @@ use Illuminate\Http\Request;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, string $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!$request->user()) {
-            return redirect('/login');
+        $user = $request->user();
+        if (!$user) abort(403);
+
+        $allowed = [];
+        foreach ($roles as $r) {
+            foreach (explode(',', $r) as $one) {
+                $one = trim($one);
+                if ($one !== '') $allowed[] = $one;
+            }
         }
 
-        $expected = $role === 'admin' ? 'super_admin' : $role;
-
-        if (($request->user()->role ?? null) !== $expected) {
-            abort(403);
-        }
+        if (!in_array($user->role, $allowed, true)) abort(403);
 
         return $next($request);
     }
