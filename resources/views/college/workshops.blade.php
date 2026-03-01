@@ -3,6 +3,7 @@
 @php
   $title = 'Workshops';
   $role  = 'College';
+
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
     ['label'=>'Alumni','href'=>'/college/alumni','icon'=>'users'],
@@ -13,75 +14,74 @@
     ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
-
-  $workshops = [
-    ['id'=>'1','title'=>'Career Development Workshop','date'=>'Jan 15, 2026','time'=>'10:00 AM - 2:00 PM','location'=>'Main Campus','registrations'=>35,'capacity'=>50,'status'=>'upcoming'],
-    ['id'=>'2','title'=>'Technical Interview Prep','date'=>'Jan 20, 2026','time'=>'2:00 PM - 5:00 PM','location'=>'Online','registrations'=>70,'capacity'=>100,'status'=>'upcoming'],
-    ['id'=>'3','title'=>'Resume Writing Masterclass','date'=>'Jan 25, 2026','time'=>'11:00 AM - 1:00 PM','location'=>'Lab B','registrations'=>25,'capacity'=>30,'status'=>'upcoming'],
-    ['id'=>'4','title'=>'Networking Skills','date'=>'Dec 10, 2025','time'=>'3:00 PM - 6:00 PM','location'=>'Community Center','registrations'=>40,'capacity'=>40,'status'=>'completed'],
-  ];
 @endphp
 
 @section('content')
 <div class="space-y-6">
-  <div class="flex items-center justify-between">
+
+  <div class="flex items-center justify-between gap-3">
     <div>
       <h1 class="text-2xl font-bold">Workshops</h1>
-      <p class="text-muted-foreground">Manage workshops and events</p>
+      <p class="text-sm text-muted-foreground">Create and manage public workshops for alumni</p>
     </div>
 
-    <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90"
-            data-testid="button-add-workshop">
-      <i data-lucide="plus" class="h-4 w-4 mr-2 inline"></i>
+    <a href="{{ url('/college/workshops/create') }}"
+       class="relative z-[9999] pointer-events-auto rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 transition inline-flex items-center gap-2">
+      <i data-lucide="plus" class="h-4 w-4"></i>
       Add Workshop
-    </button>
+    </a>
   </div>
 
-  <div class="grid gap-4">
-    @foreach($workshops as $w)
-      <div class="rounded-xl border border-border bg-card" data-testid="card-workshop-{{ $w['id'] }}">
-        <div class="p-6">
-          <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <i data-lucide="calendar-days" class="h-6 w-6 text-primary"></i>
-            </div>
+  <div class="space-y-4">
+    @forelse($workshops as $w)
+      <div class="rounded-xl border border-border bg-card p-6 flex items-center justify-between">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+            <i data-lucide="calendar-days" class="h-5 w-5"></i>
+          </div>
 
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <h3 class="text-lg font-semibold">{{ $w['title'] }}</h3>
-                <span class="inline-flex items-center rounded-full px-2 py-1 text-xs
-                  {{ $w['status']==='upcoming' ? 'bg-primary/15 text-primary' : 'bg-secondary text-secondary-foreground' }}">
-                  {{ $w['status'] }}
+          <div>
+            <h3 class="font-semibold text-lg">{{ $w->title }}</h3>
+
+            <div class="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="calendar" class="h-3 w-3"></i>
+                {{ $w->date }}
+              </span>
+
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="clock" class="h-3 w-3"></i>
+                {{ $w->time }}
+              </span>
+
+              <span class="inline-flex items-center gap-1">
+                <i data-lucide="map-pin" class="h-3 w-3"></i>
+                {{ $w->location }}
+              </span>
+
+              @if(!is_null($w->capacity))
+                <span class="inline-flex items-center gap-1">
+                  <i data-lucide="users" class="h-3 w-3"></i>
+                  Capacity: {{ $w->capacity }}
                 </span>
-              </div>
-
-              <div class="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                <span class="flex items-center gap-1"><i data-lucide="calendar-days" class="h-4 w-4"></i>{{ $w['date'] }}</span>
-                <span class="flex items-center gap-1"><i data-lucide="clock" class="h-4 w-4"></i>{{ $w['time'] }}</span>
-                <span class="flex items-center gap-1"><i data-lucide="map-pin" class="h-4 w-4"></i>{{ $w['location'] }}</span>
-                <span class="flex items-center gap-1"><i data-lucide="users" class="h-4 w-4"></i>{{ $w['registrations'] }}/{{ $w['capacity'] }} registered</span>
-              </div>
+              @endif
             </div>
-
-            <div class="flex gap-2">
-              <button class="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50"
-                      data-testid="button-edit-{{ $w['id'] }}">
-                <i data-lucide="edit" class="h-4 w-4"></i>
-              </button>
-              <button class="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50"
-                      data-testid="button-delete-{{ $w['id'] }}">
-                <i data-lucide="trash-2" class="h-4 w-4"></i>
-              </button>
-              <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50"
-                      data-testid="button-view-registrations-{{ $w['id'] }}">
-                View Registrations
-              </button>
-            </div>
-
           </div>
         </div>
+
+        <div class="flex items-center gap-2">
+          {{-- لاحقًا: زر Manage / Edit / Delete --}}
+          <span class="text-xs rounded-full bg-secondary px-2 py-1 text-secondary-foreground">
+            Public
+          </span>
+        </div>
       </div>
-    @endforeach
+    @empty
+      <div class="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+        No workshops yet. Click <b>Add Workshop</b> to create one.
+      </div>
+    @endforelse
   </div>
+
 </div>
 @endsection

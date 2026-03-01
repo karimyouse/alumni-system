@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Job extends Model
 {
@@ -15,19 +13,31 @@ class Job extends Model
         'location',
         'type',
         'salary',
-        'posted',
         'description',
+        'posted',
         'status',
         'views',
+
+        // ✅ College review fields
+        'approval_status',
+        'approved_at',
+        'approved_by',
+        'reject_reason',
+        'is_featured',
     ];
 
-    public function companyUser(): BelongsTo
+    protected $casts = [
+        'is_featured' => 'boolean',
+        'approved_at' => 'datetime',
+    ];
+
+    public function applications()
     {
-        return $this->belongsTo(User::class, 'company_user_id');
+        return $this->hasMany(\App\Models\JobApplication::class);
     }
 
-    public function applications(): HasMany
+    public function company()
     {
-        return $this->hasMany(JobApplication::class);
+        return $this->belongsTo(\App\Models\User::class, 'company_user_id');
     }
 }

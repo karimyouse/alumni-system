@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Alumni;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\SavedJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\SavedJob;
+use Illuminate\Support\Facades\Schema;
 
 class JobsController extends Controller
 {
@@ -15,67 +16,120 @@ class JobsController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
 
-        $jobsQuery = Job::query()
-            ->where('status', 'active')
-            ->when($q !== '', function ($query) use ($q) {
-                $query->where(function ($sub) use ($q) {
-                    $sub->where('title', 'like', "%{$q}%")
-                        ->orWhere('company_name', 'like', "%{$q}%")
-                        ->orWhere('location', 'like', "%{$q}%")
-                        ->orWhere('type', 'like', "%{$q}%");
-                });
-            })
-            ->orderByDesc('id');
+        $jobsQuery = Job::query();
 
-        $jobs = $jobsQuery->paginate(10)->withQueryString();
+        // show only active
+        if (Schema::hasColumn('jobs', 'status')) {
+            $jobsQuery->where('status', 'active');
+        }
 
-        $appliedJobIds = JobApplication::where('alumni_user_id', Auth::id())
+        // show only approved (college review)
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $jobsQuery->where('approval_status', 'approved');
+        }
+
+        if ($q !== '') {
+            $jobsQuery->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%{$q}%")
+                    ->orWhere('company_name', 'like', "%{$q}%")
+                    ->orWhere('location', 'like', "%{$q}%")
+                    ->orWhere('type', 'like', "%{$q}%");
+            });
+        }
+
+        if (Schema::hasColumn('jobs', 'is_featured')) {
+            $jobsQuery->orderByDesc('is_featured');
+        }
+
+        $jobs = $jobsQuery->orderByDesc('id')->paginate(10)->withQueryString();
+
+        $userId = Auth::id();
+
+        $appliedJobIds = JobApplication::where('alumni_user_id', $userId)
             ->pluck('job_id')
             ->toArray();
 
-        $savedJobIds = SavedJob::where('alumni_user_id', Auth::id())
+        $savedJobIds = SavedJob::where('alumni_user_id', $userId)
             ->pluck('job_id')
             ->toArray();
-
 
         return view('alumni.jobs', compact('jobs', 'q', 'appliedJobIds', 'savedJobIds'));
     }
 
+    // ✅ تفاصيل الوظيفة
+    public function show(Job $job)
+    {
+        // must be active
+        if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
+            abort(404);
+        }
+
+        // must be approved
+        if (Schema::hasColumn('jobs', 'approval_status') && ($job->approval_status ?? 'approved') !== 'approved') {
+            abort(404);
+        }
+
+        $userId = Auth::id();
+
+        $isApplied = JobApplication::where('alumni_user_id', $userId)
+            ->where('job_id', $job->id)
+            ->exists();
+
+        $isSaved = SavedJob::where('alumni_user_id', $userId)
+            ->where('job_id', $job->id)
+            ->exists();
+
+        return view('alumni.job-details', compact('job', 'isApplied', 'isSaved'));
+    }
+
     public function toggleSave(Job $job)
     {
-    $userId = Auth::id();
+        $userId = Auth::id();
 
-    $exists = SavedJob::where('job_id', $job->id)
-        ->where('alumni_user_id', $userId)
-        ->exists();
+        if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
+            return back()->with('toast_success', 'This job is not available.');
+        }
 
-    if ($exists) {
-        SavedJob::where('job_id', $job->id)
+        if (Schema::hasColumn('jobs', 'approval_status') && ($job->approval_status ?? 'approved') !== 'approved') {
+            return back()->with('toast_success', 'This job is not approved yet.');
+        }
+
+        $exists = SavedJob::where('job_id', $job->id)
             ->where('alumni_user_id', $userId)
-            ->delete();
+            ->exists();
 
-        return back()->with('toast_success', 'Removed from saved jobs.');
+        if ($exists) {
+            SavedJob::where('job_id', $job->id)
+                ->where('alumni_user_id', $userId)
+                ->delete();
+
+            return back()->with('toast_success', 'Removed from saved jobs.');
+        }
+
+        SavedJob::create([
+            'job_id' => $job->id,
+            'alumni_user_id' => $userId,
+        ]);
+
+        return back()->with('toast_success', 'Saved job successfully.');
     }
-
-    SavedJob::create([
-        'job_id' => $job->id,
-        'alumni_user_id' => $userId,
-    ]);
-
-    return back()->with('toast_success', 'Saved job successfully.');
-    }
-
 
     public function apply(Job $job)
     {
-
-    if ($job->status !== 'active') {
+        if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
             return back()->with('toast_success', 'This job is not available.');
+        }
+
+        if (Schema::hasColumn('jobs', 'approval_status') && ($job->approval_status ?? 'approved') !== 'approved') {
+            return back()->with('toast_success', 'This job is not approved yet.');
         }
 
         JobApplication::updateOrCreate(
             ['job_id' => $job->id, 'alumni_user_id' => Auth::id()],
-            ['status' => 'pending', 'applied_date' => now()->format('M d, Y')]
+            [
+                'status' => 'pending',
+                'applied_date' => now()->format('M d, Y'),
+            ]
         );
 
         return back()->with('toast_success', 'Successfully applied!');
