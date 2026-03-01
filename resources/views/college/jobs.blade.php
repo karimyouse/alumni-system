@@ -1,8 +1,9 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Jobs';
-  $role  = 'College';
+  $title='Jobs';
+  $role='College';
+
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
     ['label'=>'Alumni','href'=>'/college/alumni','icon'=>'users'],
@@ -14,75 +15,142 @@
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
 
-  $jobs = [
-    ['id'=>'1','title'=>'Frontend Developer','company'=>'TechCorp','location'=>'Gaza','type'=>'Full-time','status'=>'pending','posted'=>'Dec 20, 2025','applicants'=>12],
-    ['id'=>'2','title'=>'Software Engineer','company'=>'StartupX','location'=>'Remote','type'=>'Full-time','status'=>'approved','posted'=>'Dec 18, 2025','applicants'=>25],
-    ['id'=>'3','title'=>'UI/UX Designer','company'=>'DesignHub','location'=>'Ramallah','type'=>'Part-time','status'=>'approved','posted'=>'Dec 15, 2025','applicants'=>8],
-    ['id'=>'4','title'=>'Data Analyst','company'=>'DataCo','location'=>'Gaza','type'=>'Full-time','status'=>'rejected','posted'=>'Dec 10, 2025','applicants'=>0],
-  ];
+  $pill = fn($s) => match($s){
+    'approved' => ['Approved','bg-green-500/15 text-green-400'],
+    'pending' => ['Pending','bg-orange-500/15 text-orange-400'],
+    'rejected' => ['Rejected','bg-red-500/15 text-red-400'],
+    default => [ucfirst($s ?? '—'),'bg-secondary text-secondary-foreground'],
+  };
 @endphp
 
 @section('content')
 <div class="space-y-6">
+
   <div>
-    <h1 class="text-2xl font-bold">Jobs</h1>
-    <p class="text-muted-foreground">Review and manage job postings from companies</p>
+    <h1 class="text-2xl font-bold">Jobs Review</h1>
+    <p class="text-sm text-muted-foreground">Approve or reject company job posts</p>
   </div>
 
-  <div class="grid gap-4">
-    @foreach($jobs as $j)
-      <div class="rounded-xl border border-border bg-card" data-testid="card-job-{{ $j['id'] }}">
-        <div class="p-6">
-          <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <i data-lucide="building-2" class="h-6 w-6 text-primary"></i>
-            </div>
+  {{-- Tabs --}}
+  <div class="flex flex-wrap gap-2">
+    @php
+      $tabs = [
+        ['key'=>'all','label'=>'All','count'=>$counts['all'] ?? 0],
+        ['key'=>'approved','label'=>'Approved','count'=>$counts['approved'] ?? 0],
+        ['key'=>'pending','label'=>'Pending','count'=>$counts['pending'] ?? 0],
+        ['key'=>'rejected','label'=>'Rejected','count'=>$counts['rejected'] ?? 0],
+      ];
+    @endphp
 
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <h3 class="text-lg font-semibold">{{ $j['title'] }}</h3>
-
-                @if($j['status']==='pending')
-                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-1 text-xs">
-                    <i data-lucide="clock" class="h-3 w-3 mr-1"></i> Pending Review
-                  </span>
-                @elseif($j['status']==='approved')
-                  <span class="inline-flex items-center rounded-full bg-green-600/20 text-green-400 px-2 py-1 text-xs">
-                    <i data-lucide="check-circle" class="h-3 w-3 mr-1"></i> Approved
-                  </span>
-                @else
-                  <span class="inline-flex items-center rounded-full bg-red-500/15 text-red-400 px-2 py-1 text-xs">
-                    <i data-lucide="x-circle" class="h-3 w-3 mr-1"></i> Rejected
-                  </span>
-                @endif
-              </div>
-
-              <p class="text-muted-foreground">{{ $j['company'] }}</p>
-
-              <div class="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                <span class="flex items-center gap-1"><i data-lucide="map-pin" class="h-4 w-4"></i>{{ $j['location'] }}</span>
-                <span class="flex items-center gap-1"><i data-lucide="briefcase" class="h-4 w-4"></i>{{ $j['type'] }}</span>
-                <span class="flex items-center gap-1"><i data-lucide="calendar" class="h-4 w-4"></i>Posted {{ $j['posted'] }}</span>
-                <span class="flex items-center gap-1"><i data-lucide="users" class="h-4 w-4"></i>{{ $j['applicants'] }} applicants</span>
-              </div>
-            </div>
-
-            <div class="flex gap-2">
-              @if($j['status']==='pending')
-                <button class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50"
-                        data-testid="button-reject-{{ $j['id'] }}">Reject</button>
-                <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90"
-                        data-testid="button-approve-{{ $j['id'] }}">Approve</button>
-              @else
-                <button class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50"
-                        data-testid="button-view-{{ $j['id'] }}">View Details</button>
-              @endif
-            </div>
-
-          </div>
-        </div>
-      </div>
+    @foreach($tabs as $t)
+      <a href="{{ route('college.jobs', ['status'=>$t['key'], 'q'=>$q]) }}"
+         class="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm
+         {{ ($status ?? 'all')===$t['key'] ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground' }}">
+        {{ $t['label'] }}
+        <span class="text-xs rounded-full bg-secondary px-2 py-0.5 text-secondary-foreground">{{ $t['count'] }}</span>
+      </a>
     @endforeach
   </div>
+
+  {{-- Search --}}
+  <form method="GET" action="{{ route('college.jobs') }}" class="rounded-xl border border-border bg-card p-5">
+    <input type="hidden" name="status" value="{{ $status ?? 'all' }}">
+    <div class="flex flex-col md:flex-row gap-3 md:items-center">
+      <div class="flex-1">
+        <input name="q" value="{{ $q }}"
+               class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
+               placeholder="Search by title, company, location">
+      </div>
+      <div class="flex gap-2">
+        <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+          Search
+        </button>
+        <a href="{{ route('college.jobs', ['status'=>$status ?? 'all']) }}"
+           class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+          Reset
+        </a>
+      </div>
+    </div>
+  </form>
+
+  {{-- Table --}}
+  <div class="rounded-xl border border-border bg-card overflow-hidden">
+    <div class="overflow-auto">
+      <table class="w-full">
+        <thead class="border-b bg-muted/40">
+          <tr>
+            <th class="text-left p-4 font-medium">Job</th>
+            <th class="text-left p-4 font-medium">Company</th>
+            <th class="text-left p-4 font-medium">Location</th>
+            <th class="text-left p-4 font-medium">Status</th>
+            <th class="text-left p-4 font-medium">Featured</th>
+            <th class="text-left p-4 font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($jobs as $j)
+            @php
+              [$stLabel,$stClass] = $pill($j->approval_status ?? 'approved');
+            @endphp
+            <tr class="border-b last:border-0">
+              <td class="p-4">
+                <div class="font-semibold">{{ $j->title }}</div>
+                <div class="text-xs text-muted-foreground">{{ $j->type ?? '—' }} • {{ $j->salary ?? '—' }}</div>
+              </td>
+              <td class="p-4 text-sm text-muted-foreground">{{ $j->company_name ?? '—' }}</td>
+              <td class="p-4 text-sm text-muted-foreground">{{ $j->location ?? '—' }}</td>
+              <td class="p-4">
+                <span class="text-xs rounded-full px-2 py-1 {{ $stClass }}">{{ $stLabel }}</span>
+                @if($j->approval_status === 'rejected' && $j->reject_reason)
+                  <div class="text-[11px] text-muted-foreground mt-1">Reason: {{ $j->reject_reason }}</div>
+                @endif
+              </td>
+              <td class="p-4">
+                <form method="POST" action="{{ route('college.jobs.feature', $j) }}">
+                  @csrf
+                  <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
+                    {{ $j->is_featured ? 'Yes' : 'No' }}
+                  </button>
+                </form>
+              </td>
+              <td class="p-4">
+                <div class="flex flex-col gap-2">
+                  @if(($j->approval_status ?? 'approved') !== 'approved')
+                    <form method="POST" action="{{ route('college.jobs.approve', $j) }}">
+                      @csrf
+                      <button class="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90">
+                        Approve
+                      </button>
+                    </form>
+                  @endif
+
+                  @if(($j->approval_status ?? 'approved') !== 'rejected')
+                    <form method="POST" action="{{ route('college.jobs.reject', $j) }}" class="space-y-2">
+                      @csrf
+                      <input name="reject_reason"
+                             class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
+                             placeholder="Reject reason (optional)">
+                      <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
+                        Reject
+                      </button>
+                    </form>
+                  @endif
+                </div>
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td class="p-6 text-sm text-muted-foreground" colspan="6">No jobs found.</td>
+            </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    {{ $jobs->links() }}
+  </div>
+
 </div>
 @endsection

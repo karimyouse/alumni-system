@@ -14,7 +14,7 @@ class WorkshopsController extends Controller
     private function computeWorkshopState($w): string
     {
         if (Schema::hasColumn('workshops', 'status') && !empty($w->status)) {
-            return strtolower($w->status); // upcoming/completed
+            return strtolower($w->status);
         }
         return 'upcoming';
     }
@@ -36,10 +36,10 @@ class WorkshopsController extends Controller
 
         $workshops = Workshop::query()
             ->where(function ($q) use ($companyId) {
-                // ورش الشركة
+                // company workshops
                 $q->where('company_user_id', $companyId);
 
-                // ورش عامة (من الكلية/النظام) شرط تكون approved إذا العمود موجود
+                // public workshops
                 $q->orWhere(function ($qq) {
                     $qq->whereNull('company_user_id');
 
@@ -68,7 +68,6 @@ class WorkshopsController extends Controller
                     'state_class' => $pill[1],
                     'registrations' => $this->registrationsCount($w->id),
                     'owned' => (int)($w->company_user_id ?? 0) === (int)Auth::id(),
-                    'capacity' => Schema::hasColumn('workshops', 'capacity') ? ($w->capacity ?? null) : null,
                 ];
             });
 
@@ -83,47 +82,55 @@ class WorkshopsController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'date' => ['required', 'string', 'max:255'],
-            'time' => ['required', 'string', 'max:255'],
-            'location' => ['required', 'string', 'max:255'],
-            'capacity' => ['nullable', 'integer', 'min:1'],
+            'title'    => ['required','string','max:255'],
+            'date'     => ['required','string','max:255'],
+            'time'     => ['required','string','max:255'],
+            'location' => ['required','string','max:255'],
+            'capacity' => ['nullable','integer','min:1'], // optional
         ]);
 
+        $cap = $data['capacity'] ?? null; // null => unlimited
+
         $attrs = [
-            'title' => $data['title'],
-            'company_user_id' => Auth::id(),
+            'title'          => $data['title'],
+            'company_user_id'=> Auth::id(),
         ];
 
-        // proposal_status (إذا موجود)
+        // ✅ Organizer fields for new rows (no more NULL for new company workshops)
+        if (Schema::hasColumn('workshops', 'organizer_user_id')) $attrs['organizer_user_id'] = Auth::id();
+        if (Schema::hasColumn('workshops', 'organizer_role'))    $attrs['organizer_role'] = 'company';
+
+        // proposal_status
         if (Schema::hasColumn('workshops', 'proposal_status')) {
-            // حاليا approved مباشرة، لاحقاً ممكن نخليها pending وتحتاج موافقة كلية/أدمن
-            $attrs['proposal_status'] = 'approved';
+            $attrs['proposal_status'] = 'approved'; // keep as you have now
         }
 
-        // الأعمدة الأساسية
-        if (Schema::hasColumn('workshops', 'date')) $attrs['date'] = $data['date'];
-        if (Schema::hasColumn('workshops', 'time')) $attrs['time'] = $data['time'];
+        // main columns
+        if (Schema::hasColumn('workshops', 'date'))     $attrs['date'] = $data['date'];
+        if (Schema::hasColumn('workshops', 'time'))     $attrs['time'] = $data['time'];
         if (Schema::hasColumn('workshops', 'location')) $attrs['location'] = $data['location'];
 
-        // capacity (إذا موجود) — null = unlimited
-        if (Schema::hasColumn('workshops', 'capacity')) {
-            $attrs['capacity'] = $data['capacity'] ?? null;
-        }
+        if (Schema::hasColumn('workshops', 'status')) $attrs['status'] = 'upcoming';
 
-        // status (إذا موجود)
-        if (Schema::hasColumn('workshops', 'status')) {
-            $attrs['status'] = 'upcoming';
+        // capacity compatibility
+        if (Schema::hasColumn('workshops', 'capacity')) {
+            $attrs['capacity'] = $cap;
+        }
+        if (Schema::hasColumn('workshops', 'max_spots')) {
+            $attrs['max_spots'] = $cap ? (int)$cap : 0; // 0 => unlimited
+        }
+        if (Schema::hasColumn('workshops', 'spots')) {
+            $attrs['spots'] = $cap ? (int)$cap : 0; // 0 => unlimited
         }
 
         Workshop::create($attrs);
 
-        return redirect()->route('company.workshops')->with('toast_success', 'Workshop proposed successfully.');
+        return redirect()->route('company.workshops')
+            ->with('toast_success', 'Workshop proposed successfully.');
     }
 
     public function manage(Workshop $workshop)
     {
-        // السماح: لو الورشة عامة أو تابعة للشركة
         if (!is_null($workshop->company_user_id) && (int)$workshop->company_user_id !== (int)Auth::id()) {
             abort(403);
         }
@@ -132,7 +139,6 @@ class WorkshopsController extends Controller
             ->where('workshop_id', $workshop->id)
             ->orderByDesc('id');
 
-        // ✅ اعرض المسجلين فقط (بدون cancelled)
         if (Schema::hasColumn('workshop_registrations', 'status')) {
             $regs->where('status', 'registered');
         }

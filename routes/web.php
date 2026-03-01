@@ -23,6 +23,18 @@ use App\Http\Controllers\Company\ApplicationsController as CompanyApplicationsCo
 use App\Http\Controllers\Company\AlumniBrowseController;
 use App\Http\Controllers\Company\WorkshopsController as CompanyWorkshopsController;
 
+// College
+
+use App\Http\Controllers\College\DashboardController as CollegeDashboardController;
+use App\Http\Controllers\College\AlumniController as CollegeAlumniController;
+use App\Http\Controllers\College\WorkshopsController as CollegeWorkshopsController;
+use App\Http\Controllers\College\ScholarshipsController as CollegeScholarshipsController;
+use App\Http\Controllers\College\AnnouncementsController as CollegeAnnouncementsController;
+use App\Http\Controllers\College\SuccessStoriesController as CollegeSuccessStoriesController;
+use App\Http\Controllers\College\ReportsController as CollegeReportsController;
+use App\Http\Controllers\College\JobsController as CollegeJobsController;
+
+
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\CompanyApprovalsController;
@@ -97,14 +109,48 @@ Route::prefix('alumni')->middleware(['auth', 'role:alumni'])->group(function () 
  * =========================
  */
 Route::prefix('college')->middleware(['auth', 'role:college'])->group(function () {
-    Route::view('/', 'college.index')->name('college.dashboard');
-    Route::view('/alumni', 'college.alumni-management')->name('college.alumni');
-    Route::view('/workshops', 'college.workshops')->name('college.workshops');
-    Route::view('/jobs', 'college.jobs')->name('college.jobs');
-    Route::view('/announcements', 'college.announcements')->name('college.announcements');
-    Route::view('/scholarships', 'college.scholarships')->name('college.scholarships');
-    Route::view('/success-stories', 'college.success-stories')->name('college.successStories');
-    Route::view('/reports', 'college.reports')->name('college.reports');
+
+    // Dashboard
+    Route::get('/', [CollegeDashboardController::class, 'index'])->name('college.dashboard');
+
+    // Alumni management
+    Route::get('/alumni', [CollegeAlumniController::class, 'index'])->name('college.alumni');
+    Route::get('/alumni/{alumnus}', [CollegeAlumniController::class, 'show'])->name('college.alumni.show');
+
+    // Workshops CRUD
+    Route::get('/workshops', [CollegeWorkshopsController::class, 'index'])->name('college.workshops');
+    Route::get('/workshops/create', [CollegeWorkshopsController::class, 'create'])->name('college.workshops.create');
+    Route::post('/workshops', [CollegeWorkshopsController::class, 'store'])->name('college.workshops.store');
+    Route::get('/workshops/{workshop}/manage', [CollegeWorkshopsController::class, 'manage'])->name('college.workshops.manage');
+    Route::post('/workshops/{workshop}/delete', [CollegeWorkshopsController::class, 'destroy'])->name('college.workshops.delete');
+
+    // jobs
+    Route::get('/jobs', [CollegeJobsController::class, 'index'])->name('college.jobs');
+    Route::post('/jobs/{job}/approve', [CollegeJobsController::class, 'approve'])->name('college.jobs.approve');
+    Route::post('/jobs/{job}/reject', [CollegeJobsController::class, 'reject'])->name('college.jobs.reject');
+    Route::post('/jobs/{job}/feature', [CollegeJobsController::class, 'toggleFeatured'])->name('college.jobs.feature');
+    
+    // Scholarships CRUD
+    Route::get('/scholarships', [CollegeScholarshipsController::class, 'index'])->name('college.scholarships');
+    Route::get('/scholarships/create', [CollegeScholarshipsController::class, 'create'])->name('college.scholarships.create');
+    Route::post('/scholarships', [CollegeScholarshipsController::class, 'store'])->name('college.scholarships.store');
+    Route::get('/scholarships/{scholarship}', [CollegeScholarshipsController::class, 'show'])->name('college.scholarships.show');
+    Route::post('/scholarships/{scholarship}/delete', [CollegeScholarshipsController::class, 'destroy'])->name('college.scholarships.delete');
+
+    // Announcements
+    Route::get('/announcements', [CollegeAnnouncementsController::class, 'index'])->name('college.announcements');
+    Route::get('/announcements/create', [CollegeAnnouncementsController::class, 'create'])->name('college.announcements.create');
+    Route::post('/announcements', [CollegeAnnouncementsController::class, 'store'])->name('college.announcements.store');
+    Route::post('/announcements/{announcement}/toggle', [CollegeAnnouncementsController::class, 'toggle'])->name('college.announcements.toggle');
+
+    // Success Stories
+    Route::get('/success-stories', [CollegeSuccessStoriesController::class, 'index'])->name('college.successStories');
+    Route::get('/success-stories/create', [CollegeSuccessStoriesController::class, 'create'])->name('college.successStories.create');
+    Route::post('/success-stories', [CollegeSuccessStoriesController::class, 'store'])->name('college.successStories.store');
+    Route::post('/success-stories/{story}/toggle', [CollegeSuccessStoriesController::class, 'toggle'])->name('college.successStories.toggle');
+
+    // Reports
+    Route::get('/reports', [CollegeReportsController::class, 'index'])->name('college.reports');
 });
 
 /**
