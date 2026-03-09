@@ -3,95 +3,177 @@
 namespace App\Http\Controllers\Alumni;
 
 use App\Http\Controllers\Controller;
+use App\Models\AlumniProfile;
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\Recommendation;
+use App\Models\User;
 use App\Models\Workshop;
 use App\Models\WorkshopRegistration;
-use App\Models\LeaderboardEntry;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = (int) $user->id;
 
-        // Cards (dynamic for any user)
-        $profileViews = 48; // (Optional later: profile_views table)
+        $profile = AlumniProfile::where('user_id', $userId)->first();
+
+        $profileCompletion = $this->calculateProfileCompletion($user, $profile);
+
+        $profileViews = 0;
+        if ($profile && Schema::hasColumn('alumni_profiles', 'profile_views')) {
+            $profileViews = (int) ($profile->profile_views ?? 0);
+        }
+
         $jobApplicationsCount = JobApplication::where('alumni_user_id', $userId)->count();
         $workshopsCount = WorkshopRegistration::where('alumni_user_id', $userId)->count();
+        $recommendationsReceived = Recommendation::where('to_user_id', $userId)->count();
 
-        // Ensure leaderboard entry exists for ANY alumni user
-        $myEntry = LeaderboardEntry::firstOrCreate(
-            ['alumni_user_id' => $userId, 'period' => 'monthly'],
-            ['rank' => 0, 'points' => 0, 'activities' => 0, 'trend' => '+0']
-        );
+        $leaderboardData = $this->buildLeaderboardData();
 
-        // My rank (computed)
-        $all = LeaderboardEntry::where('period', 'monthly')
-            ->orderByDesc('points')
-            ->orderByDesc('activities')
-            ->orderBy('id')
-            ->get(['alumni_user_id']);
+        $myLeaderboard = $leaderboardData->firstWhere('user_id', $userId);
+        $leaderboardRank = $myLeaderboard['rank'] ?? null;
+        $leaderboardPoints = $myLeaderboard['points'] ?? 0;
+        $leaderboardActivities = $myLeaderboard['activities'] ?? 0;
 
-        $pos = $all->search(fn($e) => (int)$e->alumni_user_id === (int)$userId);
-        $leaderboardRank = ($pos !== false) ? $pos + 1 : null;
+        $jobsQuery = Job::query()->orderByDesc('id');
 
-        $leaderboardPoints = (int)($myEntry->points ?? 0);
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $jobsQuery->where('approval_status', 'approved');
+        }
 
-        // Latest jobs (dynamic)
-        $recentJobs = Job::where('status', 'active')
-            ->orderByDesc('id')
-            ->take(3)
-            ->get();
+        if (Schema::hasColumn('jobs', 'status')) {
+            $jobsQuery->where('status', 'active');
+        }
 
-        // Upcoming workshops (dynamic)
-        $upcomingWorkshops = Workshop::orderByDesc('id')
-            ->take(2)
-            ->get();
+        $jobBadgeCount = (clone $jobsQuery)->count();
 
-        // Top 3 leaderboard (dynamic)
-        $topLeaderboard = LeaderboardEntry::with('alumni')
-            ->where('period', 'monthly')
-            ->orderByDesc('points')
-            ->orderByDesc('activities')
-            ->orderBy('id')
-            ->take(3)
-            ->get()
-            ->values()
-            ->map(function ($e, $idx) {
-                $name = $e->alumni?->name ?? 'Alumni';
-                $avatar = collect(explode(' ', $name))
-                    ->filter()
-                    ->map(fn($n)=>mb_substr($n, 0, 1))
-                    ->join('');
+        $recentJobs = $jobsQuery->take(3)->get()->map(function ($job) {
+            $job->posted_text = $job->created_at ? $job->created_at->diffForHumans() : ($job->posted ?? 'Recently');
+            return $job;
+        });
+
+        $workshopsQuery = Workshop::query()->orderByDesc('id');
+
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            $workshopsQuery->where('proposal_status', 'approved');
+        }
+
+        if (Schema::hasColumn('workshops', 'status')) {
+            $workshopsQuery->where('status', 'upcoming');
+        }
+
+        $workshopBadgeCount = (clone $workshopsQuery)->count();
+        $upcomingWorkshops = $workshopsQuery->take(2)->get();
+
+        $topLeaderboard = $leaderboardData->take(3)->map(function ($item) {
+            return [
+                'rank' => $item['rank'],
+                'name' => $item['name'],
+                'points' => $item['points'],
+                'avatar' => $item['initials'],
+            ];
+        })->values();
+
+        $notifications = collect($user->unreadNotifications()->latest()->take(3)->get())
+            ->map(function ($notification) {
+                $data = is_array($notification->data) ? $notification->data : [];
 
                 return [
-                    'rank' => $idx + 1,
-                    'name' => $name,
-                    'points' => (int)$e->points,
-                    'avatar' => $avatar ?: 'A',
+                    'message' => $data['message'] ?? $data['title'] ?? 'New update available',
+                    'time' => $notification->created_at?->diffForHumans() ?? 'Recently',
                 ];
-            });
+            })
+            ->values()
+            ->all();
 
-        // Notifications (temporary until you create notifications table)
-        $notifications = [
-            ['message' => 'New job opportunity matches your profile', 'time' => '1 hour ago'],
-            ['message' => 'Workshop registration deadline tomorrow',  'time' => '3 hours ago'],
-            ['message' => 'You received a new recommendation',        'time' => '1 day ago'],
-        ];
+        if (empty($notifications)) {
+            $notifications = [
+                ['message' => 'No new notifications yet.', 'time' => ''],
+            ];
+        }
 
         return view('alumni.index', [
-            'userName' => Auth::user()?->name ?? 'Alumni',
+            'userName' => $user->name ?? 'Alumni',
             'profileViews' => $profileViews,
+            'profileCompletion' => $profileCompletion,
             'jobApplicationsCount' => $jobApplicationsCount,
             'workshopsCount' => $workshopsCount,
             'leaderboardPoints' => $leaderboardPoints,
             'leaderboardRank' => $leaderboardRank,
+            'leaderboardActivities' => $leaderboardActivities,
             'recentJobs' => $recentJobs,
             'upcomingWorkshops' => $upcomingWorkshops,
             'notifications' => $notifications,
             'topLeaderboard' => $topLeaderboard,
+            'jobBadgeCount' => $jobBadgeCount,
+            'workshopBadgeCount' => $workshopBadgeCount,
+            'recommendationsReceived' => $recommendationsReceived,
         ]);
+    }
+
+    private function buildLeaderboardData()
+    {
+        return User::query()
+            ->where('role', 'alumni')
+            ->get()
+            ->map(function ($user) {
+                $applicationsCount = JobApplication::where('alumni_user_id', $user->id)->count();
+                $workshopsCount = WorkshopRegistration::where('alumni_user_id', $user->id)->count();
+                $givenRecommendations = Recommendation::where('from_user_id', $user->id)->count();
+                $receivedRecommendations = Recommendation::where('to_user_id', $user->id)->count();
+
+                $activities = $applicationsCount + $workshopsCount + $givenRecommendations + $receivedRecommendations;
+
+                $points =
+                    ($applicationsCount * 20) +
+                    ($workshopsCount * 30) +
+                    ($givenRecommendations * 10) +
+                    ($receivedRecommendations * 15);
+
+                $name = $user->name ?? 'Alumni';
+                $initials = collect(explode(' ', $name))
+                    ->filter()
+                    ->map(fn ($part) => mb_substr($part, 0, 1))
+                    ->join('');
+
+                return [
+                    'user_id' => (int) $user->id,
+                    'name' => $name,
+                    'initials' => $initials ?: 'A',
+                    'points' => $points,
+                    'activities' => $activities,
+                ];
+            })
+            ->sortByDesc('points')
+            ->values()
+            ->map(function ($item, $index) {
+                $item['rank'] = $index + 1;
+                return $item;
+            });
+    }
+
+    private function calculateProfileCompletion($user, ?AlumniProfile $profile): int
+    {
+        $checks = [
+            !empty($user?->name),
+            !empty($user?->email),
+            !empty($user?->academic_id),
+            !empty($profile?->phone),
+            !empty($profile?->location),
+            !empty($profile?->major),
+            !empty($profile?->graduation_year),
+            !empty($profile?->bio),
+            !empty($profile?->skills),
+            !empty($profile?->linkedin),
+            !empty($profile?->portfolio),
+        ];
+
+        $completed = collect($checks)->filter()->count();
+        return (int) round(($completed / count($checks)) * 100);
     }
 }

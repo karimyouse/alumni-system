@@ -14,21 +14,59 @@ class RecommendationsController extends Controller
     {
         $userId = Auth::id();
 
-        $received = Recommendation::where('to_user_id', $userId)
+        $received = Recommendation::query()
+            ->where('to_user_id', $userId)
             ->orderByDesc('id')
-            ->get();
+            ->get()
+            ->map(function ($r) {
+                $name = $r->from_name ?: 'Alumni';
+                $initials = collect(explode(' ', $name))
+                    ->filter()
+                    ->map(fn ($part) => mb_substr($part, 0, 1))
+                    ->join('');
 
-        $given = Recommendation::where('from_user_id', $userId)
+                return (object) [
+                    'id' => $r->id,
+                    'name' => $name,
+                    'initials' => $initials ?: 'A',
+                    'role_title' => $r->role_title,
+                    'content' => $r->content,
+                    'date' => $r->date ?: optional($r->created_at)->format('M d, Y'),
+                ];
+            });
+
+        $given = Recommendation::query()
+            ->where('from_user_id', $userId)
             ->orderByDesc('id')
-            ->get();
+            ->get()
+            ->map(function ($r) {
+                $name = $r->to_name ?: 'Alumni';
+                $initials = collect(explode(' ', $name))
+                    ->filter()
+                    ->map(fn ($part) => mb_substr($part, 0, 1))
+                    ->join('');
 
-        // Dropdown alumni list (excluding current)
-        $alumniList = User::where('role', 'alumni')
+                return (object) [
+                    'id' => $r->id,
+                    'name' => $name,
+                    'initials' => $initials ?: 'A',
+                    'role_title' => $r->role_title,
+                    'content' => $r->content,
+                    'date' => $r->date ?: optional($r->created_at)->format('M d, Y'),
+                ];
+            });
+
+        $alumniList = User::query()
+            ->where('role', 'alumni')
             ->where('id', '!=', $userId)
             ->orderBy('name')
             ->get(['id', 'name', 'academic_id', 'email']);
 
-        return view('alumni.recommendations', compact('received', 'given', 'alumniList'));
+        return view('alumni.recommendations', [
+            'received' => $received,
+            'given' => $given,
+            'alumniList' => $alumniList,
+        ]);
     }
 
     public function store(Request $request)
@@ -38,19 +76,22 @@ class RecommendationsController extends Controller
         $data = $request->validate([
             'to_user_id' => ['required', 'integer', 'exists:users,id'],
             'role_title' => ['required', 'string', 'max:255'],
-            'content'    => ['required', 'string', 'max:2000'],
+            'content' => ['required', 'string', 'max:2000'],
         ]);
 
-        $toUser = User::where('role', 'alumni')->findOrFail($data['to_user_id']);
+        $toUser = User::query()
+            ->where('role', 'alumni')
+            ->where('id', '!=', $user->id)
+            ->findOrFail($data['to_user_id']);
 
         Recommendation::create([
             'from_user_id' => $user->id,
-            'to_user_id'   => $toUser->id,
-            'from_name'    => $user->name,
-            'to_name'      => $toUser->name,
-            'role_title'   => $data['role_title'],
-            'content'      => $data['content'],
-            'date'         => now()->format('M d, Y'),
+            'to_user_id' => $toUser->id,
+            'from_name' => $user->name,
+            'to_name' => $toUser->name,
+            'role_title' => $data['role_title'],
+            'content' => $data['content'],
+            'date' => now()->format('M d, Y'),
         ]);
 
         return back()->with('toast_success', 'Recommendation sent successfully!');
@@ -58,8 +99,7 @@ class RecommendationsController extends Controller
 
     public function destroy(Recommendation $recommendation)
     {
-        // Only delete your own "given" recommendation
-        if ($recommendation->from_user_id !== Auth::id()) {
+        if ((int) $recommendation->from_user_id !== (int) Auth::id()) {
             abort(403);
         }
 

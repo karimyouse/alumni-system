@@ -1,12 +1,15 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Post a Job';
+  $title = $isEdit ? 'Edit Job' : 'Post New Job';
   $role='Company';
 
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],
-    ['label'=>'Jobs','href'=>'/company/jobs','icon'=>'briefcase'],
+    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase'],
+    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users'],
+    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text'],
+    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days'],
   ];
 @endphp
 
@@ -15,8 +18,10 @@
 
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-bold">Post a Job</h1>
-      <p class="text-sm text-muted-foreground">Create a job post visible to alumni</p>
+      <h1 class="text-2xl font-bold">{{ $isEdit ? 'Edit Job' : 'Post New Job' }}</h1>
+      <p class="text-sm text-muted-foreground">
+        {{ $isEdit ? 'Update your job posting details' : 'Create a job post visible to alumni' }}
+      </p>
     </div>
 
     <a href="{{ route('company.jobs') }}"
@@ -37,19 +42,24 @@
   @endif
 
   <div class="rounded-xl border border-border bg-card p-6">
-    <form method="POST" action="{{ route('company.jobs.store') }}" class="space-y-4">
+    <form method="POST"
+          action="{{ $isEdit ? route('company.jobs.update', $job) : route('company.jobs.store') }}"
+          class="space-y-4">
       @csrf
 
       <div class="space-y-2">
         <label class="text-sm font-medium">Job Title *</label>
-        <input name="title" value="{{ old('title') }}"
+        <input name="title"
+               value="{{ old('title', $job->title ?? '') }}"
                class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
-               placeholder="Frontend Developer" required>
+               placeholder="Frontend Developer"
+               required>
       </div>
 
       <div class="space-y-2">
         <label class="text-sm font-medium">Company Name *</label>
-        <input name="company_name" value="{{ old('company_name', $companyName ?? '') }}"
+        <input name="company_name"
+               value="{{ old('company_name', $job->company_name ?? ($companyName ?? '')) }}"
                class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
                required>
       </div>
@@ -57,14 +67,16 @@
       <div class="grid md:grid-cols-2 gap-4">
         <div class="space-y-2">
           <label class="text-sm font-medium">Location</label>
-          <input name="location" value="{{ old('location') }}"
+          <input name="location"
+                 value="{{ old('location', $job->location ?? '') }}"
                  class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
                  placeholder="Gaza / Remote">
         </div>
 
         <div class="space-y-2">
           <label class="text-sm font-medium">Type</label>
-          <input name="type" value="{{ old('type') }}"
+          <input name="type"
+                 value="{{ old('type', $job->type ?? '') }}"
                  class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
                  placeholder="Full-time / Part-time">
         </div>
@@ -72,20 +84,21 @@
 
       <div class="space-y-2">
         <label class="text-sm font-medium">Salary</label>
-        <input name="salary" value="{{ old('salary') }}"
+        <input name="salary"
+               value="{{ old('salary', $job->salary ?? '') }}"
                class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
-               placeholder="$1500 - $2500">
+               placeholder="$800-$1200">
       </div>
 
       <div class="space-y-2">
         <label class="text-sm font-medium">Description</label>
         <textarea name="description" rows="5"
                   class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
-                  placeholder="Job responsibilities, requirements...">{{ old('description') }}</textarea>
+                  placeholder="Job responsibilities, requirements...">{{ old('description', $job->description ?? '') }}</textarea>
       </div>
 
       <button class="rounded-md bg-primary px-5 py-2 text-sm text-primary-foreground hover:opacity-90">
-        Publish Job
+        {{ $isEdit ? 'Save Changes' : 'Publish Job' }}
       </button>
     </form>
   </div>

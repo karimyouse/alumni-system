@@ -6,7 +6,10 @@
 
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],
-    ['label'=>'Jobs','href'=>'/company/jobs','icon'=>'briefcase'],
+    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase'],
+    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users'],
+    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text'],
+    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days'],
   ];
 
   $statusPill = fn($s) => match($s){
@@ -14,23 +17,32 @@
     'reviewed' => ['Under Review','bg-blue-500/15 text-blue-400'],
     'accepted' => ['Accepted','bg-green-500/15 text-green-400'],
     'rejected' => ['Rejected','bg-red-500/15 text-red-400'],
-    default => [ucfirst($s),'bg-secondary text-secondary-foreground'],
+    default => [ucfirst((string)$s),'bg-secondary text-secondary-foreground'],
   };
 @endphp
 
 @section('content')
 <div class="space-y-6">
 
-  <div class="flex items-start justify-between gap-4">
+  <div class="flex items-start justify-between gap-4 flex-wrap">
     <div>
       <h1 class="text-2xl font-bold">{{ $job->title }}</h1>
-      <p class="text-sm text-muted-foreground">{{ $job->company_name }} • {{ $job->location ?? '-' }} • {{ $job->type ?? '-' }}</p>
+      <p class="text-sm text-muted-foreground">
+        {{ $job->company_name }} • {{ $job->location ?: '—' }} • {{ $job->type ?: '—' }}
+      </p>
     </div>
 
-    <a href="{{ route('company.jobs') }}"
-       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-      Back
-    </a>
+    <div class="flex items-center gap-2">
+      <a href="{{ route('company.jobs.edit', $job) }}"
+         class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+        Edit Job
+      </a>
+
+      <a href="{{ route('company.jobs') }}"
+         class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+        Back
+      </a>
+    </div>
   </div>
 
   <div class="rounded-xl border border-border bg-card overflow-hidden">

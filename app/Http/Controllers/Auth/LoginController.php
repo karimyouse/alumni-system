@@ -30,9 +30,9 @@ class LoginController extends Controller
         // Identify field based on role
         $field = ($role === 'alumni') ? 'academic_id' : 'email';
 
-        // Find user by role (Admin accepts admin OR super_admin)
         $userQuery = User::query()->where($field, $identifier);
 
+        // Admin accepts admin OR super_admin
         if ($role === 'admin') {
             $userQuery->whereIn('role', ['admin', 'super_admin']);
         } else {
@@ -41,16 +41,34 @@ class LoginController extends Controller
 
         $user = $userQuery->first();
 
+        // ❌ Invalid credentials
         if (!$user || !Hash::check($password, $user->password)) {
             return back()
-                ->withErrors(['identifier' => 'Invalid credentials.'])
+                ->withErrors(['identifier' => 'Invalid credentials. Please check your details and try again.'])
+                ->with('login_blocked', 'invalid')
                 ->withInput($request->only('role', 'identifier'));
         }
 
+        // 🚫 Suspended user
+        if ((bool)($user->is_suspended ?? false) === true) {
+            return back()
+                ->withErrors([
+                    'identifier' => 'Your account has been suspended by the system administrator. Please contact support to request reactivation.'
+                ])
+                ->with('login_blocked', 'suspended')
+                ->withInput($request->only('role', 'identifier'));
+        }
+
+        // ✅ Login
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->intended($this->redirectPath($user->role));
+        // Track last login time (safe)
+        $user->forceFill(['last_login_at' => now()])->save();
+
+        return redirect()
+            ->intended($this->redirectPath($user->role))
+            ->with('toast_success', 'Successfully logged in!');
     }
 
     private function redirectPath(string $role): string

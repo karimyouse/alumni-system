@@ -7,12 +7,12 @@
   $nav = [
     ['label'=>'Overview','href'=>'/alumni','icon'=>'layout-dashboard'],
     ['label'=>'My Profile','href'=>'/alumni/profile','icon'=>'user'],
-    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase','badge'=>12],
-    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days','badge'=>3],
+    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
     ['label'=>'Scholarships','href'=>'/alumni/scholarships','icon'=>'graduation-cap'],
-    ['label'=>'Recommendations','href'=>'/alumni/recommendations','icon'=>'message-square'],
+    ['label'=>'Recommendations','href'=>'/alumni/recommendations','icon'=>'message-square','badge'=>$recommendationsReceived ?? 0],
     ['label'=>'Leaderboard','href'=>'/alumni/leaderboard','icon'=>'trophy'],
-    ['label'=>'My Applications','href'=>'/alumni/applications','icon'=>'file-text'],
+    ['label'=>'My Applications','href'=>'/alumni/applications','icon'=>'file-text','badge'=>$jobApplicationsCount ?? 0],
   ];
 @endphp
 
@@ -23,7 +23,9 @@
     <div class="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <h2 class="text-2xl font-bold mb-1">Welcome, {{ $userName }}!</h2>
-        <p class="text-muted-foreground">Your profile is 75% complete. Add more details to stand out to employers.</p>
+        <p class="text-muted-foreground">
+          Your profile is {{ $profileCompletion ?? 0 }}% complete. Add more details to stand out to employers.
+        </p>
       </div>
 
       <a href="/alumni/profile">
@@ -35,7 +37,6 @@
     </div>
   </div>
 
-  {{-- Cards --}}
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
     <div class="rounded-xl border border-border bg-card p-5">
@@ -43,10 +44,9 @@
         <div class="text-sm text-muted-foreground">Profile Views</div>
         <i data-lucide="user" class="h-4 w-4 text-muted-foreground"></i>
       </div>
-      <div class="text-3xl font-bold mt-3">{{ $profileViews }}</div>
-      <div class="mt-1 text-xs text-muted-foreground flex items-center gap-2">
-        <span>This month</span>
-        <span class="text-green-500">▲ 12%</span>
+      <div class="text-3xl font-bold mt-3">{{ number_format($profileViews ?? 0) }}</div>
+      <div class="mt-1 text-xs text-muted-foreground">
+        {{ ($profileViews ?? 0) > 0 ? 'Tracked profile views' : 'No tracking data yet' }}
       </div>
     </div>
 
@@ -55,8 +55,8 @@
         <div class="text-sm text-muted-foreground">Job Applications</div>
         <i data-lucide="briefcase" class="h-4 w-4 text-muted-foreground"></i>
       </div>
-      <div class="text-3xl font-bold mt-2">{{ $jobApplicationsCount }}</div>
-      <div class="mt-1 text-xs text-muted-foreground">Active applications</div>
+      <div class="text-3xl font-bold mt-2">{{ number_format($jobApplicationsCount ?? 0) }}</div>
+      <div class="mt-1 text-xs text-muted-foreground">Applications submitted</div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
@@ -64,8 +64,8 @@
         <div class="text-sm text-muted-foreground">Workshops Attended</div>
         <i data-lucide="calendar-days" class="h-4 w-4 text-muted-foreground"></i>
       </div>
-      <div class="text-3xl font-bold mt-2">{{ $workshopsCount }}</div>
-      <div class="mt-1 text-xs text-muted-foreground">This year</div>
+      <div class="text-3xl font-bold mt-2">{{ number_format($workshopsCount ?? 0) }}</div>
+      <div class="mt-1 text-xs text-muted-foreground">Registered workshops</div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
@@ -73,10 +73,9 @@
         <div class="text-sm text-muted-foreground">Leaderboard Points</div>
         <i data-lucide="trophy" class="h-4 w-4 text-muted-foreground"></i>
       </div>
-      <div class="text-3xl font-bold mt-3">{{ $leaderboardPoints }}</div>
-      <div class="mt-1 text-xs text-muted-foreground flex items-center gap-2">
-        <span>Rank #{{ $leaderboardRank ?? '-' }}</span>
-        <span class="text-green-500">▲ 5%</span>
+      <div class="text-3xl font-bold mt-3">{{ number_format($leaderboardPoints ?? 0) }}</div>
+      <div class="mt-1 text-xs text-muted-foreground">
+        Rank #{{ $leaderboardRank ?? '-' }} • {{ $leaderboardActivities ?? 0 }} activities
       </div>
     </div>
 
@@ -84,7 +83,6 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    {{-- Jobs --}}
     <div class="lg:col-span-2 rounded-xl border border-border bg-card">
       <div class="p-6 flex items-start justify-between gap-2 border-b border-border">
         <div>
@@ -117,7 +115,7 @@
                 </span>
                 <span class="text-xs text-muted-foreground inline-flex items-center">
                   <i data-lucide="clock" class="h-3 w-3 mr-1"></i>
-                  {{ $job->posted ?? '-' }}
+                  {{ $job->posted_text ?? '-' }}
                 </span>
               </div>
             </div>
@@ -132,17 +130,15 @@
       </div>
     </div>
 
-    {{-- Right --}}
     <div class="space-y-6">
 
-      {{-- Notifications --}}
       <div class="rounded-xl border border-border bg-card">
         <div class="p-6 flex items-center justify-between gap-2 border-b border-border">
           <div class="text-lg font-semibold inline-flex items-center gap-2">
             <i data-lucide="bell" class="h-4 w-4"></i> Notifications
           </div>
           <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs">
-            {{ count($notifications) }}
+            {{ count($notifications ?? []) }}
           </span>
         </div>
 
@@ -152,14 +148,15 @@
               <div class="w-2 h-2 rounded-full bg-primary mt-2"></div>
               <div class="flex-1">
                 <p class="text-sm">{{ $n['message'] }}</p>
-                <p class="text-xs text-muted-foreground">{{ $n['time'] }}</p>
+                @if(!empty($n['time']))
+                  <p class="text-xs text-muted-foreground">{{ $n['time'] }}</p>
+                @endif
               </div>
             </div>
           @endforeach
         </div>
       </div>
 
-      {{-- Workshops --}}
       <div class="rounded-xl border border-border bg-card">
         <div class="p-6 border-b border-border">
           <div class="text-lg font-semibold inline-flex items-center gap-2">
@@ -181,7 +178,6 @@
         </div>
       </div>
 
-      {{-- Leaderboard top 3 --}}
       <div class="rounded-xl border border-border bg-card">
         <div class="p-6 flex items-center justify-between gap-2 border-b border-border">
           <div class="text-lg font-semibold inline-flex items-center gap-2">
@@ -202,7 +198,7 @@
               <div class="flex-1">
                 <p class="text-sm font-medium">{{ $entry['name'] }}</p>
               </div>
-              <span class="text-sm font-semibold text-primary">{{ $entry['points'] }}</span>
+              <span class="text-sm font-semibold text-primary">{{ number_format($entry['points']) }}</span>
             </div>
           @empty
             <div class="text-sm text-muted-foreground">No leaderboard data yet.</div>

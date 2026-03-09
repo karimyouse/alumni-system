@@ -6,9 +6,9 @@
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Alumni','href'=>'/college/alumni','icon'=>'users'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
     ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Jobs','href'=>'/college/jobs','icon'=>'briefcase'],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
     ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
     ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
     ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
@@ -26,7 +26,6 @@
     </div>
   </div>
 
-  {{-- Search --}}
   <form method="GET" action="{{ route('college.alumni') }}" class="rounded-xl border border-border bg-card p-5">
     <div class="flex flex-col md:flex-row gap-3 md:items-center">
       <div class="flex-1">
@@ -46,7 +45,6 @@
     </div>
   </form>
 
-  {{-- Grid cards (matches your style) --}}
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
     @forelse($alumni as $a)
       @php

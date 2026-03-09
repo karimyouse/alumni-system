@@ -6,6 +6,9 @@
   "nav.logout": "Logout",
   "nav.dashboard": "Dashboard",
 
+  "lang.english": "English",
+  "lang.arabic": "العربية",
+
   "home.hero.title": "Alumni Tracking System",
   "home.hero.subtitle": "Connecting Graduates, Institutions & Employers",
   "home.hero.description": "A comprehensive platform to register, monitor, and connect graduates with institutions and employers for career growth and professional development.",

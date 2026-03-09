@@ -6,9 +6,12 @@
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Alumni','href'=>'/college/alumni','icon'=>'users'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
     ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
+    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
     ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
+    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
 

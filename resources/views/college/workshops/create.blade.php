@@ -1,14 +1,14 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Add Workshop';
+  $title = $isEdit ? 'Edit Workshop' : 'Add Workshop';
   $role  = 'College';
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Alumni','href'=>'/college/alumni','icon'=>'users'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
     ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Jobs','href'=>'/college/jobs','icon'=>'briefcase'],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
     ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
     ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
     ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
@@ -17,70 +17,88 @@
 @endphp
 
 @section('content')
-<div class="space-y-6 max-w-3xl">
-  <div class="flex items-center justify-between">
+<div class="space-y-6 max-w-4xl">
+
+  <div class="flex items-start justify-between gap-4 flex-wrap">
     <div>
-      <h1 class="text-2xl font-bold">Add Workshop</h1>
-      <p class="text-sm text-muted-foreground">Create a new workshop for alumni</p>
+      <h1 class="text-2xl font-bold">{{ $isEdit ? 'Edit Workshop' : 'Add Workshop' }}</h1>
+      <p class="text-sm text-muted-foreground">
+        {{ $isEdit ? 'Update workshop details and settings' : 'Create a new workshop for alumni' }}
+      </p>
     </div>
 
-
-
+    <a href="{{ route('college.workshops') }}"
+       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
+      Back
+    </a>
   </div>
 
   <div class="rounded-xl border border-border bg-card p-6">
-    <form method="POST" action="{{ route('college.workshops.store') }}" class="space-y-4">
+    <form method="POST"
+          action="{{ $isEdit ? route('college.workshops.update', $workshop) : route('college.workshops.store') }}"
+          class="space-y-5">
       @csrf
 
       <div>
-        <label class="text-xs font-medium">Title <span class="text-destructive">*</span></label>
-        <input name="title" value="{{ old('title') }}" required
-               class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        <label class="text-sm font-medium">Title <span class="text-destructive">*</span></label>
+        <input name="title"
+               value="{{ old('title', $workshop->title ?? '') }}"
+               required
+               class="mt-2 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                placeholder="Career Development Workshop">
         @error('title') <div class="text-xs text-destructive mt-1">{{ $message }}</div> @enderror
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="text-xs font-medium">Date <span class="text-destructive">*</span></label>
-          <input name="date" value="{{ old('date') }}" required
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                 placeholder="Feb 15, 2026">
+          <label class="text-sm font-medium">Date <span class="text-destructive">*</span></label>
+          <input name="date"
+                 value="{{ old('date', $workshop->date ?? '') }}"
+                 required
+                 class="mt-2 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                 placeholder="Jan 28, 2026">
           @error('date') <div class="text-xs text-destructive mt-1">{{ $message }}</div> @enderror
         </div>
 
         <div>
-          <label class="text-xs font-medium">Time <span class="text-destructive">*</span></label>
-          <input name="time" value="{{ old('time') }}" required
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                 placeholder="10:00 AM - 2:00 PM">
+          <label class="text-sm font-medium">Time <span class="text-destructive">*</span></label>
+          <input name="time"
+                 value="{{ old('time', $workshop->time ?? '') }}"
+                 required
+                 class="mt-2 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                 placeholder="2:00 PM - 4:00 PM">
           @error('time') <div class="text-xs text-destructive mt-1">{{ $message }}</div> @enderror
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="text-xs font-medium">Location <span class="text-destructive">*</span></label>
-          <input name="location" value="{{ old('location') }}" required
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                 placeholder="Main Campus, Hall A">
+          <label class="text-sm font-medium">Location <span class="text-destructive">*</span></label>
+          <input name="location"
+                 value="{{ old('location', $workshop->location ?? '') }}"
+                 required
+                 class="mt-2 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                 placeholder="Main Campus / Online / Hall A">
           @error('location') <div class="text-xs text-destructive mt-1">{{ $message }}</div> @enderror
         </div>
 
         <div>
-          <label class="text-xs font-medium">Capacity (optional)</label>
-          <input name="capacity" value="{{ old('capacity') }}"
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                 placeholder="45">
+          <label class="text-sm font-medium">Capacity (optional)</label>
+          <input name="capacity"
+                 value="{{ old('capacity', $workshop->capacity ?? ($workshop->max_spots ?? '')) }}"
+                 class="mt-2 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                 placeholder="50">
           <div class="text-xs text-muted-foreground mt-1">Leave empty for unlimited seats.</div>
           @error('capacity') <div class="text-xs text-destructive mt-1">{{ $message }}</div> @enderror
         </div>
       </div>
 
-      <button type="submit"
-              class="w-full rounded-md bg-primary px-4 py-2 text-primary-foreground font-medium hover:opacity-90 transition">
-        Create Workshop
-      </button>
+      <div class="pt-2">
+        <button type="submit"
+                class="rounded-md bg-primary px-5 py-2.5 text-sm text-primary-foreground hover:opacity-90 transition">
+          {{ $isEdit ? 'Save Changes' : 'Create Workshop' }}
+        </button>
+      </div>
     </form>
   </div>
 </div>

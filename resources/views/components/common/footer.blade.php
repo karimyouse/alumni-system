@@ -1,4 +1,7 @@
-@php $year = date('Y'); @endphp
+@php
+  $year = date('Y');
+  $institutionName = $appSettings->institution_name ?? 'Palestine Technical College';
+@endphp
 
 <footer id="contact" class="bg-card border-t">
   <div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
@@ -20,9 +23,9 @@
       <div>
         <h4 class="font-semibold mb-4">Quick Links</h4>
         <ul class="space-y-2 text-sm text-muted-foreground">
-          <li><a href="/" class="hover:text-foreground transition-colors">{{ __('nav.home') }}</a></li>
-          <li><a href="/#about" class="hover:text-foreground transition-colors">{{ __('nav.about') }}</a></li>
-          <li><a href="/login" class="hover:text-foreground transition-colors">{{ __('nav.login') }}</a></li>
+          <li><a href="{{ route('home') }}" class="hover:text-foreground transition-colors">{{ __('nav.home') }}</a></li>
+          <li><a href="{{ route('home') }}#about" class="hover:text-foreground transition-colors">{{ __('nav.about') }}</a></li>
+          <li><a href="{{ route('login') }}" class="hover:text-foreground transition-colors">{{ __('nav.login') }}</a></li>
           <li><a href="#" class="hover:text-foreground transition-colors">{{ __('footer.privacy') }}</a></li>
           <li><a href="#" class="hover:text-foreground transition-colors">{{ __('footer.terms') }}</a></li>
         </ul>
@@ -37,11 +40,11 @@
           </li>
           <li class="flex items-center gap-2">
             <i data-lucide="phone" class="h-4 w-4"></i>
-            +970 8 123 4567
+            +970 598656034
           </li>
           <li class="flex items-start gap-2">
             <i data-lucide="map-pin" class="h-4 w-4 mt-0.5"></i>
-            <span>Palestine Technical College<br />Gaza, Palestine</span>
+            <span>{{ $institutionName }}<br />Gaza, Palestine</span>
           </li>
         </ul>
       </div>
@@ -52,7 +55,7 @@
         &copy; {{ $year }} Alumni Tracking System. {{ __('footer.rights') }}.
       </p>
       <p class="text-sm text-muted-foreground">
-        Palestine Technical College
+        {{ $institutionName }}
       </p>
     </div>
   </div>

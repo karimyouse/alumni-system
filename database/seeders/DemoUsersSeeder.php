@@ -13,10 +13,10 @@ class DemoUsersSeeder extends Seeder
         User::updateOrCreate(
             ['academic_id' => '2141091038'],
             [
-                'name' => 'Demo Alumni',
-                'email' => 'alumni@ptc.edu',
+                'name' => 'Karim Shafiq Yousef',
+                'email' => 'karim15062000@gmail.com',
                 'role' => 'alumni',
-                'password' => Hash::make('demo123'),
+                'password' => Hash::make('karim@2000'),
             ]
         );
 
@@ -32,15 +32,6 @@ class DemoUsersSeeder extends Seeder
 );
 
 
-        User::updateOrCreate(
-    ['academic_id' => '2141091051'],
-    [
-        'name' => 'Ali Yousef',
-        'email' => 'ali@gmail.com',
-        'role' => 'alumni',
-        'password' => Hash::make('ali@123'),
-    ]
-);
 
      User::updateOrCreate(
     ['academic_id' => '2141091010'],

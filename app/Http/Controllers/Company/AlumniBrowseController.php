@@ -11,51 +11,142 @@ class AlumniBrowseController extends Controller
 {
     public function index(Request $request)
     {
-        $q = trim((string)$request->query('q', ''));
-        $major = trim((string)$request->query('major', ''));
-        $location = trim((string)$request->query('location', ''));
-        $skill = trim((string)$request->query('skill', ''));
+        $search = trim((string) $request->query('search', ''));
+        $major = trim((string) $request->query('major', ''));
+        $location = trim((string) $request->query('location', ''));
+        $skill = trim((string) $request->query('skill', ''));
 
         $query = User::query()
             ->where('role', 'alumni')
-            ->with('alumniProfile');
+            ->with('alumniProfile')
+            ->orderByDesc('id');
 
-        if ($q !== '') {
-            $query->where(function ($x) use ($q) {
-                $x->where('name', 'like', "%{$q}%")
-                  ->orWhere('email', 'like', "%{$q}%")
-                  ->orWhere('academic_id', 'like', "%{$q}%");
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('academic_id', 'like', "%{$search}%");
             });
         }
 
         if ($major !== '') {
-            $query->whereHas('alumniProfile', fn($p) => $p->where('major', 'like', "%{$major}%"));
+            $query->whereHas('alumniProfile', function ($q) use ($major) {
+                $q->where('major', $major);
+            });
         }
 
         if ($location !== '') {
-            $query->whereHas('alumniProfile', fn($p) => $p->where('location', 'like', "%{$location}%"));
+            $query->whereHas('alumniProfile', function ($q) use ($location) {
+                $q->where('location', $location);
+            });
         }
 
         if ($skill !== '') {
-            // skills stored comma-separated in alumni_profiles.skills
-            $query->whereHas('alumniProfile', fn($p) => $p->where('skills', 'like', "%{$skill}%"));
+            $query->whereHas('alumniProfile', function ($q) use ($skill) {
+                $q->where('skills', 'like', "%{$skill}%");
+            });
         }
 
-        $alumni = $query->orderBy('name')->paginate(10)->withQueryString();
+        $alumni = $query->paginate(12)->withQueryString();
 
-        // simple filter options (from DB)
-        $majors = AlumniProfile::query()->whereNotNull('major')->where('major','!=','')->distinct()->pluck('major')->sort()->values();
-        $locations = AlumniProfile::query()->whereNotNull('location')->where('location','!=','')->distinct()->pluck('location')->sort()->values();
+        $alumni->getCollection()->transform(function ($user) {
+            $profile = $user->alumniProfile;
 
-        return view('company.alumni-browse', compact('alumni', 'q', 'major', 'location', 'skill', 'majors', 'locations'));
+            $skills = collect(explode(',', (string) ($profile->skills ?? '')))
+                ->map(fn ($s) => trim($s))
+                ->filter()
+                ->values();
+
+            $initials = collect(explode(' ', (string) $user->name))
+                ->filter()
+                ->map(fn ($part) => mb_substr($part, 0, 1))
+                ->join('') ?: 'A';
+
+            $status = $this->resolveAvailabilityStatus($profile);
+
+            $user->display_initials = $initials;
+            $user->display_major_year = trim((string) ($profile->major ?? '—')) . ' (' . trim((string) ($profile->graduation_year ?? '—')) . ')';
+            $user->display_location = $profile->location ?: '—';
+            $user->display_skills = $skills->take(4)->values();
+            $user->display_status_label = $status['label'];
+            $user->display_status_class = $status['class'];
+
+            return $user;
+        });
+
+        $majors = AlumniProfile::query()
+            ->whereNotNull('major')
+            ->where('major', '!=', '')
+            ->distinct()
+            ->orderBy('major')
+            ->pluck('major')
+            ->values();
+
+        $locations = AlumniProfile::query()
+            ->whereNotNull('location')
+            ->where('location', '!=', '')
+            ->distinct()
+            ->orderBy('location')
+            ->pluck('location')
+            ->values();
+
+        return view('company.alumni-browse', [
+            'alumni' => $alumni,
+            'search' => $search,
+            'major' => $major,
+            'location' => $location,
+            'skill' => $skill,
+            'majors' => $majors,
+            'locations' => $locations,
+        ]);
     }
 
     public function show(User $alumnus)
     {
-        if ($alumnus->role !== 'alumni') abort(404);
+        abort_unless($alumnus->role === 'alumni', 404);
 
         $alumnus->load('alumniProfile');
+        $profile = $alumnus->alumniProfile;
 
-        return view('company.alumni-show', compact('alumnus'));
+        $skills = collect(explode(',', (string) ($profile->skills ?? '')))
+            ->map(fn ($s) => trim($s))
+            ->filter()
+            ->values();
+
+        $initials = collect(explode(' ', (string) $alumnus->name))
+            ->filter()
+            ->map(fn ($part) => mb_substr($part, 0, 1))
+            ->join('') ?: 'A';
+
+        $status = $this->resolveAvailabilityStatus($profile);
+
+        return view('company.alumni-show', [
+            'alumnus' => $alumnus,
+            'profile' => $profile,
+            'skills' => $skills,
+            'initials' => $initials,
+            'statusLabel' => $status['label'],
+            'statusClass' => $status['class'],
+        ]);
+    }
+
+    private function resolveAvailabilityStatus(?AlumniProfile $profile): array
+    {
+        $employment = strtolower(trim((string) ($profile->employment_status ?? '')));
+
+        return match ($employment) {
+            'employed' => [
+                'label' => 'Employed',
+                'class' => 'bg-secondary text-secondary-foreground',
+            ],
+            'available', 'unemployed', 'seeking' => [
+                'label' => 'Available',
+                'class' => 'bg-green-500/10 text-green-400',
+            ],
+            default => [
+                'label' => 'Available',
+                'class' => 'bg-green-500/10 text-green-400',
+            ],
+        };
     }
 }

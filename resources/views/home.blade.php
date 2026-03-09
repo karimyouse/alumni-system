@@ -1,11 +1,75 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+  $institutionName = $appSettings->institution_name ?? 'Palestine Technical College';
+
+  $stats = [
+    ['value' => number_format((int)($homeStats['alumni'] ?? 0)) . '+', 'label' => __('home.stats.alumni')],
+    ['value' => number_format((int)($homeStats['jobs'] ?? 0)) . '+', 'label' => __('home.stats.jobs')],
+    ['value' => number_format((int)($homeStats['workshops'] ?? 0)) . '+', 'label' => __('home.stats.workshops')],
+    ['value' => number_format((int)($homeStats['companies'] ?? 0)) . '+', 'label' => __('home.stats.companies')],
+  ];
+
+  $whyMatters = [
+    [
+      'icon' => 'target',
+      'title' => 'The Problem',
+      'description' => 'No centralized system for tracking alumni progress, career development, or engagement after graduation.',
+    ],
+    [
+      'icon' => 'handshake',
+      'title' => 'Our Solution',
+      'description' => 'A unified platform connecting colleges, alumni, and employers in one integrated ecosystem.',
+    ],
+    [
+      'icon' => 'trending-up',
+      'title' => 'The Impact',
+      'description' => 'Strengthened relationships, better career opportunities, and measurable institutional outcomes.',
+    ],
+  ];
+
+  $portals = [
+    [
+      'icon' => 'graduation-cap',
+      'title' => __('home.portals.alumni.title'),
+      'description' => __('home.portals.alumni.description'),
+      'color' => 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    ],
+    [
+      'icon' => 'building-2',
+      'title' => __('home.portals.college.title'),
+      'description' => __('home.portals.college.description'),
+      'color' => 'bg-green-500/10 text-green-600 dark:text-green-400',
+    ],
+    [
+      'icon' => 'briefcase',
+      'title' => __('home.portals.company.title'),
+      'description' => __('home.portals.company.description'),
+      'color' => 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+    ],
+    [
+      'icon' => 'shield-check',
+      'title' => __('home.portals.admin.title'),
+      'description' => __('home.portals.admin.description'),
+      'color' => 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+    ],
+  ];
+
+  $features = [
+    ['icon' => 'users', 'title' => __('home.features.profiles'), 'desc' => __('home.features.profiles.desc')],
+    ['icon' => 'briefcase', 'title' => __('home.features.jobs'), 'desc' => __('home.features.jobs.desc')],
+    ['icon' => 'calendar-days', 'title' => __('home.features.workshops'), 'desc' => __('home.features.workshops.desc')],
+    ['icon' => 'bell', 'title' => __('home.features.notifications'), 'desc' => __('home.features.notifications.desc')],
+    ['icon' => 'trophy', 'title' => __('home.features.leaderboard'), 'desc' => __('home.features.leaderboard.desc')],
+    ['icon' => 'user-plus', 'title' => __('home.features.recommendations'), 'desc' => __('home.features.recommendations.desc')],
+  ];
+@endphp
+
 <div class="min-h-screen flex flex-col">
   <x-common.header />
 
   <main class="flex-1">
-
     <section class="relative min-h-[70vh] flex items-center justify-center overflow-hidden" data-testid="section-hero">
       <div class="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-accent/20"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent"></div>
@@ -14,7 +78,7 @@
       <div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 text-center py-20">
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
           <i data-lucide="graduation-cap" class="h-4 w-4"></i>
-          Palestine Technical College
+          {{ $institutionName }}
         </div>
 
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6" data-testid="text-hero-title">
@@ -30,7 +94,7 @@
         </p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="/login">
+          <a href="{{ route('login') }}">
             <x-ui.button size="lg" class="gap-2" data-testid="button-hero-login">
               {{ __('home.hero.login') }}
               <i data-lucide="arrow-right" class="h-4 w-4"></i>
@@ -46,7 +110,6 @@
       </div>
     </section>
 
-
     <section id="about" class="py-20 bg-card" data-testid="section-about">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="text-center mb-12">
@@ -57,26 +120,6 @@
             {{ __('home.about.description') }}
           </p>
         </div>
-
-        @php
-          $whyMatters = [
-            [
-              'icon' => 'target',
-              'title' => 'The Problem',
-              'description' => 'No centralized system for tracking alumni progress, career development, or engagement after graduation.',
-            ],
-            [
-              'icon' => 'handshake',
-              'title' => 'Our Solution',
-              'description' => 'A unified platform connecting colleges, alumni, and employers in one integrated ecosystem.',
-            ],
-            [
-              'icon' => 'trending-up',
-              'title' => 'The Impact',
-              'description' => 'Strengthened relationships, better career opportunities, and measurable institutional outcomes.',
-            ],
-          ];
-        @endphp
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           @foreach($whyMatters as $item)
@@ -96,7 +139,6 @@
       </div>
     </section>
 
-
     <section class="py-20" data-testid="section-portals">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="text-center mb-12">
@@ -107,35 +149,6 @@
             {{ __('home.portals.subtitle') }}
           </p>
         </div>
-
-        @php
-          $portals = [
-            [
-              'icon' => 'graduation-cap',
-              'title' => __('home.portals.alumni.title'),
-              'description' => __('home.portals.alumni.description'),
-              'color' => 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-            ],
-            [
-              'icon' => 'building-2',
-              'title' => __('home.portals.college.title'),
-              'description' => __('home.portals.college.description'),
-              'color' => 'bg-green-500/10 text-green-600 dark:text-green-400',
-            ],
-            [
-              'icon' => 'briefcase',
-              'title' => __('home.portals.company.title'),
-              'description' => __('home.portals.company.description'),
-              'color' => 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-            ],
-            [
-              'icon' => 'shield-check',
-              'title' => __('home.portals.admin.title'),
-              'description' => __('home.portals.admin.description'),
-              'color' => 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
-            ],
-          ];
-        @endphp
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           @foreach($portals as $portal)
@@ -155,7 +168,6 @@
       </div>
     </section>
 
-
     <section class="py-20 bg-card" data-testid="section-features">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="text-center mb-12">
@@ -163,17 +175,6 @@
             {{ __('home.features.title') }}
           </h2>
         </div>
-
-        @php
-          $features = [
-            ['icon' => 'users', 'title' => __('home.features.profiles'), 'desc' => __('home.features.profiles.desc')],
-            ['icon' => 'briefcase', 'title' => __('home.features.jobs'), 'desc' => __('home.features.jobs.desc')],
-            ['icon' => 'calendar-days', 'title' => __('home.features.workshops'), 'desc' => __('home.features.workshops.desc')],
-            ['icon' => 'bell', 'title' => __('home.features.notifications'), 'desc' => __('home.features.notifications.desc')],
-            ['icon' => 'trophy', 'title' => __('home.features.leaderboard'), 'desc' => __('home.features.leaderboard.desc')],
-            ['icon' => 'user-plus', 'title' => __('home.features.recommendations'), 'desc' => __('home.features.recommendations.desc')],
-          ];
-        @endphp
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           @foreach($features as $feature)
@@ -191,18 +192,8 @@
       </div>
     </section>
 
-
     <section class="py-16 bg-primary text-primary-foreground" data-testid="section-stats">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
-        @php
-          $stats = [
-            ['value' => '2,500+', 'label' => __('home.stats.alumni')],
-            ['value' => '150+', 'label' => __('home.stats.jobs')],
-            ['value' => '80+', 'label' => __('home.stats.workshops')],
-            ['value' => '45+', 'label' => __('home.stats.companies')],
-          ];
-        @endphp
-
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
           @foreach($stats as $i => $stat)
             <div class="text-center">
@@ -216,7 +207,6 @@
       </div>
     </section>
 
-    
     <section class="py-20" data-testid="section-cta">
       <div class="max-w-4xl mx-auto px-4 md:px-6 text-center">
         <h2 class="text-3xl md:text-4xl font-bold mb-4">
@@ -225,7 +215,7 @@
         <p class="text-lg text-muted-foreground mb-8">
           {{ __('home.cta.description') }}
         </p>
-        <a href="/login">
+        <a href="{{ route('login') }}">
           <x-ui.button size="lg" class="gap-2" data-testid="button-cta-login">
             {{ __('home.hero.login') }}
             <i data-lucide="arrow-right" class="h-4 w-4"></i>

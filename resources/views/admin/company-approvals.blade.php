@@ -88,7 +88,7 @@
                              class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
                              placeholder="Reject reason (optional)" />
                       <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
-                        Reject (keep in DB)
+                        Reject
                       </button>
                     </form>
                   @endif

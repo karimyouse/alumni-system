@@ -6,9 +6,9 @@
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Alumni','href'=>'/college/alumni','icon'=>'users'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
     ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Jobs','href'=>'/college/jobs','icon'=>'briefcase'],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
     ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
     ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
     ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
@@ -16,23 +16,7 @@
   ];
 
   $userName = auth()->user()->name ?? 'College';
-
-  // ✅ بيانات من Controller
-  $totalAlumni = $totalAlumni ?? 0;
-  $employmentRate = $employmentRate ?? 0;
-  $activeJobPosts = $activeJobPosts ?? 0;
-  $upcomingCount = $upcomingCount ?? 0;
-
-  $recentAlumni = $recentAlumni ?? collect();
-  $upcomingEvents = $upcomingEvents ?? collect();
-
-  // ✅ fallback مؤقت للتصميم (لحد ما نعمل departments table)
-  $departmentStats = $departmentStats ?? [
-    ['name'=>'Computer Science','alumni'=>0,'employed'=>0],
-    ['name'=>'Information Technology','alumni'=>0,'employed'=>0],
-    ['name'=>'Web Development','alumni'=>0,'employed'=>0],
-    ['name'=>'Networking','alumni'=>0,'employed'=>0],
-  ];
+  $departmentStats = $departmentStats ?? [];
 @endphp
 
 @section('content')
@@ -55,7 +39,6 @@
           Add Workshop
         </a>
 
-        {{-- حاليا Jobs للكلية placeholder عندك --}}
         <a href="/college/jobs"
            class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 transition inline-flex items-center"
            data-testid="button-post-job">
@@ -74,7 +57,6 @@
       </div>
       <div class="text-3xl font-bold mt-3">{{ number_format($totalAlumni) }}</div>
       <div class="text-xs text-muted-foreground mt-1">Registered graduates</div>
-      <div class="text-xs text-green-500 mt-1">▲</div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
@@ -84,7 +66,6 @@
       </div>
       <div class="text-3xl font-bold mt-3">{{ $employmentRate }}%</div>
       <div class="text-xs text-muted-foreground mt-1">Of registered alumni</div>
-      <div class="text-xs text-green-500 mt-1">▲</div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
@@ -92,8 +73,10 @@
         <div class="text-sm text-muted-foreground">Active Job Posts</div>
         <i data-lucide="briefcase" class="h-4 w-4 text-muted-foreground"></i>
       </div>
-      <div class="text-3xl font-bold mt-3">{{ $activeJobPosts }}</div>
-      <div class="text-xs text-muted-foreground mt-1">From partner companies</div>
+      <div class="text-3xl font-bold mt-3">{{ number_format($activeJobPosts) }}</div>
+      <div class="text-xs text-muted-foreground mt-1">
+        From partner companies
+      </div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
@@ -101,7 +84,7 @@
         <div class="text-sm text-muted-foreground">Upcoming Events</div>
         <i data-lucide="calendar-days" class="h-4 w-4 text-muted-foreground"></i>
       </div>
-      <div class="text-3xl font-bold mt-3">{{ $upcomingCount }}</div>
+      <div class="text-3xl font-bold mt-3">{{ number_format($upcomingCount) }}</div>
       <div class="text-xs text-muted-foreground mt-1">Upcoming workshops</div>
     </div>
   </div>
@@ -128,7 +111,7 @@
             $initials = collect(explode(' ', $a->name))->map(fn($n)=>mb_substr($n,0,1))->join('');
             $major = $a->alumniProfile?->major ?? '—';
             $year = $a->alumniProfile?->graduation_year ?? '—';
-            $status = $a->alumniProfile?->employment_status ?? '—'; // إذا عندك هذا الحقل
+            $status = $a->alumniProfile?->employment_status ?? '—';
             $employed = strtolower($status) === 'employed';
           @endphp
 
@@ -202,7 +185,7 @@
         </div>
 
         <div class="p-6 space-y-4">
-          @foreach($departmentStats as $d)
+          @forelse($departmentStats as $d)
             <div>
               <div class="flex items-center justify-between mb-1">
                 <span class="text-sm">{{ $d['name'] }}</span>
@@ -212,7 +195,9 @@
                 <div class="h-2 rounded-full bg-primary" style="width: {{ $d['employed'] }}%"></div>
               </div>
             </div>
-          @endforeach
+          @empty
+            <div class="text-sm text-muted-foreground">No department data available yet.</div>
+          @endforelse
         </div>
       </div>
 

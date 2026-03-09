@@ -1,146 +1,201 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Settings';
-  $role  = 'Admin';
+  $title = 'System Settings';
 
   $nav = [
-    ['label'=>'Overview', 'href'=>'/admin', 'icon'=>'layout-dashboard'],
-    ['label'=>'Users',    'href'=>'/admin/users', 'icon'=>'users'],
-    ['label'=>'Content',  'href'=>'/admin/content', 'icon'=>'file-text'],
-    ['label'=>'Reports',  'href'=>'/admin/reports', 'icon'=>'bar-chart-3'],
-    ['label'=>'Settings', 'href'=>'/admin/settings', 'icon'=>'settings'],
-    ['label'=>'Support',  'href'=>'/admin/support', 'icon'=>'help-circle'],
+    ['label'=>'Overview','href'=>'/admin','icon'=>'layout-dashboard'],
+    ['label'=>'User Management','href'=>'/admin/users','icon'=>'users'],
+    ['label'=>'Content Management','href'=>'/admin/content','icon'=>'file-text'],
+    ['label'=>'Reports','href'=>'/admin/reports','icon'=>'bar-chart-3'],
+    ['label'=>'System Settings','href'=>'/admin/settings','icon'=>'settings'],
+    ['label'=>'Support Center','href'=>'/admin/support','icon'=>'help-circle'],
   ];
+
+  $settings = $settings ?? (object)[
+    'institution_name' => 'Palestine Technical College',
+    'primary_color' => '#2563eb',
+    'email_new_user_notifications' => false,
+    'email_content_approval_alerts' => false,
+    'email_weekly_reports' => false,
+    'auto_backup' => true,
+    'require_2fa' => false,
+    'last_backup_at' => null,
+  ];
+
+  $lastBackupText = $settings->last_backup_at
+    ? \Carbon\Carbon::parse($settings->last_backup_at)->format('M d, Y \a\t h:i A')
+    : '—';
+
+  // helper: switch UI
+  $switch = function ($name, $checked) {
+    $isOn = old($name, $checked) ? true : false;
+    return [
+      'isOn' => $isOn,
+      'checkedAttr' => $isOn ? 'checked' : '',
+    ];
+  };
 @endphp
 
 @section('content')
-<div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-bold">Settings</h1>
-    <p class="text-muted-foreground">Configure system settings</p>
+<form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
+  @csrf
+
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">System Settings</h1>
+      <p class="text-sm text-muted-foreground">Configure system settings</p>
+    </div>
+
+    <button type="submit"
+            class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 inline-flex items-center gap-2">
+      <i data-lucide="save" class="h-4 w-4"></i>
+      Save
+    </button>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  {{-- Appearance --}}
+  <div class="rounded-xl border border-border bg-card p-6">
+    <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
+      <i data-lucide="palette" class="h-4 w-4"></i>
+      Appearance
+    </div>
+    <p class="text-sm text-muted-foreground mb-6">Customize the look and feel</p>
 
-
-    <div class="rounded-xl border border-border bg-card">
-      <div class="p-6 border-b border-border">
-        <div class="text-lg font-semibold">Appearance</div>
-        <div class="text-sm text-muted-foreground">Customize the look and feel</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <div class="text-sm font-medium">Institution Name</div>
+        <div class="text-xs text-muted-foreground mb-2">Displayed in the header</div>
+        <input name="institution_name"
+               value="{{ old('institution_name', $settings->institution_name) }}"
+               class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+        @error('institution_name') <div class="text-xs text-destructive mt-1">{{ $message }}</div> @enderror
       </div>
 
-      <div class="p-6 space-y-4">
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Institution Name</label>
-          <div class="text-xs text-muted-foreground">Displayed in the header</div>
-          <input class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm" value="Palestine Technical College" />
+      <div>
+        <div class="text-sm font-medium">Primary Color</div>
+        <div class="text-xs text-muted-foreground mb-2">Main theme color</div>
+
+        <div class="flex items-center gap-2">
+          <input name="primary_color"
+                 value="{{ old('primary_color', $settings->primary_color) }}"
+                 class="flex-1 rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+
+          <input type="color"
+                 value="{{ old('primary_color', $settings->primary_color) }}"
+                 class="h-9 w-10 rounded-md border border-border bg-transparent"
+                 oninput="document.querySelector('[name=primary_color]').value = this.value;">
         </div>
 
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Primary Color</label>
-          <div class="text-xs text-muted-foreground">Main theme color</div>
-          <input class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm" value="#0ea5e9" />
-        </div>
+        @error('primary_color') <div class="text-xs text-destructive mt-1">{{ $message }}</div> @enderror
       </div>
     </div>
-
-
-    <div class="rounded-xl border border-border bg-card">
-      <div class="p-6 border-b border-border">
-        <div class="text-lg font-semibold">Email Notifications</div>
-        <div class="text-sm text-muted-foreground">Configure email settings</div>
-      </div>
-
-      <div class="p-6 space-y-4">
-        @foreach([
-          ['New User Notifications','Email admins when new users register', true],
-          ['Content Approval Alerts','Email when content needs approval', true],
-          ['Weekly Reports','Send weekly summary emails', false],
-        ] as [$t,$d,$on])
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <div class="font-medium">{{ $t }}</div>
-              <div class="text-sm text-muted-foreground">{{ $d }}</div>
-            </div>
-
-            <label class="inline-flex items-center cursor-pointer">
-              <input type="checkbox" class="sr-only peer" {{ $on ? 'checked' : '' }}>
-              <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary relative transition">
-                <div class="w-5 h-5 bg-background rounded-full absolute top-0.5 left-0.5 peer-checked:left-5 transition"></div>
-              </div>
-            </label>
-          </div>
-        @endforeach
-      </div>
-    </div>
-
-
-    <div class="rounded-xl border border-border bg-card">
-      <div class="p-6 border-b border-border">
-        <div class="text-lg font-semibold">Data Management</div>
-        <div class="text-sm text-muted-foreground">Backup and restore options</div>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-medium">Last Backup</div>
-            <div class="text-sm text-muted-foreground">Dec 22, 2025 at 3:00 AM</div>
-          </div>
-          <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-            Backup Now
-          </button>
-        </div>
-
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <div class="font-medium">Auto Backup</div>
-            <div class="text-sm text-muted-foreground">Daily automatic backups</div>
-          </div>
-          <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer" checked>
-            <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary relative transition">
-              <div class="w-5 h-5 bg-background rounded-full absolute top-0.5 left-0.5 peer-checked:left-5 transition"></div>
-            </div>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    
-    <div class="rounded-xl border border-border bg-card">
-      <div class="p-6 border-b border-border">
-        <div class="text-lg font-semibold">Security</div>
-        <div class="text-sm text-muted-foreground">Security and access settings</div>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <div class="font-medium">Two-Factor Authentication</div>
-            <div class="text-sm text-muted-foreground">Require 2FA for admin accounts</div>
-          </div>
-          <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer">
-            <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary relative transition">
-              <div class="w-5 h-5 bg-background rounded-full absolute top-0.5 left-0.5 peer-checked:left-5 transition"></div>
-            </div>
-          </label>
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Session Timeout (minutes)</label>
-          <div class="text-sm text-muted-foreground">Auto-logout inactive users</div>
-          <input class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm" value="120" />
-        </div>
-
-        <button class="w-full rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-          Save Changes
-        </button>
-      </div>
-    </div>
-
   </div>
-</div>
+
+  {{-- Email Notifications --}}
+  <div class="rounded-xl border border-border bg-card p-6">
+    <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
+      <i data-lucide="mail" class="h-4 w-4"></i>
+      Email Notifications
+    </div>
+    <p class="text-sm text-muted-foreground mb-6">Configure email settings</p>
+
+    @php $s1 = $switch('email_new_user_notifications', (bool)$settings->email_new_user_notifications); @endphp
+    <div class="flex items-center justify-between py-4 border-t border-border">
+      <div>
+        <div class="text-sm font-medium">New User Notifications</div>
+        <div class="text-xs text-muted-foreground">Email admin when new users register</div>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" name="email_new_user_notifications" value="1" class="sr-only peer" {{ $s1['checkedAttr'] }}>
+        <span class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary transition"></span>
+        <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-background transition peer-checked:translate-x-5"></span>
+      </label>
+    </div>
+
+    @php $s2 = $switch('email_content_approval_alerts', (bool)$settings->email_content_approval_alerts); @endphp
+    <div class="flex items-center justify-between py-4 border-t border-border">
+      <div>
+        <div class="text-sm font-medium">Content Approval Alerts</div>
+        <div class="text-xs text-muted-foreground">Email when content needs approval</div>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" name="email_content_approval_alerts" value="1" class="sr-only peer" {{ $s2['checkedAttr'] }}>
+        <span class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary transition"></span>
+        <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-background transition peer-checked:translate-x-5"></span>
+      </label>
+    </div>
+
+    @php $s3 = $switch('email_weekly_reports', (bool)$settings->email_weekly_reports); @endphp
+    <div class="flex items-center justify-between py-4 border-t border-border">
+      <div>
+        <div class="text-sm font-medium">Weekly Reports</div>
+        <div class="text-xs text-muted-foreground">Send weekly summary emails</div>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" name="email_weekly_reports" value="1" class="sr-only peer" {{ $s3['checkedAttr'] }}>
+        <span class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary transition"></span>
+        <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-background transition peer-checked:translate-x-5"></span>
+      </label>
+    </div>
+  </div>
+
+  {{-- Data Management --}}
+  <div class="rounded-xl border border-border bg-card p-6">
+    <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
+      <i data-lucide="database" class="h-4 w-4"></i>
+      Data Management
+    </div>
+    <p class="text-sm text-muted-foreground mb-6">Backup and restore options</p>
+
+    <div class="flex items-center justify-between py-4 border-t border-border">
+      <div>
+        <div class="text-sm font-medium">Last Backup</div>
+        <div class="text-xs text-muted-foreground">{{ $lastBackupText }}</div>
+      </div>
+
+      <button type="submit" name="backup_now" value="1"
+              class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center gap-2">
+        <i data-lucide="hard-drive" class="h-4 w-4"></i>
+        Backup Now
+      </button>
+    </div>
+
+    @php $s4 = $switch('auto_backup', (bool)$settings->auto_backup); @endphp
+    <div class="flex items-center justify-between py-4 border-t border-border">
+      <div>
+        <div class="text-sm font-medium">Auto Backup</div>
+        <div class="text-xs text-muted-foreground">Daily automatic backups</div>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" name="auto_backup" value="1" class="sr-only peer" {{ $s4['checkedAttr'] }}>
+        <span class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary transition"></span>
+        <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-background transition peer-checked:translate-x-5"></span>
+      </label>
+    </div>
+  </div>
+
+  {{-- Security --}}
+  <div class="rounded-xl border border-border bg-card p-6">
+    <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
+      <i data-lucide="shield-check" class="h-4 w-4"></i>
+      Security
+    </div>
+    <p class="text-sm text-muted-foreground mb-6">Security and access settings</p>
+
+    @php $s5 = $switch('require_2fa', (bool)$settings->require_2fa); @endphp
+    <div class="flex items-center justify-between py-4 border-t border-border">
+      <div>
+        <div class="text-sm font-medium">Two-Factor Authentication</div>
+        <div class="text-xs text-muted-foreground">Require 2FA for admin accounts</div>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" name="require_2fa" value="1" class="sr-only peer" {{ $s5['checkedAttr'] }}>
+        <span class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary transition"></span>
+        <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-background transition peer-checked:translate-x-5"></span>
+      </label>
+    </div>
+  </div>
+
+</form>
 @endsection

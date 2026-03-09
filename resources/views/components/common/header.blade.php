@@ -1,21 +1,25 @@
 @php
+  $dashboard = route('login');
 
-  $dashboard = '/login';
-  if(auth()->check()){
+  if (auth()->check()) {
     $role = auth()->user()->role ?? null;
-    $dashboard = match($role){
+
+    $dashboard = match ($role) {
       'alumni' => '/alumni',
       'college' => '/college',
       'company' => '/company',
-      'super_admin' => '/admin',
-      default => '/login',
+      'admin', 'super_admin' => '/admin',
+      default => route('login'),
     };
   }
+
+  $isRtl = app()->getLocale() === 'ar';
+  $menuAlign = $isRtl ? 'left-0' : 'right-0';
 @endphp
 
 <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
   <div class="max-w-7xl mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
-    <a href="/" class="flex items-center gap-2">
+    <a href="{{ route('home') }}" class="flex items-center gap-2">
       <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">
         <i data-lucide="graduation-cap" class="h-6 w-6"></i>
       </div>
@@ -23,48 +27,47 @@
     </a>
 
     <nav class="hidden md:flex items-center gap-6">
-      <a href="/" class="text-sm font-medium hover:text-primary transition-colors" data-testid="link-home">
+      <a href="{{ route('home') }}" class="text-sm font-medium hover:text-primary transition-colors" data-testid="link-home">
         {{ __('nav.home') }}
       </a>
-      <a href="/#about" class="text-sm font-medium hover:text-primary transition-colors" data-testid="link-about">
+      <a href="{{ route('home') }}#about" class="text-sm font-medium hover:text-primary transition-colors" data-testid="link-about">
         {{ __('nav.about') }}
       </a>
-      <a href="/#contact" class="text-sm font-medium hover:text-primary transition-colors" data-testid="link-contact">
+      <a href="{{ route('home') }}#contact" class="text-sm font-medium hover:text-primary transition-colors" data-testid="link-contact">
         {{ __('nav.contact') }}
       </a>
     </nav>
 
     <div class="flex items-center gap-2">
 
-      <div class="relative">
-        <x-ui.button variant="ghost" size="icon" data-testid="button-language-toggle" data-lang-toggle>
+      {{-- Language --}}
+      <div class="relative" id="langWrap">
+        <x-ui.button variant="ghost" size="icon" data-testid="button-language-toggle" id="langBtn" type="button">
           <i data-lucide="globe" class="h-4 w-4"></i>
         </x-ui.button>
 
-        <div data-lang-menu class="hidden absolute right-0 mt-2 w-40 rounded-md border border-border bg-popover text-popover-foreground shadow-lg">
-          <form method="POST" action="/lang" class="p-1">
-            @csrf
-            <input type="hidden" name="locale" value="en">
-            <button type="submit" class="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-accent {{ app()->getLocale()==='en' ? 'bg-accent' : '' }}" data-testid="menu-item-english">
-              English
-            </button>
-          </form>
-          <form method="POST" action="/lang" class="p-1 pt-0">
-            @csrf
-            <input type="hidden" name="locale" value="ar">
-            <button type="submit" class="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-accent {{ app()->getLocale()==='ar' ? 'bg-accent' : '' }}" data-testid="menu-item-arabic">
-              العربية
-            </button>
-          </form>
+        <div id="langMenu"
+             class="hidden absolute {{ $menuAlign }} mt-2 w-40 rounded-md border border-border bg-popover text-popover-foreground shadow-lg z-50">
+          <a href="{{ route('lang.switch', ['locale' => 'en']) }}"
+             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-md {{ app()->getLocale()==='en' ? 'bg-accent' : '' }}"
+             data-testid="menu-item-english">
+            {{ __('lang.english') }}
+          </a>
+
+          <a href="{{ route('lang.switch', ['locale' => 'ar']) }}"
+             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-md {{ app()->getLocale()==='ar' ? 'bg-accent' : '' }}"
+             data-testid="menu-item-arabic">
+            {{ __('lang.arabic') }}
+          </a>
         </div>
       </div>
 
-
-      <x-ui.button variant="ghost" size="icon" data-testid="button-theme-toggle" data-theme-toggle>
-
+      {{-- Theme --}}
+      <x-ui.button variant="ghost" size="icon" data-testid="button-theme-toggle" data-theme-toggle type="button">
         <i data-lucide="moon" class="h-4 w-4"></i>
       </x-ui.button>
 
+      {{-- Auth --}}
       @if(auth()->check())
         <div class="flex items-center gap-2">
           <a href="{{ $dashboard }}">
@@ -73,8 +76,7 @@
             </x-ui.button>
           </a>
 
-          
-          <form method="POST" action="/logout">
+          <form method="POST" action="{{ url('/logout') }}">
             @csrf
             <x-ui.button variant="outline" size="sm" type="submit" data-testid="button-logout">
               {{ __('nav.logout') }}
@@ -82,7 +84,7 @@
           </form>
         </div>
       @else
-        <a href="/login">
+        <a href="{{ route('login') }}">
           <x-ui.button size="sm" data-testid="button-login">
             {{ __('nav.login') }}
           </x-ui.button>
@@ -91,3 +93,26 @@
     </div>
   </div>
 </header>
+
+<script>
+  (function () {
+    const wrap = document.getElementById('langWrap');
+    const btn  = document.getElementById('langBtn');
+    const menu = document.getElementById('langMenu');
+
+    if (!wrap || !btn || !menu) return;
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) menu.classList.add('hidden');
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') menu.classList.add('hidden');
+    });
+  })();
+</script>

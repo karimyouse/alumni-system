@@ -1,27 +1,49 @@
 <!doctype html>
-<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="h-full">
+<html lang="{{ app()->getLocale() }}"
+      dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}"
+      class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{{ $title ?? 'Alumni Tracking System' }}</title>
 
-
+    {{-- ✅ Theme init (matches dashboard behavior) --}}
     <script>
       (function () {
         try {
-          const theme = localStorage.getItem('theme');
-          if (theme === 'dark') document.documentElement.classList.add('dark');
+          const saved = localStorage.getItem('theme');
+          const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || (!saved && systemDark)) {
+            document.documentElement.classList.add('dark');
+          }
         } catch (e) {}
       })();
     </script>
 
+    {{-- ✅ Theme color from system settings --}}
+    <style>
+      :root{
+        --primary: {{ $appTheme['primary_hsl'] ?? '217 91% 60%' }};
+        --ring: {{ $appTheme['primary_hsl'] ?? '217 91% 60%' }};
+        --primary-foreground: 0 0% 100%;
+      }
+    </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- ✅ Optional extra head from pages --}}
+    @stack('head')
 </head>
 
 <body class="min-h-screen bg-background text-foreground">
-    
+
+    {{-- ✅ Global toasts (single source) --}}
+    @includeIf('partials.toasts')
+
     @yield('content')
+
+    {{-- ✅ Optional extra scripts from pages --}}
+    @stack('scripts')
 </body>
 </html>

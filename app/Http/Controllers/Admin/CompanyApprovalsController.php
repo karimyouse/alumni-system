@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProfile;
+use App\Notifications\CompanyRegistrationReviewed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,7 +34,7 @@ class CompanyApprovalsController extends Controller
 
     public function approve(CompanyProfile $profile)
     {
-        // ✅ لا تعمل شيء إذا already approved
+        // ✅ no-op if already approved
         if ($profile->status === 'approved') {
             return back()->with('toast_success', 'This company is already approved.');
         }
@@ -46,12 +47,17 @@ class CompanyApprovalsController extends Controller
             'admin_note'  => null,
         ]);
 
+        // ✅ Event 2: notify company user
+        if ($profile->user) {
+            $profile->user->notify(new CompanyRegistrationReviewed('approved'));
+        }
+
         return back()->with('toast_success', 'Company approved successfully.');
     }
 
     public function reject(Request $request, CompanyProfile $profile)
     {
-        // ✅ لا تعمل شيء إذا already rejected
+        // ✅ no-op if already rejected
         if ($profile->status === 'rejected') {
             return back()->with('toast_success', 'This company is already rejected.');
         }
@@ -60,13 +66,20 @@ class CompanyApprovalsController extends Controller
             'admin_note' => ['nullable', 'string', 'max:2000'],
         ]);
 
+        $note = $data['admin_note'] ?? 'Rejected by admin.';
+
         $profile->update([
             'status'      => 'rejected',
             'rejected_at' => now(),
             'approved_at' => null,
             'approved_by' => Auth::id(),
-            'admin_note'  => $data['admin_note'] ?? 'Rejected by admin.',
+            'admin_note'  => $note,
         ]);
+
+        // ✅ Event 2: notify company user (include note)
+        if ($profile->user) {
+            $profile->user->notify(new CompanyRegistrationReviewed('rejected', $note));
+        }
 
         return back()->with('toast_success', 'Company rejected (saved in database).');
     }

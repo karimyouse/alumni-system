@@ -11,9 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'company.approved' => \App\Http\Middleware\EnsureCompanyApproved::class,
+        ]);
+
+        // ✅ Apply SetLocale to ALL web routes (important for Arabic/English)
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

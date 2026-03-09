@@ -1,14 +1,14 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Jobs';
+  $title='Jobs Review';
   $role='College';
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Alumni','href'=>'/college/alumni','icon'=>'users'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
     ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Jobs','href'=>'/college/jobs','icon'=>'briefcase'],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
     ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
     ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
     ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
@@ -31,7 +31,6 @@
     <p class="text-sm text-muted-foreground">Approve or reject company job posts</p>
   </div>
 
-  {{-- Tabs --}}
   <div class="flex flex-wrap gap-2">
     @php
       $tabs = [
@@ -52,7 +51,6 @@
     @endforeach
   </div>
 
-  {{-- Search --}}
   <form method="GET" action="{{ route('college.jobs') }}" class="rounded-xl border border-border bg-card p-5">
     <input type="hidden" name="status" value="{{ $status ?? 'all' }}">
     <div class="flex flex-col md:flex-row gap-3 md:items-center">
@@ -73,7 +71,6 @@
     </div>
   </form>
 
-  {{-- Table --}}
   <div class="rounded-xl border border-border bg-card overflow-hidden">
     <div class="overflow-auto">
       <table class="w-full">

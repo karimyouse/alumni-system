@@ -6,48 +6,43 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+// ✅ add these
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Auth\Passwords\CanResetPassword;
+
+class User extends Authenticatable implements CanResetPasswordContract
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, CanResetPassword;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-    'name',
-    'email',
-    'password',
-    'role',
-    'academic_id',
-];
+        'name',
+        'email',
+        'password',
+        'role',
+        'academic_id',
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+        // ✅ Admin fields
+        'last_login_at',
+        'is_suspended',
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_suspended' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
-    
+
     public function alumniProfile()
     {
-    return $this->hasOne(\App\Models\AlumniProfile::class, 'user_id');
+        return $this->hasOne(\App\Models\AlumniProfile::class, 'user_id');
     }
 }

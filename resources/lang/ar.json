@@ -1,5 +1,68 @@
-"home.hero.learnMore": "اعرف المزيد",
-"footer.contact": "تواصل معنا",
-"footer.privacy": "سياسة الخصوصية",
-"footer.terms": "شروط الخدمة",
-"footer.rights": "جميع الحقوق محفوظة"
+{
+  "nav.home": "الرئيسية",
+  "nav.about": "من نحن",
+  "nav.contact": "تواصل معنا",
+  "nav.login": "تسجيل الدخول",
+  "nav.logout": "تسجيل الخروج",
+  "nav.dashboard": "لوحة التحكم",
+
+  "lang.english": "English",
+  "lang.arabic": "العربية",
+
+  "home.hero.title": "نظام تتبّع الخريجين",
+  "home.hero.subtitle": "ربط الخريجين بالمؤسسات وأصحاب العمل",
+  "home.hero.description": "منصة شاملة لتسجيل ومتابعة وربط الخريجين بالمؤسسات وأصحاب العمل لدعم التطور المهني ونمو المسار الوظيفي.",
+  "home.hero.login": "تسجيل الدخول",
+  "home.hero.learnMore": "اعرف المزيد",
+
+  "home.about.title": "عن وحدة شؤون الخريجين",
+  "home.about.description": "تعمل وحدة شؤون الخريجين كحلقة وصل بين المؤسسة وخريجيها، لتعزيز التواصل المستمر ودعم النمو المهني.",
+
+  "home.portals.title": "بوابات النظام",
+  "home.portals.subtitle": "وصول مخصص لكل فئة من المستخدمين",
+
+  "home.portals.alumni.title": "بوابة الخريجين",
+  "home.portals.alumni.description": "إدارة ملفك الشخصي، استكشاف الفرص، والتواصل مع الزملاء.",
+
+  "home.portals.college.title": "بوابة الكلية",
+  "home.portals.college.description": "متابعة الخريجين، تنظيم الفعاليات، وتتبع الفرص.",
+
+  "home.portals.company.title": "بوابة الشركات",
+  "home.portals.company.description": "نشر الوظائف واكتشاف خريجين مؤهلين.",
+
+  "home.portals.admin.title": "بوابة الإدارة",
+  "home.portals.admin.description": "إدارة النظام بالكامل والتحليلات.",
+
+  "home.features.title": "الميزات الأساسية",
+
+  "home.features.profiles": "ملفات مهنية",
+  "home.features.profiles.desc": "إنشاء ملفات شاملة تُبرز المهارات والإنجازات.",
+
+  "home.features.jobs": "فرص وظيفية",
+  "home.features.jobs.desc": "الوصول إلى وظائف حصرية من الشركات الشريكة.",
+
+  "home.features.workshops": "ورش وفعاليات",
+  "home.features.workshops.desc": "المشاركة في ورش تطوير المهارات وفعاليات التواصل.",
+
+  "home.features.notifications": "إشعارات فورية",
+  "home.features.notifications.desc": "ابقَ على اطلاع بآخر الفرص والإعلانات.",
+
+  "home.features.leaderboard": "لوحة الصدارة الشهرية",
+  "home.features.leaderboard.desc": "تكريم الخريجين الأكثر نشاطاً وتفاعلاً.",
+
+  "home.features.recommendations": "توصيات الزملاء",
+  "home.features.recommendations.desc": "قدّم واستلم توصيات مهنية.",
+
+  "home.stats.alumni": "خريجون نشطون",
+  "home.stats.jobs": "إعلانات وظائف",
+  "home.stats.workshops": "ورش منفذة",
+  "home.stats.companies": "شركات شريكة",
+
+  "home.cta.title": "جاهز للبدء؟",
+  "home.cta.description": "انضم لمجتمع الخريجين المتنامي وافتح فرصاً جديدة.",
+
+  "footer.contact": "تواصل معنا",
+  "footer.privacy": "سياسة الخصوصية",
+  "footer.terms": "شروط الخدمة",
+  "footer.rights": "جميع الحقوق محفوظة"
+}
