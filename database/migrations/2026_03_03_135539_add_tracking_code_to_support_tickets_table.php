@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::table('support_tickets', function (Blueprint $table) {
 
-            // ✅ tracking code (for public tracking)
+
             if (!Schema::hasColumn('support_tickets', 'tracking_code')) {
                 $table->string('tracking_code', 30)->nullable()->unique()->after('id');
             }
 
-            // ✅ when admin replied (optional but makes it realistic)
+            
             if (!Schema::hasColumn('support_tickets', 'admin_replied_at')) {
                 $table->timestamp('admin_replied_at')->nullable()->after('admin_reply');
             }

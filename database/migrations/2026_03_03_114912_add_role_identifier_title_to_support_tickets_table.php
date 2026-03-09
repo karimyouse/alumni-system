@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('support_tickets', function (Blueprint $table) {
 
-            // ✅ Add missing fields safely (only if not exists)
+            
             if (!Schema::hasColumn('support_tickets', 'role')) {
                 $table->string('role', 50)->nullable()->after('email');
             }

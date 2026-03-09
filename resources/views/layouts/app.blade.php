@@ -8,7 +8,7 @@
 
     <title>{{ $title ?? 'Alumni Tracking System' }}</title>
 
-    {{-- ✅ Theme init (matches dashboard behavior) --}}
+
     <script>
       (function () {
         try {
@@ -21,7 +21,7 @@
       })();
     </script>
 
-    {{-- ✅ Theme color from system settings --}}
+    
     <style>
       :root{
         --primary: {{ $appTheme['primary_hsl'] ?? '217 91% 60%' }};

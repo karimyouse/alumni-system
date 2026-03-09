@@ -13,7 +13,7 @@ return new class extends Migration
                 $table->foreignId('company_user_id')->nullable()->constrained('users')->nullOnDelete();
             }
 
-            // اختياري لكن مفيد للمستقبل (approved/pending/rejected)
+
             if (!Schema::hasColumn('workshops', 'proposal_status')) {
                 $table->string('proposal_status')->default('approved');
             }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\College;
 use App\Http\Controllers\Controller;
 use App\Models\SuccessStory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SuccessStoriesController extends Controller
 {
@@ -55,7 +56,7 @@ class SuccessStoriesController extends Controller
             'body' => $data['body'],
             'is_published' => $request->boolean('is_published'),
             'published_at' => $request->boolean('is_published') ? now() : null,
-            'created_by' => auth()->id(),
+            'created_by' => auth::id(),
         ]);
 
         return redirect()

@@ -34,7 +34,7 @@
     <p class="text-sm text-muted-foreground">Handle user support requests</p>
   </div>
 
-  {{-- Counters --}}
+
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div class="rounded-xl border border-border bg-card p-5">
       <div class="flex items-center gap-3">
@@ -73,7 +73,7 @@
     </div>
   </div>
 
-  {{-- Tabs --}}
+
   <div class="flex items-center gap-2">
     @foreach($tabs as $t)
       <a href="{{ route('admin.support', ['status'=>$t['key']]) }}"
@@ -84,7 +84,7 @@
     @endforeach
   </div>
 
-  {{-- Tickets --}}
+
   <div class="rounded-xl border border-border bg-card overflow-hidden">
     <div class="p-6 border-b border-border">
       <div class="text-lg font-semibold">Tickets</div>
@@ -123,13 +123,13 @@
           $assigned = $ticket->admin?->name ?? null;
         @endphp
 
-        {{-- ✅ IMPORTANT: wrapper per ticket (fix peer bleeding) --}}
+
         <div class="relative">
 
-          {{-- Modal toggle --}}
+
           <input type="checkbox" id="ticket-modal-{{ $ticket->id }}" class="peer hidden ticket-modal">
 
-          {{-- Anchor for notifications --}}
+
           <div id="ticket-{{ $ticket->id }}" class="p-6 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
@@ -206,7 +206,7 @@
             </div>
           </div>
 
-          {{-- ✅ Modal (isolated to this ticket only) --}}
+
           <div class="hidden peer-checked:block">
             <div class="fixed inset-0 z-50">
               <label for="ticket-modal-{{ $ticket->id }}" class="absolute inset-0 bg-black/60 cursor-pointer"></label>
@@ -327,7 +327,7 @@
     </div>
   </div>
 
-  {{-- Pagination --}}
+
   @if(method_exists($tickets, 'links'))
     <div class="pt-2">{{ $tickets->links() }}</div>
   @endif
@@ -335,7 +335,7 @@
 </div>
 
 <script>
-  // ✅ Ensure only one modal open at a time
+
   (function () {
     const cbs = Array.from(document.querySelectorAll('.ticket-modal'));
     cbs.forEach(cb => {
@@ -345,7 +345,7 @@
       });
     });
 
-    // ✅ Auto-open when coming from #ticket-123
+    
     const hash = window.location.hash || '';
     if (hash.startsWith('#ticket-')) {
       const id = hash.replace('#ticket-', '').trim();

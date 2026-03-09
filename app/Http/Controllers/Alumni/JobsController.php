@@ -18,12 +18,12 @@ class JobsController extends Controller
 
         $jobsQuery = Job::query();
 
-        // show only active
+
         if (Schema::hasColumn('jobs', 'status')) {
             $jobsQuery->where('status', 'active');
         }
 
-        // show only approved (college review)
+
         if (Schema::hasColumn('jobs', 'approval_status')) {
             $jobsQuery->where('approval_status', 'approved');
         }
@@ -56,15 +56,15 @@ class JobsController extends Controller
         return view('alumni.jobs', compact('jobs', 'q', 'appliedJobIds', 'savedJobIds'));
     }
 
-    // ✅ تفاصيل الوظيفة
+
     public function show(Job $job)
     {
-        // must be active
-        if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
+
+    if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
             abort(404);
         }
 
-        // must be approved
+
         if (Schema::hasColumn('jobs', 'approval_status') && ($job->approval_status ?? 'approved') !== 'approved') {
             abort(404);
         }

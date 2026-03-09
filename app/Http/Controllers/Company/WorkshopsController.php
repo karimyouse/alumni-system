@@ -36,10 +36,10 @@ class WorkshopsController extends Controller
 
         $workshops = Workshop::query()
             ->where(function ($q) use ($companyId) {
-                // company workshops
+
                 $q->where('company_user_id', $companyId);
 
-                // public workshops
+
                 $q->orWhere(function ($qq) {
                     $qq->whereNull('company_user_id');
 
@@ -96,31 +96,31 @@ class WorkshopsController extends Controller
             'company_user_id'=> Auth::id(),
         ];
 
-        // ✅ Organizer fields for new rows (no more NULL for new company workshops)
+
         if (Schema::hasColumn('workshops', 'organizer_user_id')) $attrs['organizer_user_id'] = Auth::id();
         if (Schema::hasColumn('workshops', 'organizer_role'))    $attrs['organizer_role'] = 'company';
 
-        // proposal_status
+
         if (Schema::hasColumn('workshops', 'proposal_status')) {
-            $attrs['proposal_status'] = 'approved'; // keep as you have now
+            $attrs['proposal_status'] = 'approved';
         }
 
-        // main columns
+
         if (Schema::hasColumn('workshops', 'date'))     $attrs['date'] = $data['date'];
         if (Schema::hasColumn('workshops', 'time'))     $attrs['time'] = $data['time'];
         if (Schema::hasColumn('workshops', 'location')) $attrs['location'] = $data['location'];
 
         if (Schema::hasColumn('workshops', 'status')) $attrs['status'] = 'upcoming';
 
-        // capacity compatibility
+
         if (Schema::hasColumn('workshops', 'capacity')) {
             $attrs['capacity'] = $cap;
         }
         if (Schema::hasColumn('workshops', 'max_spots')) {
-            $attrs['max_spots'] = $cap ? (int)$cap : 0; // 0 => unlimited
+            $attrs['max_spots'] = $cap ? (int)$cap : 0;
         }
         if (Schema::hasColumn('workshops', 'spots')) {
-            $attrs['spots'] = $cap ? (int)$cap : 0; // 0 => unlimited
+            $attrs['spots'] = $cap ? (int)$cap : 0; 
         }
 
         Workshop::create($attrs);

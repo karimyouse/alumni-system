@@ -40,7 +40,7 @@
 
     <div class="flex items-center gap-2">
 
-      {{-- Language --}}
+
       <div class="relative" id="langWrap">
         <x-ui.button variant="ghost" size="icon" data-testid="button-language-toggle" id="langBtn" type="button">
           <i data-lucide="globe" class="h-4 w-4"></i>
@@ -62,12 +62,12 @@
         </div>
       </div>
 
-      {{-- Theme --}}
+
       <x-ui.button variant="ghost" size="icon" data-testid="button-theme-toggle" data-theme-toggle type="button">
         <i data-lucide="moon" class="h-4 w-4"></i>
       </x-ui.button>
 
-      {{-- Auth --}}
+      
       @if(auth()->check())
         <div class="flex items-center gap-2">
           <a href="{{ $dashboard }}">

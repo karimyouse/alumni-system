@@ -27,12 +27,12 @@ class LoginController extends Controller
         $identifier = trim($data['identifier']);
         $password = $data['password'];
 
-        // Identify field based on role
+
         $field = ($role === 'alumni') ? 'academic_id' : 'email';
 
         $userQuery = User::query()->where($field, $identifier);
 
-        // Admin accepts admin OR super_admin
+
         if ($role === 'admin') {
             $userQuery->whereIn('role', ['admin', 'super_admin']);
         } else {
@@ -41,7 +41,7 @@ class LoginController extends Controller
 
         $user = $userQuery->first();
 
-        // ❌ Invalid credentials
+
         if (!$user || !Hash::check($password, $user->password)) {
             return back()
                 ->withErrors(['identifier' => 'Invalid credentials. Please check your details and try again.'])
@@ -49,7 +49,7 @@ class LoginController extends Controller
                 ->withInput($request->only('role', 'identifier'));
         }
 
-        // 🚫 Suspended user
+
         if ((bool)($user->is_suspended ?? false) === true) {
             return back()
                 ->withErrors([
@@ -59,11 +59,11 @@ class LoginController extends Controller
                 ->withInput($request->only('role', 'identifier'));
         }
 
-        // ✅ Login
+
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Track last login time (safe)
+        
         $user->forceFill(['last_login_at' => now()])->save();
 
         return redirect()

@@ -27,7 +27,7 @@
     ? \Carbon\Carbon::parse($settings->last_backup_at)->format('M d, Y \a\t h:i A')
     : '—';
 
-  // helper: switch UI
+
   $switch = function ($name, $checked) {
     $isOn = old($name, $checked) ? true : false;
     return [
@@ -54,7 +54,7 @@
     </button>
   </div>
 
-  {{-- Appearance --}}
+
   <div class="rounded-xl border border-border bg-card p-6">
     <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
       <i data-lucide="palette" class="h-4 w-4"></i>
@@ -92,7 +92,7 @@
     </div>
   </div>
 
-  {{-- Email Notifications --}}
+
   <div class="rounded-xl border border-border bg-card p-6">
     <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
       <i data-lucide="mail" class="h-4 w-4"></i>
@@ -140,7 +140,7 @@
     </div>
   </div>
 
-  {{-- Data Management --}}
+
   <div class="rounded-xl border border-border bg-card p-6">
     <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
       <i data-lucide="database" class="h-4 w-4"></i>
@@ -175,7 +175,7 @@
     </div>
   </div>
 
-  {{-- Security --}}
+  
   <div class="rounded-xl border border-border bg-card p-6">
     <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
       <i data-lucide="shield-check" class="h-4 w-4"></i>

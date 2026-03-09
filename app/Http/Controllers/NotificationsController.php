@@ -33,11 +33,7 @@ class NotificationsController extends Controller
         return back();
     }
 
-    /**
-     * ✅ يقبل:
-     * - /path?x=1#frag
-     * - أو absolute URL لكن فقط لو نفس host/port (حتى لو APP_URL مختلف)
-     */
+
     private function normalizeInternal(Request $request, ?string $u): ?string
     {
         if (!is_string($u)) return null;
@@ -45,12 +41,12 @@ class NotificationsController extends Controller
         $u = trim($u);
         if ($u === '') return null;
 
-        // relative internal path
+
         if (str_starts_with($u, '/')) {
             return $u;
         }
 
-        // absolute url => accept only if same host/port
+      
         $p = parse_url($u);
         if (!$p || empty($p['host'])) return null;
 

@@ -6,7 +6,7 @@
     if (!is_string($u) || trim($u) === '') return null;
     $u = trim($u);
 
-    // absolute url => path?query#fragment
+
     if (str_starts_with($u, 'http://') || str_starts_with($u, 'https://')) {
       $p = parse_url($u);
       $u = ($p['path'] ?? '/')
@@ -57,14 +57,14 @@
             $title = $data['title'] ?? 'Notification';
             $body  = $data['message'] ?? ($data['body'] ?? '');
 
-            // ✅ التقط كل احتمالات الرابط
+
             $url = $data['action_url']
                 ?? ($data['actionUrl'] ?? null)
                 ?? ($data['url'] ?? null)
                 ?? ($data['link'] ?? null)
                 ?? ($data['href'] ?? null);
 
-            // ✅ fallback لو ما في url لكن في ticket_id
+
             if (!$url && !empty($data['ticket_id'])) {
               $tid = (int)$data['ticket_id'];
               $role = auth()->user()->role ?? '';
@@ -118,7 +118,7 @@
       const btn = document.getElementById('notifBtn');
       const menu = document.getElementById('notifMenu');
 
-      // ✅ خلي الضغط داخل القائمة ما يعتبر "خارج"
+      
       menu.addEventListener('click', (e) => e.stopPropagation());
 
       btn.addEventListener('click', function (e) {

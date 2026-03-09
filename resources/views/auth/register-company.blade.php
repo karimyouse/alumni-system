@@ -37,7 +37,7 @@
       <p class="text-sm text-muted-foreground">Create your company account</p>
     </div>
 
-    {{-- Validation errors (clean + professional) --}}
+    
     @if ($errors->any())
       <div class="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm">
         <div class="font-semibold text-destructive mb-1">Please fix the following:</div>

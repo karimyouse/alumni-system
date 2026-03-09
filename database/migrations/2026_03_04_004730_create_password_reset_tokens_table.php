@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Laravel 11 يستخدم password_reset_tokens
+       
         if (Schema::hasTable('password_reset_tokens')) {
             return;
         }

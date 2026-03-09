@@ -32,7 +32,7 @@
       <p class="text-sm text-muted-foreground">Sign in to your account</p>
     </div>
 
-    {{-- Errors + Contact Support (ONLY when error happens) --}}
+    
     @if ($errors->any())
       <div class="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
         <div class="font-semibold text-destructive mb-1 inline-flex items-center gap-2">

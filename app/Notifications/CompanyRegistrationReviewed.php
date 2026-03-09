@@ -10,7 +10,7 @@ class CompanyRegistrationReviewed extends Notification
     use Queueable;
 
     public function __construct(
-        public string $status,      // approved | rejected
+        public string $status,      
         public ?string $adminNote = null
     ) {}
 

@@ -36,7 +36,7 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-    {{-- Received Recommendations --}}
+
     <div class="rounded-xl border border-border bg-card">
       <div class="p-6 border-b border-border">
         <div class="text-xl font-semibold inline-flex items-center gap-2">
@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    {{-- Given Recommendations + Form --}}
+    
     <div class="rounded-xl border border-border bg-card">
       <div class="p-6 border-b border-border">
         <div class="text-xl font-semibold inline-flex items-center gap-2">

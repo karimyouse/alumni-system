@@ -19,7 +19,7 @@ class EnsureCompanyApproved
         $profile = CompanyProfile::where('user_id', $user->id)->first();
 
         if (!$profile) {
-            // لا نحذف أي شيء — فقط نعرض Pending
+
             return response()->view('company.pending-approval', [
                 'companyName' => $user->name ?? 'Company',
             ], 403);
@@ -36,7 +36,7 @@ class EnsureCompanyApproved
             ], 403);
         }
 
-        // pending
+     
         return response()->view('company.pending-approval', [
             'companyName' => $profile->company_name,
         ], 403);

@@ -18,7 +18,7 @@ class SetLocale
 
         app()->setLocale($locale);
 
-        // Makes diffForHumans/month names respect the locale
+        
         try {
             Carbon::setLocale($locale);
         } catch (\Throwable $e) {}

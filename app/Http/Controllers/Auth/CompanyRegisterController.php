@@ -58,7 +58,7 @@ class CompanyRegisterController extends Controller
                 'admin_note' => null,
             ]);
 
-            // ✅ Event 1: notify admins (database notifications)
+
             $admins = User::query()
                 ->whereIn('role', ['admin', 'super_admin'])
                 ->get();
@@ -71,7 +71,7 @@ class CompanyRegisterController extends Controller
             }
         });
 
-        // تسجيل دخول الشركة مباشرة ثم تظهر صفحة Pending من middleware
+
         Auth::login($user);
 
         return redirect()->route('company.dashboard');

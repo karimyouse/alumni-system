@@ -25,7 +25,7 @@
       </p>
     </div>
 
-    {{-- Errors --}}
+
     @if ($errors->any())
       <div class="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
         <div class="font-semibold text-destructive mb-1 inline-flex items-center gap-2">
@@ -36,7 +36,7 @@
       </div>
     @endif
 
-    {{-- Success --}}
+
     @if (session('toast_success'))
       <div class="mb-5 rounded-xl border border-green-500/25 bg-green-500/10 p-4 text-sm">
         <div class="font-semibold text-green-400 mb-1 inline-flex items-center gap-2">
@@ -47,7 +47,7 @@
       </div>
     @endif
 
-    {{-- ✅ Local only: show reset link if controller put it in session --}}
+
     @if (app()->environment('local') && session('reset_link'))
       <div class="mb-5 rounded-xl border border-border bg-accent/10 p-4 text-sm">
         <div class="font-semibold mb-2 inline-flex items-center gap-2">
@@ -67,7 +67,7 @@
       </div>
     @endif
 
-    {{-- Role tabs --}}
+
     <div class="grid grid-cols-4 gap-1 rounded-lg bg-muted p-1 mb-6">
       <button type="button" data-role="alumni" class="role-tab active">
         <i data-lucide="graduation-cap"></i><span>Alumni</span>
@@ -112,7 +112,7 @@
         If the account exists, the link will be sent to the registered email.
       </div>
 
-      {{-- Support / Track (keeps your support integration safe) --}}
+      
       <div class="rounded-xl border border-border bg-background/40 p-4 text-sm">
         <div class="font-semibold mb-1">Need help?</div>
         <div class="text-xs text-muted-foreground mb-3">

@@ -12,7 +12,7 @@ return new class extends Migration
 
             if (!Schema::hasColumn('jobs', 'approval_status')) {
                 $table->string('approval_status')->default('approved');
-                // approved | pending | rejected
+                
             }
 
             if (!Schema::hasColumn('jobs', 'approved_at')) {

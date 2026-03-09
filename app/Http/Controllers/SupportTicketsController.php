@@ -11,9 +11,9 @@ class SupportTicketsController extends Controller
     {
         $user = $request->user();
 
-        // ✅ Only show tickets that belong to the logged-in user
+
         $tickets = SupportTicket::query()
-            ->with(['admin']) // optional (if you show admin name)
+            ->with(['admin'])
             ->where('user_id', $user->id)
             ->orderByDesc('id')
             ->paginate(10)
@@ -26,7 +26,7 @@ class SupportTicketsController extends Controller
     {
         $user = $request->user();
 
-        // ✅ Hard authorization: user can only view their own ticket
+
         abort_unless((int)$ticket->user_id === (int)$user->id, 403);
 
         $ticket->loadMissing(['admin']);

@@ -15,7 +15,7 @@ class ApplicationsController extends Controller
     {
         $raw = strtolower(trim($raw));
 
-        // workshop registrations
+
         if ($type === 'workshops') {
             if ($raw === 'registered') {
                 return ['Accepted', 'bg-green-500/15 text-green-400'];
@@ -26,7 +26,7 @@ class ApplicationsController extends Controller
             return [ucfirst($raw), 'bg-secondary text-secondary-foreground'];
         }
 
-        // jobs & scholarships
+
         return match ($raw) {
             'pending'  => ['Pending', 'bg-muted text-foreground'],
             'reviewed' => ['Under Review', 'bg-blue-500/15 text-blue-400'],
@@ -42,7 +42,7 @@ class ApplicationsController extends Controller
 
         $userId = Auth::id();
 
-        // Jobs applications
+
         $jobApps = JobApplication::with('job')
             ->where('alumni_user_id', $userId)
             ->latest()
@@ -61,7 +61,7 @@ class ApplicationsController extends Controller
                 ];
             })->values();
 
-        // Scholarships applications
+
         $schApps = ScholarshipApplication::with('scholarship')
             ->where('alumni_user_id', $userId)
             ->latest()
@@ -80,8 +80,8 @@ class ApplicationsController extends Controller
                 ];
             })->values();
 
-        // Workshops registrations
-        $wsRegs = WorkshopRegistration::with('workshop')
+
+            $wsRegs = WorkshopRegistration::with('workshop')
             ->where('alumni_user_id', $userId)
             ->latest()
             ->get()
@@ -99,10 +99,10 @@ class ApplicationsController extends Controller
                 ];
             })->values();
 
-        // All combined (newest first by "id" per type order — good enough for demo)
-        $all = $jobApps->concat($schApps)->concat($wsRegs)->values();
 
-        // Counts
+            $all = $jobApps->concat($schApps)->concat($wsRegs)->values();
+
+
         $tabs = [
             ['key' => 'all', 'label' => 'All', 'count' => $all->count()],
             ['key' => 'jobs', 'label' => 'Jobs', 'count' => $jobApps->count()],
@@ -120,7 +120,7 @@ class ApplicationsController extends Controller
         return view('alumni.applications', compact('tabs', 'itemsByTab'));
     }
 
-        // ✅ View Details (real)
+
     public function show(string $type, int $id)
     {
         $userId = Auth::id();
@@ -149,7 +149,7 @@ class ApplicationsController extends Controller
             ]);
         }
 
-        // workshops
+
         $app = WorkshopRegistration::with('workshop')
             ->where('alumni_user_id', $userId)
             ->findOrFail($id);
@@ -161,7 +161,7 @@ class ApplicationsController extends Controller
         ]);
     }
 
-    // ✅ Withdraw / Cancel (real)
+
     public function withdraw(string $type, int $id)
     {
         $userId = Auth::id();
@@ -169,7 +169,7 @@ class ApplicationsController extends Controller
         if ($type === 'jobs') {
             $app = JobApplication::where('alumni_user_id', $userId)->findOrFail($id);
 
-            // allow withdraw only if pending/reviewed
+
             if (!in_array($app->status, ['pending', 'reviewed'])) {
                 return back()->with('toast_success', 'You cannot withdraw this application now.');
             }
@@ -184,7 +184,7 @@ class ApplicationsController extends Controller
         if ($type === 'scholarships') {
             $app = ScholarshipApplication::where('alumni_user_id', $userId)->findOrFail($id);
 
-            // allow withdraw only if pending/reviewed
+
             if (!in_array($app->status, ['pending', 'reviewed'])) {
                 return back()->with('toast_success', 'You cannot withdraw this application now.');
             }
@@ -196,7 +196,7 @@ class ApplicationsController extends Controller
                 ->with('toast_success', 'Scholarship application withdrawn.');
         }
 
-        // workshops = Cancel registration + return spot
+        
         $app = WorkshopRegistration::with('workshop')
             ->where('alumni_user_id', $userId)
             ->findOrFail($id);

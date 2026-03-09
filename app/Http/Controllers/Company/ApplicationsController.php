@@ -26,7 +26,7 @@ class ApplicationsController extends Controller
     public function index(Request $request)
     {
         $companyId = Auth::id();
-        $tab = $request->query('tab', 'all'); // all|pending|reviewed|accepted|rejected
+        $tab = $request->query('tab', 'all'); 
 
         $jobIds = Job::where('company_user_id', $companyId)->pluck('id');
 

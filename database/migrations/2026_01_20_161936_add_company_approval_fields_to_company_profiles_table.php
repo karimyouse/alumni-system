@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // إذا جدول company_profiles غير موجود (احتياط)
+
         if (!Schema::hasTable('company_profiles')) {
             Schema::create('company_profiles', function (Blueprint $table) {
                 $table->id();
@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->string('website')->nullable();
                 $table->text('description')->nullable();
 
-                $table->string('status')->default('pending'); // pending|approved|rejected
+                $table->string('status')->default('pending'); 
                 $table->timestamp('approved_at')->nullable();
                 $table->timestamp('rejected_at')->nullable();
                 $table->unsignedBigInteger('approved_by')->nullable();

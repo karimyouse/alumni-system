@@ -28,7 +28,7 @@ class PasswordResetController extends Controller
         $role = strtolower($data['role']);
         $identifier = trim($data['identifier']);
 
-        // نفس منطق تسجيل الدخول عندك
+
         $field = ($role === 'alumni') ? 'academic_id' : 'email';
 
         $q = User::query()->where($field, $identifier);
@@ -41,18 +41,18 @@ class PasswordResetController extends Controller
 
         $user = $q->first();
 
-        // ✅ لأسباب أمنية: نفس الرسالة سواء المستخدم موجود أو لا
+
         $genericMsg = 'If the account exists, a password reset link has been sent to the registered email.';
 
-        // لو ما لقينا user أو ما عنده ايميل → نفس الرسالة
+
         if (!$user || empty($user->email)) {
             return back()->with('toast_success', $genericMsg)->withInput();
         }
 
-        // ✅ Mailtrap will capture this email if SMTP configured correctly
+
         $status = Password::sendResetLink(['email' => $user->email]);
 
-        // حتى لو فشل mail: ما نكشف تفاصيل
+
         if ($status !== Password::RESET_LINK_SENT) {
             return back()->with('toast_success', $genericMsg)->withInput();
         }
@@ -87,8 +87,8 @@ class PasswordResetController extends Controller
                 'password_confirmation' => $data['password_confirmation'] ?? '',
             ],
             function ($user) use ($data) {
-                // password cast عندك hashed => سيُشفّر تلقائياً
-                $user->forceFill([
+
+            $user->forceFill([
                     'password' => $data['password'],
                     'remember_token' => Str::random(60),
                 ])->save();

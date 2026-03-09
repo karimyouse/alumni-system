@@ -77,7 +77,7 @@
 
     <div class="flex flex-wrap gap-2 pt-2">
 
-      {{-- Apply --}}
+
       @if($isApplied)
         <button class="rounded-md bg-secondary px-4 py-2 text-sm text-secondary-foreground cursor-not-allowed" disabled>
           Applied
@@ -91,7 +91,7 @@
         </form>
       @endif
 
-      {{-- Save --}}
+      
       <form method="POST" action="{{ route('alumni.jobs.save', $job) }}">
         @csrf
         <button class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">

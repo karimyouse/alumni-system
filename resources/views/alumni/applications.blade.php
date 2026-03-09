@@ -23,7 +23,7 @@
     <p class="text-sm text-muted-foreground">Track your job, scholarship, and workshop applications</p>
   </div>
 
-  {{-- Tabs --}}
+
   <div class="inline-flex rounded-lg bg-muted p-1 gap-1" id="tabs">
     @foreach($tabs as $i => $t)
       <button
@@ -36,7 +36,7 @@
     @endforeach
   </div>
 
-  {{-- Panels --}}
+  
   @foreach($tabs as $i => $t)
     @php $list = $itemsByTab[$t['key']] ?? collect(); @endphp
 

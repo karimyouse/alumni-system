@@ -27,20 +27,20 @@
       @php
         $isReg = in_array($w->id, $registeredIds);
 
-        // ✅ capacity: null = unlimited
+
         $cap = $w->capacity ?? null;
 
-        // ✅ registered_count: الأفضل يكون جاي من controller via withCount()
-        // لو مش موجود، fallback: اعتبره 0 (بدون ما يعطّل زر)
+
+
         $registeredCount = $w->registered_count ?? 0;
 
-        // ✅ spots left
+
         $spotsLeft = is_null($cap) ? null : max(0, (int)$cap - (int)$registeredCount);
 
-        // ✅ full only if capacity is not null and spotsLeft == 0
+
         $isFull = (!is_null($cap) && $spotsLeft <= 0);
 
-        // ✅ register button enabled when not registered and not full
+        
         $canRegister = (!$isReg && !$isFull);
       @endphp
 

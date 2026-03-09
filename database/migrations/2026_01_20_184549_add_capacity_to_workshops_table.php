@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('workshops', function (Blueprint $table) {
             if (!Schema::hasColumn('workshops', 'capacity')) {
-                $table->unsignedInteger('capacity')->nullable(); // null = unlimited
+                $table->unsignedInteger('capacity')->nullable();
             }
         });
     }

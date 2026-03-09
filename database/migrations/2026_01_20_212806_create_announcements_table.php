@@ -14,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('body');
-            $table->string('audience')->default('all'); // all | alumni | company | college
+            $table->string('audience')->default('all');
             $table->boolean('is_published')->default(true);
             $table->timestamp('published_at')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();

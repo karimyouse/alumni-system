@@ -64,7 +64,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      {{-- Left Profile Summary --}}
+
       <div class="lg:col-span-1">
         <div class="rounded-xl border border-border bg-card h-full">
           <div class="p-6">
@@ -106,7 +106,7 @@
         </div>
       </div>
 
-      {{-- Right Personal Information --}}
+
       <div class="lg:col-span-2">
         <div class="rounded-xl border border-border bg-card">
           <div class="p-6 border-b border-border">
@@ -175,7 +175,7 @@
               </div>
             </div>
 
-            {{-- نخلي Graduation Year موجود ومربوط بالداتا حتى لو React ما أظهره بهذا المكان --}}
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2">
                 <label class="text-sm font-medium">Academic ID</label>
@@ -226,7 +226,7 @@
               @endif
             </div>
 
-            {{-- Professional links: نحتفظ بها بدون كسر الوظائف --}}
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2">
                 <label class="text-sm font-medium">LinkedIn</label>

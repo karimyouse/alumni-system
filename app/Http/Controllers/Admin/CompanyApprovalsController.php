@@ -34,7 +34,7 @@ class CompanyApprovalsController extends Controller
 
     public function approve(CompanyProfile $profile)
     {
-        // ✅ no-op if already approved
+
         if ($profile->status === 'approved') {
             return back()->with('toast_success', 'This company is already approved.');
         }
@@ -47,7 +47,7 @@ class CompanyApprovalsController extends Controller
             'admin_note'  => null,
         ]);
 
-        // ✅ Event 2: notify company user
+
         if ($profile->user) {
             $profile->user->notify(new CompanyRegistrationReviewed('approved'));
         }
@@ -57,7 +57,7 @@ class CompanyApprovalsController extends Controller
 
     public function reject(Request $request, CompanyProfile $profile)
     {
-        // ✅ no-op if already rejected
+
         if ($profile->status === 'rejected') {
             return back()->with('toast_success', 'This company is already rejected.');
         }
@@ -76,7 +76,7 @@ class CompanyApprovalsController extends Controller
             'admin_note'  => $note,
         ]);
 
-        // ✅ Event 2: notify company user (include note)
+
         if ($profile->user) {
             $profile->user->notify(new CompanyRegistrationReviewed('rejected', $note));
         }

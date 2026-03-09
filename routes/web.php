@@ -50,13 +50,11 @@ use App\Http\Controllers\Admin\ReportsController as AdminReportsController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SupportController as AdminSupportController;
 
-/**
- * Public
- */
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/test-theme', 'test-theme');
 
-// Language switch (GET/POST) - stores locale in session then redirects back safely
+
 Route::match(['GET','POST'], '/lang', function (Request $request) {
     $locale = $request->input('locale')
         ?? $request->query('locale')
@@ -74,7 +72,7 @@ Route::match(['GET','POST'], '/lang', function (Request $request) {
     session(['locale' => $locale]);
     app()->setLocale($locale);
 
-    // Safe redirect back (only internal URLs)
+
     $prev = url()->previous();
     $appUrl = rtrim(config('app.url'), '/');
 
@@ -90,7 +88,7 @@ Route::match(['GET','POST'], '/lang', function (Request $request) {
 })->name('lang.switch');
 
 
-// Track ticket status (public)
+
 Route::get('/support/track', [SupportTrackController::class, 'show'])
     ->middleware('throttle:30,1')
     ->name('support.track.show');
@@ -102,7 +100,7 @@ Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth');
 
-// Forgot password (PROJECT MODE: creates support ticket)
+
 Route::get('/forgot-password', [PasswordResetController::class, 'requestForm'])
     ->middleware('throttle:30,1')
     ->name('password.request');
@@ -111,7 +109,7 @@ Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'
     ->middleware('throttle:10,1')
     ->name('password.email');
 
-// Reset form (used by admin-generated link)
+
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])
     ->middleware('throttle:30,1')
     ->name('password.reset');
@@ -120,9 +118,7 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])
     ->middleware('throttle:10,1')
     ->name('password.update');
 
-/**
- * Support Request (public form)
- */
+
 Route::get('/support/request', [SupportRequestController::class, 'show'])
     ->middleware('throttle:30,1')
     ->name('support.request.show');
@@ -131,15 +127,12 @@ Route::post('/support/request', [SupportRequestController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('support.request.store');
 
-/**
- * Company Registration
- */
+
 Route::get('/register', [CompanyRegisterController::class, 'show'])->name('register');
 Route::post('/register', [CompanyRegisterController::class, 'store'])->name('register.store');
 
-/**
- * Notifications
- */
+
+
 Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/read', [NotificationsController::class, 'read'])
         ->name('notifications.read');
@@ -148,9 +141,8 @@ Route::middleware('auth')->group(function () {
         ->name('notifications.readAll');
 });
 
-/**
- * User Tickets (logged in)
- */
+
+
 Route::middleware('auth')->prefix('support')->group(function () {
     Route::get('/tickets', [SupportTicketsController::class, 'index'])->name('support.tickets');
     Route::get('/tickets/{ticket}', [SupportTicketsController::class, 'show'])->name('support.tickets.show');

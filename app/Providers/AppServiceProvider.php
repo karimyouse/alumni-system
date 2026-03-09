@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         if (strlen($hex) !== 6) {
-            return '217 91% 60%'; // fallback blue
+            return '217 91% 60%';
         }
 
         $r = hexdec(substr($hex, 0, 2)) / 255;
@@ -63,16 +63,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // default string length
+
         Schema::defaultStringLength(191);
 
         View::composer('*', function ($view) {
 
-            /**
-             * =========================
-             * Theme settings (safe)
-             * =========================
-             */
+            
             $fallbackSettings = (object)[
                 'institution_name' => 'Alumni System',
                 'primary_color' => '#2563eb',
@@ -97,16 +93,12 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('appSettings', $settings)
                      ->with('appTheme', ['primary_hsl' => $primaryHsl]);
             } catch (\Throwable $e) {
-                // DB down / connection refused
+
                 $view->with('appSettings', $fallbackSettings)
                      ->with('appTheme', $fallbackTheme);
             }
 
-            /**
-             * =========================
-             * Notifications (safe)
-             * =========================
-             */
+
             $navUnreadCount = 0;
             $navNotifications = collect([]);
 
@@ -114,17 +106,17 @@ class AppServiceProvider extends ServiceProvider
                 if (Auth::check() && Schema::hasTable('notifications')) {
                     $u = Auth::user();
 
-                    // unread count
+
                     $navUnreadCount = $u->unreadNotifications()->count();
 
-                    // latest notifications (8 max)
+
                     $navNotifications = $u->notifications()
                         ->latest()
                         ->limit(8)
                         ->get();
                 }
             } catch (\Throwable $e) {
-                // ignore safely
+
             }
 
             $view->with('navUnreadCount', $navUnreadCount)

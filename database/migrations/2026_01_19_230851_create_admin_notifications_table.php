@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('admin_notifications', function (Blueprint $table) {
             $table->id();
 
-            $table->string('type'); // company_registration
+            $table->string('type');
             $table->string('title');
             $table->text('message')->nullable();
             $table->string('action_url')->nullable();

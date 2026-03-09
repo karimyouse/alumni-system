@@ -12,7 +12,7 @@ class JobsController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->query('status', 'all'); // all|approved|pending|rejected
+        $status = $request->query('status', 'all'); 
         $q = trim((string)$request->query('q',''));
 
         $query = Job::query()->orderByDesc('id');

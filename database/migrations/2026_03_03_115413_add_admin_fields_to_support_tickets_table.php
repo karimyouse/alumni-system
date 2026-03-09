@@ -10,19 +10,19 @@ return new class extends Migration
     {
         Schema::table('support_tickets', function (Blueprint $table) {
 
-            // ✅ admin handling fields
+
             if (!Schema::hasColumn('support_tickets', 'admin_id')) {
                 $table->foreignId('admin_id')->nullable()
                       ->constrained('users')->nullOnDelete()
                       ->after('priority');
             }
 
-            // ✅ reply field (اسمك الحالي admin_reply)
+
             if (!Schema::hasColumn('support_tickets', 'admin_reply')) {
                 $table->text('admin_reply')->nullable()->after('admin_id');
             }
 
-            // ✅ resolved timestamp
+
             if (!Schema::hasColumn('support_tickets', 'resolved_at')) {
                 $table->timestamp('resolved_at')->nullable()->after('admin_reply');
             }

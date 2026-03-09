@@ -18,7 +18,7 @@ class SupportRequestController extends Controller
             'role' => strtolower((string)$request->query('role', 'alumni')),
             'identifier' => (string)$request->query('identifier', ''),
 
-            // ✅ last saved tracking (30 days cookie) - device based
+
             'lastCode'  => (string) $request->cookie('support_last_code', ''),
             'lastEmail' => (string) $request->cookie('support_last_email', ''),
         ]);
@@ -46,10 +46,10 @@ class SupportRequestController extends Controller
         $role = strtolower(trim($data['role']));
         $identifier = trim((string)$data['identifier']);
 
-        // ✅ normalize email (IMPORTANT)
+
         $emailLower = strtolower(trim((string)$data['email']));
 
-        // Best-effort linking to existing user
+
         $field = ($role === 'alumni') ? 'academic_id' : 'email';
 
         $userQuery = User::query()->where($field, $identifier);
@@ -62,7 +62,7 @@ class SupportRequestController extends Controller
 
         $user = $userQuery->first();
 
-        // ✅ Realistic: Prevent duplicate open tickets for same user/device/email
+
         $existing = $this->findOpenTicket($user?->id, $emailLower, $role, $identifier);
 
         if ($existing) {
@@ -97,17 +97,17 @@ class SupportRequestController extends Controller
         if (Schema::hasColumn('support_tickets', 'admin_reply')) $attrs['admin_reply'] = null;
         if (Schema::hasColumn('support_tickets', 'resolved_at')) $attrs['resolved_at'] = null;
 
-        // ✅ tracking_code
+
         if (Schema::hasColumn('support_tickets', 'tracking_code')) {
             $attrs['tracking_code'] = $this->generateTrackingCode();
         }
 
         $ticket = SupportTicket::create($attrs);
 
-        // ✅ Safety: ensure code exists
+
         $this->ensureTrackingCode($ticket);
 
-        // ✅ Notify admins (existing behavior)
+
         try {
             if (Schema::hasTable('notifications')) {
                 $admins = User::whereIn('role', ['admin','super_admin'])->get();
@@ -125,7 +125,7 @@ class SupportRequestController extends Controller
             }
         } catch (\Throwable $e) {}
 
-        // ✅ Redirect to tracking page + save cookie (device-based)
+
         return redirect()
             ->route('support.track.show', ['code' => $ticket->tracking_code, 'email' => $emailLower])
             ->with('toast_success', "Request sent. Save your tracking code: {$ticket->tracking_code}")
@@ -143,7 +143,7 @@ class SupportRequestController extends Controller
             return $q->where('user_id', $userId)->first();
         }
 
-        // fallback: match by email + role + identifier (if columns exist)
+
         $q->where('email', $email);
 
         if (Schema::hasColumn('support_tickets', 'role')) $q->where('role', $role);
@@ -173,7 +173,7 @@ class SupportRequestController extends Controller
 
     private function supportCookie(string $key, string $value)
     {
-        // 30 days
+
         return Cookie::make($key, $value, 60 * 24 * 30);
     }
 }

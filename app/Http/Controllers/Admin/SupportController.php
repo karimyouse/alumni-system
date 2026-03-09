@@ -65,10 +65,10 @@ class SupportController extends Controller
         $oldReply = trim((string)($ticket->admin_reply ?? ''));
         $newReply = trim((string)($data['admin_reply'] ?? ''));
 
-        // ✅ ensure tracking code exists (so user can track without login)
+
         $this->ensureTrackingCode($ticket);
 
-        // ✅ If admin wants to include a real reset link
+
         if ($request->boolean('include_reset_link')) {
             $resetUrl = $this->makePasswordResetUrl($ticket);
 
@@ -107,7 +107,7 @@ class SupportController extends Controller
 
         $ticket->update($update);
 
-        // ✅ notify owner (if reply changed and ticket is linked to user)
+
         if ($newReply !== '' && $newReply !== $oldReply) {
             $this->notifyOwner($ticket, $newReply);
         }
@@ -115,7 +115,7 @@ class SupportController extends Controller
         return back()->with('toast_success', 'Reply saved successfully.');
     }
 
-    // Backward compatibility
+
     public function reply(Request $request, SupportTicket $ticket)
     {
         return $this->respond($request, $ticket);
@@ -129,7 +129,7 @@ class SupportController extends Controller
             $owner = $ticket->user;
             if (!$owner) return;
 
-            // ✅ public tracking link (works even if suspended)
+
             $actionUrl = null;
             if (!empty($ticket->tracking_code)) {
                 $params = ['code' => $ticket->tracking_code];
@@ -173,15 +173,13 @@ class SupportController extends Controller
         }
     }
 
-    /**
-     * ✅ Generate a real password reset URL (stores token in DB)
-     * Returns null if we can't resolve a valid user/email.
-     */
+
+
     private function makePasswordResetUrl(SupportTicket $ticket): ?string
     {
         try {
-            // Prefer linked user. If not linked, try by ticket email.
-            $user = $ticket->user;
+
+        $user = $ticket->user;
 
             if (!$user && !empty($ticket->email)) {
                 $user = User::where('email', $ticket->email)->first();

@@ -51,7 +51,7 @@
       </div>
     @endif
 
-    {{-- ✅ Safe "last request" UI --}}
+    
     @if($lastCode)
       <div class="mb-5 rounded-xl border border-border bg-accent/10 p-4">
         <div class="text-sm font-semibold">Saved on this device</div>

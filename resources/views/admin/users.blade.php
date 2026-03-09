@@ -12,7 +12,7 @@
     ['label'=>'Support Center','href'=>'/admin/support','icon'=>'help-circle'],
   ];
 
-  $tab = $tab ?? request('tab', 'alumni'); // alumni|college|companies
+  $tab = $tab ?? request('tab', 'alumni');
   $q   = $q ?? request('q', '');
 
   $counts = $counts ?? ['alumni'=>0,'college'=>0,'companies'=>0];
@@ -41,7 +41,7 @@
     </form>
   </div>
 
-  {{-- Tabs --}}
+
   @php
     $tabs = [
       ['key'=>'alumni','label'=>'Alumni','count'=>$counts['alumni'] ?? 0],
@@ -60,7 +60,7 @@
     @endforeach
   </div>
 
-  {{-- Table (IMPORTANT: no overflow-hidden so dropdown won't be clipped) --}}
+
   <div class="rounded-xl border border-border bg-card">
     <div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-border text-xs text-muted-foreground">
       <div class="col-span-5">User</div>
@@ -110,13 +110,13 @@
           </div>
 
           <div class="col-span-2 flex items-center justify-end gap-2">
-            {{-- View --}}
+
             <a href="{{ route('admin.users.show', $u) }}"
                class="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50">
               <i data-lucide="eye" class="h-4 w-4 text-muted-foreground"></i>
             </a>
 
-            {{-- Suspend/Unsuspend --}}
+
             <form method="POST" action="{{ route('admin.users.suspend', $u) }}">
               @csrf
               <button type="submit"
@@ -126,7 +126,7 @@
               </button>
             </form>
 
-            {{-- More menu (fixed) --}}
+            
             <details class="relative">
               <summary class="h-9 w-9 cursor-pointer inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50">
                 <i data-lucide="more-horizontal" class="h-4 w-4 text-muted-foreground"></i>

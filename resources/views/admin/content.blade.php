@@ -52,7 +52,7 @@
     <p class="text-sm text-muted-foreground">Review and approve content submissions</p>
   </div>
 
-  {{-- Tabs --}}
+
   <div class="flex flex-wrap items-center gap-2">
     @foreach($tabs as $t)
       <a href="{{ route('admin.content', ['tab'=>$t['key'], 'status'=>$status]) }}"
@@ -64,7 +64,7 @@
     @endforeach
   </div>
 
-  {{-- Status filter --}}
+
   <div class="flex items-center gap-2">
     <div class="text-sm text-muted-foreground">Status:</div>
     @foreach($statusTabs as $s)
@@ -76,7 +76,7 @@
     @endforeach
   </div>
 
-  {{-- Items --}}
+
   <div class="rounded-xl border border-border bg-card overflow-hidden">
     <div class="p-6 border-b border-border">
       <div class="text-lg font-semibold">Items</div>
@@ -101,7 +101,7 @@
             $meta = 'Created: ' . (isset($it->created_at) ? \Carbon\Carbon::parse($it->created_at)->format('M d, Y') : '—');
           }
 
-          // ✅ إذا statusCol موجود خذ منه، غير هيك اعرض "—" بدل "approved" (حتى ما نضلل)
+
           $st = ($statusCol && isset($it->{$statusCol})) ? ($it->{$statusCol} ?? '—') : '—';
           $stClass = $statusPill($st);
 
@@ -130,7 +130,7 @@
           <div class="flex items-center gap-2">
             <span class="text-xs rounded-full px-2 py-1 {{ $stClass }}">{{ strtolower((string)$st) }}</span>
 
-            {{-- View --}}
+
             <button type="button"
                     class="h-9 rounded-md border border-border px-3 text-sm hover:bg-accent/50 inline-flex items-center gap-2"
                     data-title="{{ e($itemTitle) }}"
@@ -142,7 +142,7 @@
               View
             </button>
 
-            {{-- Reject (opens modal) --}}
+
             <button type="button"
                     class="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50"
                     title="Reject"
@@ -152,7 +152,7 @@
               <i data-lucide="x" class="h-4 w-4 text-red-400"></i>
             </button>
 
-            {{-- Approve --}}
+
             <form method="POST" action="{{ route('admin.content.approve', ['type'=>$tab, 'id'=>$it->id]) }}">
               @csrf
               <button type="submit"
@@ -169,7 +169,7 @@
     </div>
   </div>
 
-  {{-- Pagination --}}
+
   @if(method_exists($items, 'links'))
     <div class="pt-2">
       {{ $items->links() }}
@@ -178,7 +178,7 @@
 
 </div>
 
-{{-- ✅ View Modal (single) --}}
+
 <div id="viewModal" class="hidden">
   <div class="fixed inset-0 bg-black/60 z-[9998]" onclick="closeAllModals()"></div>
 
@@ -217,7 +217,7 @@
   </div>
 </div>
 
-{{-- ✅ Reject Modal (single) --}}
+
 <div id="rejectModal" class="hidden">
   <div class="fixed inset-0 bg-black/60 z-[9998]" onclick="closeAllModals()"></div>
 
@@ -277,7 +277,7 @@
   }
 
   function openViewModal(btn) {
-    // ✅ حل مشكلة "مودال فوق مودال"
+
     closeAllModals();
 
     const title = btn.dataset.title || 'Item';
@@ -298,7 +298,7 @@
   }
 
   function openRejectModal(btn) {
-    // ✅ حل مشكلة "مودال فوق مودال"
+
     closeAllModals();
 
     const title = btn.dataset.title || 'Item';
@@ -309,14 +309,14 @@
     const form = document.getElementById('rejectForm');
     if (url) form.setAttribute('action', url);
 
-    // ✅ امسح الملاحظة القديمة
+
     const note = document.getElementById('rmNote');
     if (note) note.value = '';
 
     document.getElementById('rejectModal').classList.remove('hidden');
   }
 
-  // ESC close
+ 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeAllModals();
   });

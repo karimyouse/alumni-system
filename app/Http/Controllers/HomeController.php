@@ -64,7 +64,7 @@ class HomeController extends Controller
                 $stats['companies'] = $companiesQuery->count();
             }
         } catch (\Throwable $e) {
-            // keep safe fallback zeros
+            
         }
 
         return view('home', [

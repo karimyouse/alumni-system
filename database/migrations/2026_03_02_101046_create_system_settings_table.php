@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('institution_name')->default('Palestine Technical College');
-            $table->string('primary_color')->default('#2563eb'); // blue-600
+            $table->string('primary_color')->default('#2563eb'); 
 
             $table->boolean('email_new_user_notifications')->default(true);
             $table->boolean('email_content_approval_alerts')->default(true);
