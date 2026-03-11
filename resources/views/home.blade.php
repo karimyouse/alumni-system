@@ -14,18 +14,18 @@
   $whyMatters = [
     [
       'icon' => 'target',
-      'title' => 'The Problem',
-      'description' => 'No centralized system for tracking alumni progress, career development, or engagement after graduation.',
+      'title' => __('home.why.problem.title'),
+      'description' => __('home.why.problem.description'),
     ],
     [
       'icon' => 'handshake',
-      'title' => 'Our Solution',
-      'description' => 'A unified platform connecting colleges, alumni, and employers in one integrated ecosystem.',
+      'title' => __('home.why.solution.title'),
+      'description' => __('home.why.solution.description'),
     ],
     [
       'icon' => 'trending-up',
-      'title' => 'The Impact',
-      'description' => 'Strengthened relationships, better career opportunities, and measurable institutional outcomes.',
+      'title' => __('home.why.impact.title'),
+      'description' => __('home.why.impact.description'),
     ],
   ];
 

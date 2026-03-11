@@ -16,10 +16,10 @@
   ];
 
   $pill = fn($s) => match($s) {
-    'open' => ['Open','bg-green-500/15 text-green-400'],
-    'closing_soon' => ['Closing Soon','bg-orange-500/15 text-orange-400'],
-    'closed' => ['Closed','bg-red-500/15 text-red-400'],
-    default => [ucfirst($s),'bg-secondary text-secondary-foreground'],
+    'open' => [__('Open'),'bg-green-500/15 text-green-400'],
+    'closing_soon' => [__('Closing Soon'),'bg-orange-500/15 text-orange-400'],
+    'closed' => [__('Closed'),'bg-red-500/15 text-red-400'],
+    default => [__(ucfirst($s)),'bg-secondary text-secondary-foreground'],
   };
   [$pillTxt,$pillCls] = $pill($scholarship->status ?? 'open');
 @endphp
@@ -33,34 +33,34 @@
         <h1 class="text-2xl font-bold">{{ $scholarship->title }}</h1>
         <span class="text-xs rounded-full px-2 py-1 {{ $pillCls }}">{{ $pillTxt }}</span>
         @if($alreadyApplied)
-          <span class="text-xs rounded-full px-2 py-1 bg-blue-500/15 text-blue-400">Applied</span>
+          <span class="text-xs rounded-full px-2 py-1 bg-blue-500/15 text-blue-400">{{ __('Applied') }}</span>
         @endif
       </div>
-      <p class="text-sm text-muted-foreground mt-1">Review details then apply</p>
+      <p class="text-sm text-muted-foreground mt-1">{{ __('Review details then apply') }}</p>
     </div>
 
     <a href="{{ route('alumni.scholarships') }}"
        class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-      Back
+      {{ __('Back') }}
     </a>
   </div>
 
   <div class="rounded-xl border border-border bg-card p-6 space-y-4">
     <div class="grid md:grid-cols-2 gap-3 text-sm">
-      <div><span class="text-muted-foreground">Amount:</span> {{ $scholarship->amount ?? '-' }}</div>
-      <div><span class="text-muted-foreground">Deadline:</span> {{ $scholarship->deadline ?? '-' }}</div>
+      <div><span class="text-muted-foreground">{{ __('Amount:') }}</span> {{ $scholarship->amount ?? '-' }}</div>
+      <div><span class="text-muted-foreground">{{ __('Deadline:') }}</span> {{ $scholarship->deadline ?? '-' }}</div>
     </div>
 
     @if($scholarship->description)
       <div>
-        <div class="font-semibold mb-1">Description</div>
+        <div class="font-semibold mb-1">{{ __('Description') }}</div>
         <div class="text-sm text-muted-foreground">{{ $scholarship->description }}</div>
       </div>
     @endif
 
     @if($scholarship->requirements)
       <div>
-        <div class="font-semibold mb-1">Requirements</div>
+        <div class="font-semibold mb-1">{{ __('Requirements') }}</div>
         <div class="text-sm text-muted-foreground whitespace-pre-line">{{ $scholarship->requirements }}</div>
       </div>
     @endif
@@ -70,12 +70,12 @@
         <form method="POST" action="{{ route('alumni.scholarships.apply', $scholarship) }}">
           @csrf
           <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-            Apply Now
+            {{ __('Apply Now') }}
           </button>
         </form>
       @else
         <button class="rounded-md border border-border px-4 py-2 text-sm opacity-70 cursor-not-allowed" disabled>
-          {{ $alreadyApplied ? 'Already Applied' : 'Closed' }}
+          {{ $alreadyApplied ? __('Already Applied') : __('Closed') }}
         </button>
       @endif
     </div>

@@ -16,10 +16,10 @@
   ];
 
   $statusPill = fn($s) => match($s) {
-    'open' => ['Open','bg-green-500/15 text-green-400'],
-    'closing_soon' => ['Closing Soon','bg-orange-500/15 text-orange-400'],
-    'closed' => ['Closed','bg-red-500/15 text-red-400'],
-    default => [ucfirst($s),'bg-secondary text-secondary-foreground'],
+    'open' => [__('Open'),'bg-green-500/15 text-green-400'],
+    'closing_soon' => [__('Closing Soon'),'bg-orange-500/15 text-orange-400'],
+    'closed' => [__('Closed'),'bg-red-500/15 text-red-400'],
+    default => [__(ucfirst($s)),'bg-secondary text-secondary-foreground'],
   };
 @endphp
 
@@ -27,8 +27,8 @@
 <div class="space-y-6">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-bold">Scholarships</h1>
-      <p class="text-sm text-muted-foreground">Browse scholarships and apply online</p>
+      <h1 class="text-2xl font-bold">{{ __('Scholarships') }}</h1>
+      <p class="text-sm text-muted-foreground">{{ __('Browse scholarships and apply online') }}</p>
     </div>
   </div>
 
@@ -50,7 +50,7 @@
               <h3 class="text-lg font-semibold">{{ $s->title }}</h3>
               <span class="text-xs rounded-full px-2 py-1 {{ $pillCls }}">{{ $pillTxt }}</span>
               @if($applied)
-                <span class="text-xs rounded-full px-2 py-1 bg-blue-500/15 text-blue-400">Applied</span>
+                <span class="text-xs rounded-full px-2 py-1 bg-blue-500/15 text-blue-400">{{ __('Applied') }}</span>
               @endif
             </div>
 
@@ -59,7 +59,7 @@
                 <span class="inline-flex items-center gap-1"><i data-lucide="dollar-sign" class="h-3 w-3"></i> {{ $s->amount }}</span>
               @endif
               @if($s->deadline)
-                <span class="inline-flex items-center gap-1"><i data-lucide="calendar" class="h-3 w-3"></i> Deadline: {{ $s->deadline }}</span>
+                <span class="inline-flex items-center gap-1"><i data-lucide="calendar" class="h-3 w-3"></i> {{ __('Deadline:') }} {{ $s->deadline }}</span>
               @endif
             </div>
 
@@ -74,19 +74,19 @@
         <div class="flex items-center gap-2">
           <a href="{{ route('alumni.scholarships.show', $s) }}"
              class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-            Details
+            {{ __('Details') }}
           </a>
 
           @if(!$applied && ($s->status ?? 'open') !== 'closed')
             <form method="POST" action="{{ route('alumni.scholarships.apply', $s) }}">
               @csrf
               <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-                Apply
+                {{ __('Apply') }}
               </button>
             </form>
           @else
             <button class="rounded-md border border-border px-4 py-2 text-sm opacity-70 cursor-not-allowed" disabled>
-              {{ $applied ? 'Applied' : 'Closed' }}
+              {{ $applied ? __('Applied') : __('Closed') }}
             </button>
           @endif
         </div>

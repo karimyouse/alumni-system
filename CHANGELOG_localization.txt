@@ -1,0 +1,26 @@
+Localization & RTL Finalization
+================================
+
+Latest round fixes:
+- Preserved selected locale after logout by storing locale in both session and cookie.
+- Updated SetLocale middleware to read locale from session first, then cookie, then fallback app locale.
+- Updated /lang switch route to persist locale cookie and return to the same page safely.
+- Re-enabled response-level Arabic localization for all dashboards using a safe DOM-based HTML translator.
+- Replaced the previous raw string replacement translator with a DOMDocument-based middleware to avoid breaking Blade variables, scripts, and element attributes.
+- Registered TranslateHtmlResponse middleware globally for web routes after SetLocale.
+- Expanded resources/lang/ar.json substantially to cover Admin, College, Company, Alumni, Auth, and Support pages.
+- Added Track Support Request link on login form and kept Contact Support link available.
+- Preserved Arabic locale when logging out and returning to the login page.
+
+Key files changed in this round:
+- app/Http/Middleware/SetLocale.php
+- app/Http/Middleware/TranslateHtmlResponse.php
+- app/Http/Controllers/Auth/LoginController.php
+- bootstrap/app.php
+- routes/web.php
+- resources/views/auth/login.blade.php
+- resources/lang/ar.json
+
+Notes:
+- Goal was to avoid touching business logic and core route/controller workflows unless needed for locale persistence.
+- This round focuses on global dashboard coverage (Admin / College / Company / Alumni) and guest auth/support pages.

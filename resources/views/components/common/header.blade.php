@@ -12,9 +12,6 @@
       default => route('login'),
     };
   }
-
-  $isRtl = app()->getLocale() === 'ar';
-  $menuAlign = $isRtl ? 'left-0' : 'right-0';
 @endphp
 
 <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -39,35 +36,12 @@
     </nav>
 
     <div class="flex items-center gap-2">
-
-
-      <div class="relative" id="langWrap">
-        <x-ui.button variant="ghost" size="icon" data-testid="button-language-toggle" id="langBtn" type="button">
-          <i data-lucide="globe" class="h-4 w-4"></i>
-        </x-ui.button>
-
-        <div id="langMenu"
-             class="hidden absolute {{ $menuAlign }} mt-2 w-40 rounded-md border border-border bg-popover text-popover-foreground shadow-lg z-50">
-          <a href="{{ route('lang.switch', ['locale' => 'en']) }}"
-             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-md {{ app()->getLocale()==='en' ? 'bg-accent' : '' }}"
-             data-testid="menu-item-english">
-            {{ __('lang.english') }}
-          </a>
-
-          <a href="{{ route('lang.switch', ['locale' => 'ar']) }}"
-             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-md {{ app()->getLocale()==='ar' ? 'bg-accent' : '' }}"
-             data-testid="menu-item-arabic">
-            {{ __('lang.arabic') }}
-          </a>
-        </div>
-      </div>
-
+      @include('partials.language-dropdown', ['buttonClass' => 'h-10 w-10 inline-flex items-center justify-center rounded-md hover:bg-accent/50 transition'])
 
       <x-ui.button variant="ghost" size="icon" data-testid="button-theme-toggle" data-theme-toggle type="button">
         <i data-lucide="moon" class="h-4 w-4"></i>
       </x-ui.button>
 
-      
       @if(auth()->check())
         <div class="flex items-center gap-2">
           <a href="{{ $dashboard }}">
@@ -93,26 +67,3 @@
     </div>
   </div>
 </header>
-
-<script>
-  (function () {
-    const wrap = document.getElementById('langWrap');
-    const btn  = document.getElementById('langBtn');
-    const menu = document.getElementById('langMenu');
-
-    if (!wrap || !btn || !menu) return;
-
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      menu.classList.toggle('hidden');
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!wrap.contains(e.target)) menu.classList.add('hidden');
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') menu.classList.add('hidden');
-    });
-  })();
-</script>

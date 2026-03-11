@@ -21,7 +21,6 @@ class DashboardController extends Controller
         $userId = (int) $user->id;
 
         $profile = AlumniProfile::where('user_id', $userId)->first();
-
         $profileCompletion = $this->calculateProfileCompletion($user, $profile);
 
         $profileViews = 0;
@@ -53,7 +52,7 @@ class DashboardController extends Controller
         $jobBadgeCount = (clone $jobsQuery)->count();
 
         $recentJobs = $jobsQuery->take(3)->get()->map(function ($job) {
-            $job->posted_text = $job->created_at ? $job->created_at->diffForHumans() : ($job->posted ?? 'Recently');
+            $job->posted_text = $job->created_at ? $job->created_at->diffForHumans() : ($job->posted ?? __('Recently'));
             return $job;
         });
 
@@ -84,8 +83,8 @@ class DashboardController extends Controller
                 $data = is_array($notification->data) ? $notification->data : [];
 
                 return [
-                    'message' => $data['message'] ?? $data['title'] ?? 'New update available',
-                    'time' => $notification->created_at?->diffForHumans() ?? 'Recently',
+                    'message' => $data['message'] ?? $data['title'] ?? __('New update available'),
+                    'time' => $notification->created_at?->diffForHumans() ?? __('Recently'),
                 ];
             })
             ->values()
@@ -93,12 +92,12 @@ class DashboardController extends Controller
 
         if (empty($notifications)) {
             $notifications = [
-                ['message' => 'No new notifications yet.', 'time' => ''],
+                ['message' => __('No new notifications yet.'), 'time' => ''],
             ];
         }
 
         return view('alumni.index', [
-            'userName' => $user->name ?? 'Alumni',
+            'userName' => $user->name ?? __('Alumni'),
             'profileViews' => $profileViews,
             'profileCompletion' => $profileCompletion,
             'jobApplicationsCount' => $jobApplicationsCount,
@@ -135,7 +134,7 @@ class DashboardController extends Controller
                     ($givenRecommendations * 10) +
                     ($receivedRecommendations * 15);
 
-                $name = $user->name ?? 'Alumni';
+                $name = $user->name ?? __('Alumni');
                 $initials = collect(explode(' ', $name))
                     ->filter()
                     ->map(fn ($part) => mb_substr($part, 0, 1))

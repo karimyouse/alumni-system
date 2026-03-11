@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
+
+/* Arabic Font */
+html[lang="ar"] * {
+    font-family: 'Tajawal', 'Arial', sans-serif !important;
+    letter-spacing: 0 !important;
+}
+html[lang="ar"] h1, html[lang="ar"] h2,
+html[lang="ar"] h3, html[lang="ar"] h4 {
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+/* Move sidebar to RIGHT */
+html[lang="ar"] aside,
+html[lang="ar"] .sidebar,
+html[lang="ar"] nav.fixed.left-0,
+html[lang="ar"] aside.fixed.left-0,
+html[lang="ar"] div.fixed.left-0 {
+    right: 0 !important;
+    left: auto !important;
+    border-right: none !important;
+    border-left: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* Push main content from RIGHT */
+html[lang="ar"] main,
+html[lang="ar"] .main-content,
+html[lang="ar"] [class*="ml-64"] {
+    margin-left: 0 !important;
+    margin-right: 16rem !important;
+}
+html[lang="ar"] [class*="ml-56"] {
+    margin-left: 0 !important;
+    margin-right: 14rem !important;
+}
+html[lang="ar"] [class*="ml-72"] {
+    margin-left: 0 !important;
+    margin-right: 18rem !important;
+}
+html[lang="ar"] .lg\:ml-64 {
+    margin-left: 0 !important;
+    margin-right: 16rem !important;
+}
+
+/* Mobile */
+@media (max-width: 1024px) {
+    html[lang="ar"] main,
+    html[lang="ar"] .main-content,
+    html[lang="ar"] [class*="ml-64"] {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* Sidebar nav items RTL */
+html[lang="ar"] .sidebar a,
+html[lang="ar"] .sidebar button,
+html[lang="ar"] nav a,
+html[lang="ar"] nav button {
+    flex-direction: row-reverse !important;
+    text-align: right !important;
+}
+html[lang="ar"] .sidebar a svg,
+html[lang="ar"] .sidebar a i,
+html[lang="ar"] nav a svg,
+html[lang="ar"] nav a i {
+    margin-right: 0 !important;
+    margin-left: 0.75rem !important;
+}
+
+/* Text alignment */
+html[lang="ar"] body { text-align: right; }
+html[lang="ar"] .text-left { text-align: right !important; }
+html[lang="ar"] label { text-align: right; display: block; }
+
+/* Tables */
+html[lang="ar"] table { direction: rtl; }
+html[lang="ar"] th, html[lang="ar"] td { text-align: right !important; }
+
+/* Forms */
+html[lang="ar"] input,
+html[lang="ar"] select,
+html[lang="ar"] textarea {
+    text-align: right;
+    direction: rtl;
+}
+
+/* Dropdowns */
+html[lang="ar"] .dropdown-menu,
+html[lang="ar"] [x-show][class*="absolute"] {
+    left: 0 !important;
+    right: auto !important;
+    text-align: right;
+}
+
+/* Breadcrumbs */
+html[lang="ar"] .breadcrumb { flex-direction: row-reverse; }
+html[lang="ar"] .breadcrumb svg { transform: scaleX(-1); }
+
+/* Modals */
+html[lang="ar"] .modal,
+html[lang="ar"] dialog { direction: rtl; text-align: right; }
+
+/* Toasts */
+html[lang="ar"] .toast,
+html[lang="ar"] .alert { text-align: right; direction: rtl; }
+
+/* Flex space-x */
+html[lang="ar"] .space-x-4 > * + * { margin-left: 0 !important; margin-right: 1rem !important; }
+html[lang="ar"] .space-x-3 > * + * { margin-left: 0 !important; margin-right: 0.75rem !important; }
+html[lang="ar"] .space-x-2 > * + * { margin-left: 0 !important; margin-right: 0.5rem !important; }
+
+/* Transitions */
+aside, .sidebar, main, .main-content {
+    transition: margin 0.3s ease, left 0.3s ease, right 0.3s ease;
+}

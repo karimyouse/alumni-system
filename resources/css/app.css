@@ -309,3 +309,85 @@
   }
 }
 
+
+
+@layer base {
+  html[dir="rtl"] body,
+  html[dir="rtl"] input,
+  html[dir="rtl"] textarea,
+  html[dir="rtl"] select,
+  html[dir="rtl"] button {
+    font-family: Tahoma, "Segoe UI", Arial, var(--font-sans);
+  }
+
+  html[dir="rtl"] body {
+    direction: rtl;
+    text-align: right;
+  }
+
+  html[dir="rtl"] input:not([type="email"]):not([type="url"]),
+  html[dir="rtl"] textarea,
+  html[dir="rtl"] select {
+    text-align: right;
+  }
+
+  html[dir="rtl"] input[type="email"],
+  html[dir="rtl"] input[type="url"],
+  html[dir="rtl"] input[name="email"],
+  html[dir="rtl"] input[name="code"],
+  html[dir="rtl"] input[name="identifier"],
+  html[dir="rtl"] .font-mono {
+    direction: ltr;
+    text-align: left;
+  }
+
+  html[dir="rtl"] .text-left {
+    text-align: right !important;
+  }
+
+  html[dir="rtl"] .app-top-back {
+    left: auto;
+    right: 1rem;
+  }
+
+  html[dir="rtl"] .app-top-actions {
+    right: auto;
+    left: 1rem;
+  }
+
+  html[dir="rtl"] ul.list-disc {
+    padding-left: 0;
+    padding-right: 1.25rem;
+  }
+
+  html[dir="rtl"] table th,
+  html[dir="rtl"] table td {
+    text-align: right;
+  }
+}
+
+
+.dashboard-rtl {
+  text-align: right;
+}
+
+.dashboard-rtl .app-top-actions,
+.dashboard-rtl .app-top-back {
+  direction: rtl;
+}
+
+.dashboard-rtl [data-sidebar-item] .sidebar-item-icon,
+[dir="rtl"] .sidebar-item-icon {
+  margin-inline-end: 0.75rem;
+  margin-inline-start: 0;
+}
+
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+[dir="rtl"] .role-tab {
+  direction: rtl;
+}

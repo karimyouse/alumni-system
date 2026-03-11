@@ -72,19 +72,50 @@ Route::match(['GET','POST'], '/lang', function (Request $request) {
     session(['locale' => $locale]);
     app()->setLocale($locale);
 
+    $localeCookie = cookie()->forever('locale', $locale);
 
-    $prev = url()->previous();
-    $appUrl = rtrim(config('app.url'), '/');
+    $fragment = ltrim((string) ($request->input('fragment') ?? $request->query('fragment') ?? ''), '#');
 
-    if ($prev && str_starts_with($prev, '/')) {
-        return redirect($prev);
+    $normalizeTarget = function (?string $target) use ($request): ?string {
+        if (!is_string($target) || trim($target) === '') {
+            return null;
+        }
+
+        $target = trim($target);
+
+        if (str_starts_with($target, '/')) {
+            return $target;
+        }
+
+        $parts = parse_url($target);
+
+        if (!$parts || empty($parts['path'])) {
+            return null;
+        }
+
+        if (!empty($parts['scheme']) && !in_array($parts['scheme'], ['http', 'https'], true)) {
+            return null;
+        }
+
+        if (!empty($parts['host']) && $parts['host'] !== $request->getHost()) {
+            return null;
+        }
+
+        $path = $parts['path'] ?? '/';
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+        return $path . $query;
+    };
+
+    $target = $normalizeTarget($request->input('redirect_to') ?? $request->query('redirect_to'))
+        ?? $normalizeTarget(url()->previous())
+        ?? '/';
+
+    if ($fragment !== '') {
+        $target .= '#' . $fragment;
     }
 
-    if ($appUrl && $prev && str_starts_with($prev, $appUrl)) {
-        return redirect($prev);
-    }
-
-    return redirect('/');
+    return redirect($target)->cookie($localeCookie);
 })->name('lang.switch');
 
 

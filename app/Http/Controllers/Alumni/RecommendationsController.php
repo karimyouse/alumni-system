@@ -19,7 +19,7 @@ class RecommendationsController extends Controller
             ->orderByDesc('id')
             ->get()
             ->map(function ($r) {
-                $name = $r->from_name ?: 'Alumni';
+                $name = $r->from_name ?: __('Alumni');
                 $initials = collect(explode(' ', $name))
                     ->filter()
                     ->map(fn ($part) => mb_substr($part, 0, 1))
@@ -40,7 +40,7 @@ class RecommendationsController extends Controller
             ->orderByDesc('id')
             ->get()
             ->map(function ($r) {
-                $name = $r->to_name ?: 'Alumni';
+                $name = $r->to_name ?: __('Alumni');
                 $initials = collect(explode(' ', $name))
                     ->filter()
                     ->map(fn ($part) => mb_substr($part, 0, 1))
@@ -94,7 +94,7 @@ class RecommendationsController extends Controller
             'date' => now()->format('M d, Y'),
         ]);
 
-        return back()->with('toast_success', 'Recommendation sent successfully!');
+        return back()->with('toast_success', __('Recommendation sent successfully!'));
     }
 
     public function destroy(Recommendation $recommendation)
@@ -105,6 +105,6 @@ class RecommendationsController extends Controller
 
         $recommendation->delete();
 
-        return back()->with('toast_success', 'Recommendation deleted.');
+        return back()->with('toast_success', __('Recommendation deleted.'));
     }
 }

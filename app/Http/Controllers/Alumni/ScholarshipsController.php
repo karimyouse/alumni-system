@@ -42,7 +42,7 @@ class ScholarshipsController extends Controller
             ->exists();
 
         if ($exists) {
-            return back()->with('toast_success', 'You already applied for this scholarship.');
+            return back()->with('toast_success', __('You already applied for this scholarship.'));
         }
 
         ScholarshipApplication::create([
@@ -53,6 +53,6 @@ class ScholarshipsController extends Controller
         ]);
 
         return redirect()->route('alumni.scholarships.show', $scholarship)
-            ->with('toast_success', 'Scholarship application submitted!');
+            ->with('toast_success', __('Scholarship application submitted!'));
     }
 }

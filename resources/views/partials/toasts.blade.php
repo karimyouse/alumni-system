@@ -1,15 +1,19 @@
 @php
   $items = [];
 
-  if (session('toast_success')) $items[] = ['type'=>'success','title'=>'Success','message'=>session('toast_success')];
-  if (session('toast_error'))   $items[] = ['type'=>'error','title'=>'Error','message'=>session('toast_error')];
-  if (session('toast_info'))    $items[] = ['type'=>'info','title'=>'Info','message'=>session('toast_info')];
-  if (session('toast_warning')) $items[] = ['type'=>'warning','title'=>'Warning','message'=>session('toast_warning')];
+  if (session('toast_success')) $items[] = ['type'=>'success','title'=>__('common.success'),'message'=>session('toast_success')];
+  if (session('toast_error'))   $items[] = ['type'=>'error','title'=>__('common.error'),'message'=>session('toast_error')];
+  if (session('toast_info'))    $items[] = ['type'=>'info','title'=>__('common.info'),'message'=>session('toast_info')];
+  if (session('toast_warning')) $items[] = ['type'=>'warning','title'=>__('common.warning'),'message'=>session('toast_warning')];
+
+  $isRtl = app()->getLocale() === 'ar';
+  $containerSideClass = $isRtl ? 'left-6' : 'right-6';
+  $accentBorderClass = $isRtl ? 'border-r-4' : 'border-l-4';
 @endphp
 
 @if(count($items))
   <div id="toastContainer"
-       class="fixed bottom-6 right-6 z-[9999] w-[360px] max-w-[92vw] space-y-3 pointer-events-none">
+       class="fixed bottom-6 {{ $containerSideClass }} z-[9999] w-[360px] max-w-[92vw] space-y-3 pointer-events-none">
     @foreach($items as $t)
       @php
         $type = $t['type'];
@@ -33,7 +37,7 @@
                   transition duration-300"
            data-timeout="2500">
 
-        <div class="border-l-4 {{ $accent }} px-4 py-3">
+        <div class="{{ $accentBorderClass }} {{ $accent }} px-4 py-3">
           <div class="flex items-start gap-3">
             <div class="mt-0.5 h-9 w-9 rounded-xl bg-background/40 flex items-center justify-center">
               <i data-lucide="{{ $icon }}" class="h-5 w-5"></i>
@@ -49,7 +53,7 @@
             <button type="button"
                     class="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
                     onclick="this.closest('.toastItem')?.remove()"
-                    aria-label="Close">
+                    aria-label="{{ __('common.close') }}">
               <i data-lucide="x" class="h-4 w-4"></i>
             </button>
           </div>

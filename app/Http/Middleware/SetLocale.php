@@ -10,18 +10,22 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-        $locale = session('locale', config('app.locale', 'en'));
+        $locale = $request->session()->get('locale')
+            ?? $request->cookie('locale')
+            ?? config('app.locale', 'en');
 
-        if (!in_array($locale, ['en','ar'], true)) {
+        if (!in_array($locale, ['en', 'ar'], true)) {
             $locale = 'en';
         }
 
         app()->setLocale($locale);
+        $request->session()->put('locale', $locale);
 
-        
         try {
             Carbon::setLocale($locale);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            // Ignore locale issues for Carbon to avoid breaking requests.
+        }
 
         return $next($request);
     }

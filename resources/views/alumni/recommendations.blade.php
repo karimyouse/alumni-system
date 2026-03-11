@@ -20,8 +20,8 @@
 <div class="space-y-6">
 
   <div>
-    <h1 class="text-2xl font-bold">Recommendations</h1>
-    <p class="text-sm text-muted-foreground">Give and receive peer recommendations</p>
+    <h1 class="text-2xl font-bold">{{ __('Recommendations') }}</h1>
+    <p class="text-sm text-muted-foreground">{{ __('Give and receive peer recommendations') }}</p>
   </div>
 
   @if ($errors->any())
@@ -36,12 +36,11 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-
     <div class="rounded-xl border border-border bg-card">
       <div class="p-6 border-b border-border">
         <div class="text-xl font-semibold inline-flex items-center gap-2">
           <i data-lucide="star" class="h-5 w-5 text-yellow-500"></i>
-          Received Recommendations
+          {{ __('Received Recommendations') }}
         </div>
       </div>
 
@@ -71,18 +70,17 @@
           </div>
         @empty
           <div class="text-sm text-muted-foreground">
-            No received recommendations yet.
+            {{ __('No received recommendations yet.') }}
           </div>
         @endforelse
       </div>
     </div>
 
-    
     <div class="rounded-xl border border-border bg-card">
       <div class="p-6 border-b border-border">
         <div class="text-xl font-semibold inline-flex items-center gap-2">
           <i data-lucide="send" class="h-5 w-5 text-primary"></i>
-          Given Recommendations
+          {{ __('Given Recommendations') }}
         </div>
       </div>
 
@@ -114,7 +112,7 @@
 
                   <button type="submit"
                           class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
-                    Delete
+                    {{ __('Delete') }}
                   </button>
                 </form>
               </div>
@@ -122,12 +120,12 @@
           </div>
         @empty
           <div class="text-sm text-muted-foreground">
-            No given recommendations yet.
+            {{ __('No given recommendations yet.') }}
           </div>
         @endforelse
 
         <div class="pt-4 border-t border-border">
-          <p class="text-sm font-medium mb-3">Write a new recommendation</p>
+          <p class="text-sm font-medium mb-3">{{ __('Write a new recommendation') }}</p>
 
           <form method="POST" action="{{ route('alumni.recommendations.store') }}" class="space-y-3">
             @csrf
@@ -135,7 +133,7 @@
             <select name="to_user_id"
                     class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
                     required>
-              <option value="">Select alumni...</option>
+              <option value="">{{ __('Select alumni...') }}</option>
               @foreach($alumniList as $alumni)
                 <option value="{{ $alumni->id }}" {{ old('to_user_id') == $alumni->id ? 'selected' : '' }}>
                   {{ $alumni->name }} — {{ $alumni->academic_id ?? '' }} — {{ $alumni->email }}
@@ -146,20 +144,20 @@
             <input name="role_title"
                    value="{{ old('role_title') }}"
                    class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
-                   placeholder="Your role/title (e.g. Senior Developer at TechCorp)"
+                   placeholder="{{ __('Your role/title (e.g. Senior Developer at TechCorp)') }}"
                    required>
 
             <textarea name="content"
                       rows="4"
                       class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm min-h-20"
-                      placeholder="Search for a peer and write your recommendation..."
+                      placeholder="{{ __('Search for a peer and write your recommendation...') }}"
                       required>{{ old('content') }}</textarea>
 
             <button type="submit"
                     class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 inline-flex items-center gap-2"
                     data-testid="button-send-recommendation">
               <i data-lucide="send" class="h-4 w-4"></i>
-              Send Recommendation
+              {{ __('Send Recommendation') }}
             </button>
           </form>
         </div>

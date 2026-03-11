@@ -22,16 +22,16 @@
   <div class="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
     <div class="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-bold mb-1">Welcome, {{ $userName }}!</h2>
+        <h2 class="text-2xl font-bold mb-1">{{ __('Welcome,') }} {{ $userName }}!</h2>
         <p class="text-muted-foreground">
-          Your profile is {{ $profileCompletion ?? 0 }}% complete. Add more details to stand out to employers.
+          {{ __('Your profile is') }} {{ $profileCompletion ?? 0 }}{{ __('%. Add more details to stand out to employers.') }}
         </p>
       </div>
 
       <a href="/alumni/profile">
         <x-ui.button>
-          Complete Profile
-          <i data-lucide="arrow-right" class="h-4 w-4 ml-2"></i>
+          {{ __('Complete Profile') }}
+          <i data-lucide="{{ app()->getLocale() === 'ar' ? 'arrow-left' : 'arrow-right' }}" class="h-4 w-4 ml-2"></i>
         </x-ui.button>
       </a>
     </div>
@@ -41,41 +41,41 @@
 
     <div class="rounded-xl border border-border bg-card p-5">
       <div class="flex items-center justify-between">
-        <div class="text-sm text-muted-foreground">Profile Views</div>
+        <div class="text-sm text-muted-foreground">{{ __('Profile Views') }}</div>
         <i data-lucide="user" class="h-4 w-4 text-muted-foreground"></i>
       </div>
       <div class="text-3xl font-bold mt-3">{{ number_format($profileViews ?? 0) }}</div>
       <div class="mt-1 text-xs text-muted-foreground">
-        {{ ($profileViews ?? 0) > 0 ? 'Tracked profile views' : 'No tracking data yet' }}
+        {{ ($profileViews ?? 0) > 0 ? __('Tracked profile views') : __('No tracking data yet') }}
       </div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
       <div class="flex items-center justify-between">
-        <div class="text-sm text-muted-foreground">Job Applications</div>
+        <div class="text-sm text-muted-foreground">{{ __('Job Applications') }}</div>
         <i data-lucide="briefcase" class="h-4 w-4 text-muted-foreground"></i>
       </div>
       <div class="text-3xl font-bold mt-2">{{ number_format($jobApplicationsCount ?? 0) }}</div>
-      <div class="mt-1 text-xs text-muted-foreground">Applications submitted</div>
+      <div class="mt-1 text-xs text-muted-foreground">{{ __('Applications submitted') }}</div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
       <div class="flex items-center justify-between">
-        <div class="text-sm text-muted-foreground">Workshops Attended</div>
+        <div class="text-sm text-muted-foreground">{{ __('Workshops Attended') }}</div>
         <i data-lucide="calendar-days" class="h-4 w-4 text-muted-foreground"></i>
       </div>
       <div class="text-3xl font-bold mt-2">{{ number_format($workshopsCount ?? 0) }}</div>
-      <div class="mt-1 text-xs text-muted-foreground">Registered workshops</div>
+      <div class="mt-1 text-xs text-muted-foreground">{{ __('Registered workshops') }}</div>
     </div>
 
     <div class="rounded-xl border border-border bg-card p-5">
       <div class="flex items-center justify-between">
-        <div class="text-sm text-muted-foreground">Leaderboard Points</div>
+        <div class="text-sm text-muted-foreground">{{ __('Leaderboard Points') }}</div>
         <i data-lucide="trophy" class="h-4 w-4 text-muted-foreground"></i>
       </div>
       <div class="text-3xl font-bold mt-3">{{ number_format($leaderboardPoints ?? 0) }}</div>
       <div class="mt-1 text-xs text-muted-foreground">
-        Rank #{{ $leaderboardRank ?? '-' }} • {{ $leaderboardActivities ?? 0 }} activities
+        {{ __('Rank') }} #{{ $leaderboardRank ?? '-' }} • {{ $leaderboardActivities ?? 0 }} {{ __('activities') }}
       </div>
     </div>
 
@@ -86,11 +86,11 @@
     <div class="lg:col-span-2 rounded-xl border border-border bg-card">
       <div class="p-6 flex items-start justify-between gap-2 border-b border-border">
         <div>
-          <div class="text-lg font-semibold">Jobs</div>
-          <div class="text-sm text-muted-foreground">Latest opportunities for you</div>
+          <div class="text-lg font-semibold">{{ __('Jobs') }}</div>
+          <div class="text-sm text-muted-foreground">{{ __('Latest opportunities for you') }}</div>
         </div>
         <a href="/alumni/jobs" class="text-sm text-primary hover:underline inline-flex items-center gap-1">
-          View all <i data-lucide="arrow-right" class="h-4 w-4"></i>
+          {{ __('View all') }} <i data-lucide="{{ app()->getLocale() === 'ar' ? 'arrow-left' : 'arrow-right' }}" class="h-4 w-4"></i>
         </a>
       </div>
 
@@ -121,11 +121,11 @@
             </div>
 
             <a href="/alumni/jobs" class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/60 transition">
-              Apply
+              {{ __('Apply') }}
             </a>
           </div>
         @empty
-          <div class="text-sm text-muted-foreground">No jobs yet.</div>
+          <div class="text-sm text-muted-foreground">{{ __('No jobs yet.') }}</div>
         @endforelse
       </div>
     </div>
@@ -135,7 +135,7 @@
       <div class="rounded-xl border border-border bg-card">
         <div class="p-6 flex items-center justify-between gap-2 border-b border-border">
           <div class="text-lg font-semibold inline-flex items-center gap-2">
-            <i data-lucide="bell" class="h-4 w-4"></i> Notifications
+            <i data-lucide="bell" class="h-4 w-4"></i> {{ __('Notifications') }}
           </div>
           <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs">
             {{ count($notifications ?? []) }}
@@ -160,7 +160,7 @@
       <div class="rounded-xl border border-border bg-card">
         <div class="p-6 border-b border-border">
           <div class="text-lg font-semibold inline-flex items-center gap-2">
-            <i data-lucide="calendar-days" class="h-4 w-4"></i> Upcoming Workshops
+            <i data-lucide="calendar-days" class="h-4 w-4"></i> {{ __('Upcoming Workshops') }}
           </div>
         </div>
 
@@ -169,11 +169,11 @@
             <div class="p-3 rounded-lg bg-accent/50">
               <p class="font-medium text-sm">{{ $w->title }}</p>
               <p class="text-xs text-muted-foreground mt-1">
-                {{ $w->date ?? '-' }} at {{ $w->time ?? '-' }}
+                {{ $w->date ?? '-' }} {{ __('at') }} {{ $w->time ?? '-' }}
               </p>
             </div>
           @empty
-            <div class="text-sm text-muted-foreground">No workshops yet.</div>
+            <div class="text-sm text-muted-foreground">{{ __('No workshops yet.') }}</div>
           @endforelse
         </div>
       </div>
@@ -181,10 +181,10 @@
       <div class="rounded-xl border border-border bg-card">
         <div class="p-6 flex items-center justify-between gap-2 border-b border-border">
           <div class="text-lg font-semibold inline-flex items-center gap-2">
-            <i data-lucide="trophy" class="h-4 w-4"></i> Leaderboard
+            <i data-lucide="trophy" class="h-4 w-4"></i> {{ __('Leaderboard') }}
           </div>
           <a href="/alumni/leaderboard" class="text-sm text-primary hover:underline inline-flex items-center gap-1">
-            View all <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            {{ __('View all') }} <i data-lucide="{{ app()->getLocale() === 'ar' ? 'arrow-left' : 'arrow-right' }}" class="h-4 w-4"></i>
           </a>
         </div>
 
@@ -201,7 +201,7 @@
               <span class="text-sm font-semibold text-primary">{{ number_format($entry['points']) }}</span>
             </div>
           @empty
-            <div class="text-sm text-muted-foreground">No leaderboard data yet.</div>
+            <div class="text-sm text-muted-foreground">{{ __('No leaderboard data yet.') }}</div>
           @endforelse
         </div>
       </div>

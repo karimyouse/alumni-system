@@ -18,29 +18,18 @@
 @section('content')
 <div class="space-y-6">
   <div>
-    <h1 class="text-2xl font-bold">Workshops</h1>
-    <p class="text-sm text-muted-foreground">Upcoming workshops and events</p>
+    <h1 class="text-2xl font-bold">{{ __('Workshops') }}</h1>
+    <p class="text-sm text-muted-foreground">{{ __('Upcoming workshops and events') }}</p>
   </div>
 
   <div class="space-y-4">
     @foreach($workshops as $w)
       @php
         $isReg = in_array($w->id, $registeredIds);
-
-
         $cap = $w->capacity ?? null;
-
-
-
         $registeredCount = $w->registered_count ?? 0;
-
-
         $spotsLeft = is_null($cap) ? null : max(0, (int)$cap - (int)$registeredCount);
-
-
         $isFull = (!is_null($cap) && $spotsLeft <= 0);
-
-        
         $canRegister = (!$isReg && !$isFull);
       @endphp
 
@@ -55,9 +44,9 @@
               <h3 class="font-semibold text-lg">{{ $w->title }}</h3>
 
               @if($isReg)
-                <span class="text-xs rounded-full bg-green-500/15 text-green-400 px-2 py-1">Registered</span>
+                <span class="text-xs rounded-full bg-green-500/15 text-green-400 px-2 py-1">{{ __('Registered') }}</span>
               @elseif($isFull)
-                <span class="text-xs rounded-full bg-red-500/15 text-red-400 px-2 py-1">Full</span>
+                <span class="text-xs rounded-full bg-red-500/15 text-red-400 px-2 py-1">{{ __('Full') }}</span>
               @endif
             </div>
 
@@ -77,9 +66,9 @@
               <span class="inline-flex items-center gap-1">
                 <i data-lucide="users" class="h-3 w-3"></i>
                 @if(is_null($cap))
-                  Unlimited spots
+                  {{ __('Unlimited spots') }}
                 @else
-                  {{ $spotsLeft }} spots left
+                  {{ $spotsLeft }} {{ __('spots left') }}
                 @endif
               </span>
             </div>
@@ -91,7 +80,7 @@
             <form method="POST" action="{{ route('alumni.workshops.cancel', $w) }}">
               @csrf
               <button class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-                Cancel Registration
+                {{ __('Cancel Registration') }}
               </button>
             </form>
           @else
@@ -99,7 +88,7 @@
               @csrf
               <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                       {{ $canRegister ? '' : 'disabled' }}>
-                Register
+                {{ __('Register') }}
               </button>
             </form>
           @endif

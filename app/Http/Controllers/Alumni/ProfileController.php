@@ -33,7 +33,7 @@ class ProfileController extends Controller
             'graduation_year' => ['nullable','string','max:10'],
             'gpa' => ['nullable','numeric','min:0','max:4'],
             'bio' => ['nullable','string','max:1000'],
-            'skills' => ['nullable','string','max:500'], // "React, PHP, ..."
+            'skills' => ['nullable','string','max:500'],
             'linkedin' => ['nullable','string','max:255'],
             'portfolio' => ['nullable','string','max:255'],
         ]);
@@ -57,6 +57,6 @@ class ProfileController extends Controller
             ]
         );
 
-        return back()->with('toast_success', 'Profile updated successfully!');
+        return back()->with('toast_success', __('Profile updated successfully!'));
     }
 }

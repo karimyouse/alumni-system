@@ -14,12 +14,10 @@ class WorkshopsController extends Controller
     {
         $userId = Auth::id();
 
-
         $workshops = Workshop::query()
             ->withCount([
                 'registrations as registered_count' => function ($q) {
-
-                if (Schema::hasColumn('workshop_registrations', 'status')) {
+                    if (Schema::hasColumn('workshop_registrations', 'status')) {
                         $q->where('status', 'registered');
                     }
                 }
@@ -27,8 +25,7 @@ class WorkshopsController extends Controller
             ->orderByDesc('id')
             ->get();
 
-
-            $regQuery = WorkshopRegistration::where('alumni_user_id', $userId);
+        $regQuery = WorkshopRegistration::where('alumni_user_id', $userId);
 
         if (Schema::hasColumn('workshop_registrations', 'status')) {
             $regQuery->where('status', 'registered');
@@ -43,13 +40,11 @@ class WorkshopsController extends Controller
     {
         $userId = Auth::id();
 
-
         if (Schema::hasColumn('workshops', 'proposal_status')) {
             if (($workshop->proposal_status ?? 'approved') !== 'approved') {
-                return back()->with('toast_success', 'This workshop is not available yet.');
+                return back()->with('toast_success', __('This workshop is not available yet.'));
             }
         }
-
 
         if (Schema::hasColumn('workshop_registrations', 'status')) {
             $already = WorkshopRegistration::where('workshop_id', $workshop->id)
@@ -58,10 +53,9 @@ class WorkshopsController extends Controller
                 ->exists();
 
             if ($already) {
-                return back()->with('toast_success', 'You are already registered.');
+                return back()->with('toast_success', __('You are already registered.'));
             }
         }
-
 
         if (Schema::hasColumn('workshops', 'capacity')) {
             $cap = $workshop->capacity;
@@ -76,11 +70,10 @@ class WorkshopsController extends Controller
                 $count = $countQuery->count();
 
                 if ($count >= (int)$cap) {
-                    return back()->with('toast_success', 'Workshop is full.');
+                    return back()->with('toast_success', __('Workshop is full.'));
                 }
             }
         }
-
 
         $attrs = [
             'workshop_id' => $workshop->id,
@@ -89,14 +82,13 @@ class WorkshopsController extends Controller
 
         $values = [];
 
-
         if (Schema::hasColumn('workshop_registrations', 'status')) {
             $values['status'] = 'registered';
         }
 
         WorkshopRegistration::updateOrCreate($attrs, $values);
 
-        return back()->with('toast_success', 'Successfully registered!');
+        return back()->with('toast_success', __('Successfully registered!'));
     }
 
     public function cancel(Workshop $workshop)
@@ -108,17 +100,15 @@ class WorkshopsController extends Controller
             ->first();
 
         if (!$reg) {
-            return back()->with('toast_success', 'No registration found.');
+            return back()->with('toast_success', __('No registration found.'));
         }
-
 
         if (Schema::hasColumn('workshop_registrations', 'status')) {
             $reg->update(['status' => 'cancelled']);
         } else {
-
-        $reg->delete();
+            $reg->delete();
         }
 
-        return back()->with('toast_success', 'Registration cancelled.');
+        return back()->with('toast_success', __('Registration cancelled.'));
     }
 }

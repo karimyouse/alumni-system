@@ -28,7 +28,6 @@ class PasswordResetController extends Controller
         $role = strtolower($data['role']);
         $identifier = trim($data['identifier']);
 
-
         $field = ($role === 'alumni') ? 'academic_id' : 'email';
 
         $q = User::query()->where($field, $identifier);
@@ -41,17 +40,13 @@ class PasswordResetController extends Controller
 
         $user = $q->first();
 
-
-        $genericMsg = 'If the account exists, a password reset link has been sent to the registered email.';
-
+        $genericMsg = __('If the account exists, a password reset link has been sent to the registered email.');
 
         if (!$user || empty($user->email)) {
             return back()->with('toast_success', $genericMsg)->withInput();
         }
 
-
         $status = Password::sendResetLink(['email' => $user->email]);
-
 
         if ($status !== Password::RESET_LINK_SENT) {
             return back()->with('toast_success', $genericMsg)->withInput();
@@ -87,8 +82,7 @@ class PasswordResetController extends Controller
                 'password_confirmation' => $data['password_confirmation'] ?? '',
             ],
             function ($user) use ($data) {
-
-            $user->forceFill([
+                $user->forceFill([
                     'password' => $data['password'],
                     'remember_token' => Str::random(60),
                 ])->save();
@@ -97,11 +91,11 @@ class PasswordResetController extends Controller
 
         if ($status !== Password::PASSWORD_RESET) {
             return back()
-                ->withErrors(['email' => 'This reset link is invalid or expired.'])
+                ->withErrors(['email' => __('This reset link is invalid or expired.')])
                 ->withInput();
         }
 
         return redirect()->route('login')
-            ->with('toast_success', 'Password updated successfully. Please sign in.');
+            ->with('toast_success', __('Password updated successfully. Please sign in.'));
     }
 }

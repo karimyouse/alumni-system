@@ -18,11 +18,9 @@ class JobsController extends Controller
 
         $jobsQuery = Job::query();
 
-
         if (Schema::hasColumn('jobs', 'status')) {
             $jobsQuery->where('status', 'active');
         }
-
 
         if (Schema::hasColumn('jobs', 'approval_status')) {
             $jobsQuery->where('approval_status', 'approved');
@@ -42,7 +40,6 @@ class JobsController extends Controller
         }
 
         $jobs = $jobsQuery->orderByDesc('id')->paginate(10)->withQueryString();
-
         $userId = Auth::id();
 
         $appliedJobIds = JobApplication::where('alumni_user_id', $userId)
@@ -56,14 +53,11 @@ class JobsController extends Controller
         return view('alumni.jobs', compact('jobs', 'q', 'appliedJobIds', 'savedJobIds'));
     }
 
-
     public function show(Job $job)
     {
-
-    if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
+        if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
             abort(404);
         }
-
 
         if (Schema::hasColumn('jobs', 'approval_status') && ($job->approval_status ?? 'approved') !== 'approved') {
             abort(404);
@@ -87,11 +81,11 @@ class JobsController extends Controller
         $userId = Auth::id();
 
         if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
-            return back()->with('toast_success', 'This job is not available.');
+            return back()->with('toast_success', __('This job is not available.'));
         }
 
         if (Schema::hasColumn('jobs', 'approval_status') && ($job->approval_status ?? 'approved') !== 'approved') {
-            return back()->with('toast_success', 'This job is not approved yet.');
+            return back()->with('toast_success', __('This job is not approved yet.'));
         }
 
         $exists = SavedJob::where('job_id', $job->id)
@@ -103,7 +97,7 @@ class JobsController extends Controller
                 ->where('alumni_user_id', $userId)
                 ->delete();
 
-            return back()->with('toast_success', 'Removed from saved jobs.');
+            return back()->with('toast_success', __('Removed from saved jobs.'));
         }
 
         SavedJob::create([
@@ -111,17 +105,17 @@ class JobsController extends Controller
             'alumni_user_id' => $userId,
         ]);
 
-        return back()->with('toast_success', 'Saved job successfully.');
+        return back()->with('toast_success', __('Saved job successfully.'));
     }
 
     public function apply(Job $job)
     {
         if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
-            return back()->with('toast_success', 'This job is not available.');
+            return back()->with('toast_success', __('This job is not available.'));
         }
 
         if (Schema::hasColumn('jobs', 'approval_status') && ($job->approval_status ?? 'approved') !== 'approved') {
-            return back()->with('toast_success', 'This job is not approved yet.');
+            return back()->with('toast_success', __('This job is not approved yet.'));
         }
 
         JobApplication::updateOrCreate(
@@ -132,6 +126,6 @@ class JobsController extends Controller
             ]
         );
 
-        return back()->with('toast_success', 'Successfully applied!');
+        return back()->with('toast_success', __('Successfully applied!'));
     }
 }

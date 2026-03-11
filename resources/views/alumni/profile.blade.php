@@ -28,8 +28,6 @@
 
   $emailValue = $user->email ?? '';
   $academicId = $user->academic_id ?? '';
-  $majorValue = $profile->major ?? '—';
-  $gradYear = $profile->graduation_year ?? '—';
 @endphp
 
 @section('content')
@@ -37,15 +35,15 @@
 
   <div class="flex items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold">My Profile</h1>
-      <p class="text-sm text-muted-foreground">Your profile details and public information</p>
+      <h1 class="text-2xl font-bold">{{ __('My Profile') }}</h1>
+      <p class="text-sm text-muted-foreground">{{ __('Your profile details and public information') }}</p>
     </div>
 
     <button type="button"
             id="profile-edit-toggle"
             class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center gap-2">
       <i data-lucide="pencil" class="h-4 w-4"></i>
-      <span id="profile-edit-toggle-text">Edit Profile</span>
+      <span id="profile-edit-toggle-text">{{ __('Edit Profile') }}</span>
     </button>
   </div>
 
@@ -64,7 +62,6 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-
       <div class="lg:col-span-1">
         <div class="rounded-xl border border-border bg-card h-full">
           <div class="p-6">
@@ -74,10 +71,10 @@
               </div>
 
               <h2 class="text-2xl font-semibold">{{ old('name', $user->name) }}</h2>
-              <p class="text-muted-foreground mt-1">{{ old('major', $profile->major ?: 'No major added yet') }}</p>
+              <p class="text-muted-foreground mt-1">{{ old('major', $profile->major ?: __('No major added yet')) }}</p>
 
               <span class="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs mt-3">
-                Class of {{ old('graduation_year', $profile->graduation_year ?: '—') }}
+                {{ __('Class of') }} {{ old('graduation_year', $profile->graduation_year ?: '—') }}
               </span>
 
               <div class="w-full mt-6 space-y-4 text-left">
@@ -98,7 +95,7 @@
 
                 <div class="flex items-center gap-3 text-sm">
                   <i data-lucide="graduation-cap" class="h-4 w-4 text-muted-foreground flex-shrink-0"></i>
-                  <span>ID: {{ $academicId ?: '—' }}</span>
+                  <span>{{ __('ID:') }} {{ $academicId ?: '—' }}</span>
                 </div>
               </div>
             </div>
@@ -106,19 +103,18 @@
         </div>
       </div>
 
-
       <div class="lg:col-span-2">
         <div class="rounded-xl border border-border bg-card">
           <div class="p-6 border-b border-border">
-            <div class="text-2xl font-semibold">Personal Information</div>
-            <div class="text-sm text-muted-foreground mt-1">Your profile details and bio</div>
+            <div class="text-2xl font-semibold">{{ __('Personal Information') }}</div>
+            <div class="text-sm text-muted-foreground mt-1">{{ __('Your profile details and bio') }}</div>
           </div>
 
           <div class="p-6 space-y-5">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2">
-                <label class="text-sm font-medium">Full Name</label>
+                <label class="text-sm font-medium">{{ __('Full Name') }}</label>
                 <input name="name"
                        value="{{ old('name', $user->name) }}"
                        data-editable="true"
@@ -128,14 +124,14 @@
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium">Email</label>
+                <label class="text-sm font-medium">{{ __('Email') }}</label>
                 <input value="{{ $emailValue }}"
                        disabled
                        class="w-full rounded-md border border-input bg-background/40 px-3 py-2 text-sm opacity-80">
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium">Phone</label>
+                <label class="text-sm font-medium">{{ __('Phone') }}</label>
                 <input name="phone"
                        value="{{ old('phone', $profile->phone) }}"
                        data-editable="true"
@@ -145,27 +141,27 @@
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium">Location</label>
+                <label class="text-sm font-medium">{{ __('Location') }}</label>
                 <input name="location"
                        value="{{ old('location', $profile->location) }}"
                        data-editable="true"
                        disabled
                        class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
-                       placeholder="City, Country">
+                       placeholder="{{ __('City, Country') }}">
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium">Major</label>
+                <label class="text-sm font-medium">{{ __('Major') }}</label>
                 <input name="major"
                        value="{{ old('major', $profile->major) }}"
                        data-editable="true"
                        disabled
                        class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
-                       placeholder="Your major">
+                       placeholder="{{ __('Your major') }}">
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium">GPA</label>
+                <label class="text-sm font-medium">{{ __('GPA') }}</label>
                 <input name="gpa"
                        value="{{ old('gpa', $profile->gpa) }}"
                        data-editable="true"
@@ -175,17 +171,16 @@
               </div>
             </div>
 
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2">
-                <label class="text-sm font-medium">Academic ID</label>
+                <label class="text-sm font-medium">{{ __('Academic ID') }}</label>
                 <input value="{{ $academicId }}"
                        disabled
                        class="w-full rounded-md border border-input bg-background/40 px-3 py-2 text-sm opacity-80">
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium">Graduation Year</label>
+                <label class="text-sm font-medium">{{ __('Graduation Year') }}</label>
                 <input name="graduation_year"
                        value="{{ old('graduation_year', $profile->graduation_year) }}"
                        data-editable="true"
@@ -196,24 +191,24 @@
             </div>
 
             <div class="space-y-2">
-              <label class="text-sm font-medium">Bio</label>
+              <label class="text-sm font-medium">{{ __('Bio') }}</label>
               <textarea name="bio"
                         rows="4"
                         data-editable="true"
                         disabled
                         class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm min-h-24"
-                        placeholder="Write a short bio...">{{ old('bio', $profile->bio) }}</textarea>
+                        placeholder="{{ __('Write a short bio...') }}">{{ old('bio', $profile->bio) }}</textarea>
             </div>
 
             <div class="space-y-2">
-              <label class="text-sm font-medium">Skills</label>
+              <label class="text-sm font-medium">{{ __('Skills') }}</label>
 
               <input name="skills"
                      value="{{ old('skills', $profile->skills) }}"
                      data-editable="true"
                      disabled
                      class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
-                     placeholder="JavaScript, React, Node.js">
+                     placeholder="{{ __('JavaScript, React, Node.js') }}">
 
               @if($skillsArr->isNotEmpty())
                 <div class="flex flex-wrap gap-2 mt-2">
@@ -226,10 +221,9 @@
               @endif
             </div>
 
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2">
-                <label class="text-sm font-medium">LinkedIn</label>
+                <label class="text-sm font-medium">{{ __('LinkedIn') }}</label>
                 <input name="linkedin"
                        value="{{ old('linkedin', $profile->linkedin) }}"
                        data-editable="true"
@@ -239,7 +233,7 @@
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium">Portfolio</label>
+                <label class="text-sm font-medium">{{ __('Portfolio') }}</label>
                 <input name="portfolio"
                        value="{{ old('portfolio', $profile->portfolio) }}"
                        data-editable="true"
@@ -253,7 +247,7 @@
               <button type="submit"
                       class="rounded-md bg-primary px-5 py-2 text-sm text-primary-foreground hover:opacity-90 inline-flex items-center gap-2">
                 <i data-lucide="save" class="h-4 w-4"></i>
-                Save Changes
+                {{ __('Save Changes') }}
               </button>
             </div>
 
@@ -282,7 +276,7 @@
       });
 
       saveRow.classList.toggle('hidden', !editing);
-      toggleText.textContent = editing ? 'Cancel Editing' : 'Edit Profile';
+      toggleText.textContent = editing ? @json(__('Cancel Editing')) : @json(__('Edit Profile'));
     }
 
     toggleBtn.addEventListener('click', function () {

@@ -20,8 +20,8 @@
 <div class="space-y-6">
 
   <div>
-    <h1 class="text-2xl font-bold">Leaderboard</h1>
-    <p class="text-sm text-muted-foreground">Monthly rankings based on engagement and activities</p>
+    <h1 class="text-2xl font-bold">{{ __('Leaderboard') }}</h1>
+    <p class="text-sm text-muted-foreground">{{ __('Monthly rankings based on engagement and activities') }}</p>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -46,20 +46,20 @@
         <div class="mt-3 font-semibold">
           {{ $item['name'] }}
           @if($item['is_me'])
-            <span class="text-xs text-primary">(You)</span>
+            <span class="text-xs text-primary">({{ __('You') }})</span>
           @endif
         </div>
 
         <div class="text-primary font-bold mt-1">{{ number_format($item['points']) }}</div>
-        <div class="text-xs text-muted-foreground">points</div>
+        <div class="text-xs text-muted-foreground">{{ __('points') }}</div>
 
         <div class="mt-3 inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs">
-          {{ $item['activities'] }} activities
+          {{ $item['activities'] }} {{ __('activities') }}
         </div>
       </div>
     @empty
       <div class="lg:col-span-3 rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
-        No leaderboard data yet.
+        {{ __('No leaderboard data yet.') }}
       </div>
     @endforelse
   </div>
@@ -68,12 +68,12 @@
     <div class="p-6 border-b border-border flex items-center justify-between gap-3">
       <div class="flex items-center gap-2">
         <i data-lucide="trophy" class="h-4 w-4"></i>
-        <h2 class="font-semibold">Full Rankings</h2>
+        <h2 class="font-semibold">{{ __('Full Rankings') }}</h2>
       </div>
 
       @if($myRank)
         <span class="text-xs rounded-full bg-primary/10 text-primary px-3 py-1">
-          Your rank: #{{ $myRank }}
+          {{ __('Your rank:') }} #{{ $myRank }}
         </span>
       @endif
     </div>
@@ -92,26 +92,26 @@
               <div class="text-sm font-semibold truncate">
                 {{ $item['name'] }}
                 @if($item['is_me'])
-                  <span class="text-xs text-primary">(You)</span>
+                  <span class="text-xs text-primary">({{ __('You') }})</span>
                 @endif
               </div>
 
               <div class="text-xs text-muted-foreground">
-                {{ $item['activities'] }} activities •
-                {{ $item['applications_count'] }} applications •
-                {{ $item['workshops_count'] }} workshops •
-                {{ $item['received_recommendations'] }} received recommendations
+                {{ $item['activities'] }} {{ __('activities') }} •
+                {{ $item['applications_count'] }} {{ __('applications') }} •
+                {{ $item['workshops_count'] }} {{ __('workshops') }} •
+                {{ $item['received_recommendations'] }} {{ __('received recommendations') }}
               </div>
             </div>
           </div>
 
           <div class="text-right">
             <div class="text-sm font-semibold text-primary">{{ number_format($item['points']) }}</div>
-            <div class="text-xs text-muted-foreground">points</div>
+            <div class="text-xs text-muted-foreground">{{ __('points') }}</div>
           </div>
         </div>
       @empty
-        <div class="text-sm text-muted-foreground">No leaderboard entries yet.</div>
+        <div class="text-sm text-muted-foreground">{{ __('No leaderboard entries yet.') }}</div>
       @endforelse
     </div>
   </div>

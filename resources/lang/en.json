@@ -5,64 +5,66 @@
   "nav.login": "Login",
   "nav.logout": "Logout",
   "nav.dashboard": "Dashboard",
-
   "lang.english": "English",
   "lang.arabic": "العربية",
-
   "home.hero.title": "Alumni Tracking System",
   "home.hero.subtitle": "Connecting Graduates, Institutions & Employers",
   "home.hero.description": "A comprehensive platform to register, monitor, and connect graduates with institutions and employers for career growth and professional development.",
   "home.hero.login": "Login",
   "home.hero.learnMore": "Learn More",
-
   "home.about.title": "About Alumni Affairs Unit",
   "home.about.description": "The Alumni Affairs Unit serves as the bridge between our institution and its graduates, fostering lifelong connections and supporting professional growth.",
-
   "home.portals.title": "Our Portals",
   "home.portals.subtitle": "Tailored access for every user type",
-
   "home.portals.alumni.title": "Alumni Portal",
   "home.portals.alumni.description": "Manage your profile, explore opportunities, and connect with peers.",
-
   "home.portals.college.title": "College Portal",
   "home.portals.college.description": "Monitor alumni, organize events, and track opportunities.",
-
   "home.portals.company.title": "Company Portal",
   "home.portals.company.description": "Post jobs and discover qualified graduates.",
-
   "home.portals.admin.title": "Admin Portal",
   "home.portals.admin.description": "Manage the entire system and analytics.",
-
   "home.features.title": "Key Features",
-
   "home.features.profiles": "Professional Profiles",
   "home.features.profiles.desc": "Build comprehensive profiles showcasing skills and achievements.",
-
   "home.features.jobs": "Job Opportunities",
   "home.features.jobs.desc": "Access exclusive job postings from partner companies.",
-
   "home.features.workshops": "Workshops & Events",
   "home.features.workshops.desc": "Participate in skill-building workshops and networking events.",
-
   "home.features.notifications": "Real-time Notifications",
   "home.features.notifications.desc": "Stay updated with opportunities and announcements.",
-
   "home.features.leaderboard": "Monthly Leaderboard",
   "home.features.leaderboard.desc": "Recognition for the most active and engaged alumni.",
-
   "home.features.recommendations": "Peer Recommendations",
   "home.features.recommendations.desc": "Give and receive professional recommendations.",
-
   "home.stats.alumni": "Active Alumni",
   "home.stats.jobs": "Job Postings",
   "home.stats.workshops": "Workshops Held",
   "home.stats.companies": "Partner Companies",
-
   "home.cta.title": "Ready to Get Started?",
   "home.cta.description": "Join our growing community of alumni and unlock new opportunities.",
-
   "footer.contact": "Contact Us",
   "footer.privacy": "Privacy Policy",
   "footer.terms": "Terms of Service",
-  "footer.rights": "All rights reserved"
+  "footer.rights": "All rights reserved",
+  "common.language": "Language",
+  "common.theme": "Theme",
+  "common.close": "Close",
+  "common.open_menu": "Open menu",
+  "common.toggle_sidebar": "Toggle sidebar",
+  "common.notifications": "Notifications",
+  "common.notification": "Notification",
+  "common.mark_all_read": "Mark all read",
+  "common.no_notifications": "No notifications yet",
+  "common.success": "Success",
+  "common.error": "Error",
+  "common.info": "Info",
+  "common.warning": "Warning",
+  "home.why.problem.title": "The Problem",
+  "home.why.problem.description": "No centralized system for tracking alumni progress, career development, or engagement after graduation.",
+  "home.why.solution.title": "Our Solution",
+  "home.why.solution.description": "A unified platform connecting colleges, alumni, and employers in one integrated ecosystem.",
+  "home.why.impact.title": "The Impact",
+  "home.why.impact.description": "Strengthened relationships, better career opportunities, and measurable institutional outcomes.",
+  "common.close_menu": "Close menu"
 }

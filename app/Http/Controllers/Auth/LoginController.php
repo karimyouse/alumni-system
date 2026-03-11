@@ -27,11 +27,9 @@ class LoginController extends Controller
         $identifier = trim($data['identifier']);
         $password = $data['password'];
 
-
         $field = ($role === 'alumni') ? 'academic_id' : 'email';
 
         $userQuery = User::query()->where($field, $identifier);
-
 
         if ($role === 'admin') {
             $userQuery->whereIn('role', ['admin', 'super_admin']);
@@ -41,34 +39,30 @@ class LoginController extends Controller
 
         $user = $userQuery->first();
 
-
         if (!$user || !Hash::check($password, $user->password)) {
             return back()
-                ->withErrors(['identifier' => 'Invalid credentials. Please check your details and try again.'])
+                ->withErrors(['identifier' => __('Invalid credentials. Please check your details and try again.')])
                 ->with('login_blocked', 'invalid')
                 ->withInput($request->only('role', 'identifier'));
         }
 
-
         if ((bool)($user->is_suspended ?? false) === true) {
             return back()
                 ->withErrors([
-                    'identifier' => 'Your account has been suspended by the system administrator. Please contact support to request reactivation.'
+                    'identifier' => __('Your account has been suspended by the system administrator. Please contact support to request reactivation.')
                 ])
                 ->with('login_blocked', 'suspended')
                 ->withInput($request->only('role', 'identifier'));
         }
 
-
         Auth::login($user);
         $request->session()->regenerate();
 
-        
         $user->forceFill(['last_login_at' => now()])->save();
 
         return redirect()
             ->intended($this->redirectPath($user->role))
-            ->with('toast_success', 'Successfully logged in!');
+            ->with('toast_success', __('Successfully logged in!'));
     }
 
     private function redirectPath(string $role): string
@@ -86,10 +80,20 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $locale = $request->session()->get('locale')
+            ?? $request->cookie('locale')
+            ?? app()->getLocale()
+            ?? 'en';
+
+        if (!in_array($locale, ['en', 'ar'], true)) {
+            $locale = 'en';
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        $request->session()->put('locale', $locale);
 
-        return redirect('/login');
+        return redirect('/login')->cookie(cookie()->forever('locale', $locale));
     }
 }

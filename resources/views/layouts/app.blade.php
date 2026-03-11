@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ $title ?? 'Alumni Tracking System' }}</title>
+    <title>{{ __($title ?? 'Alumni Tracking System') }}</title>
 
 
     <script>
@@ -30,6 +30,7 @@
       }
     </style>
 
+    @includeIf('partials.client-translations')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- ✅ Optional extra head from pages --}}

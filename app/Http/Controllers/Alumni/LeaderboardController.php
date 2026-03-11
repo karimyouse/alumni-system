@@ -32,7 +32,7 @@ class LeaderboardController extends Controller
                     ($givenRecommendations * 10) +
                     ($receivedRecommendations * 15);
 
-                $name = $user->name ?? 'Alumni';
+                $name = $user->name ?? __('Alumni');
                 $initials = collect(explode(' ', $name))
                     ->filter()
                     ->map(fn ($part) => mb_substr($part, 0, 1))

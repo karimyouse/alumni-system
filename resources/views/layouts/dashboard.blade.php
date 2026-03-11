@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ $title ?? 'Dashboard' }}</title>
+  <title>{{ __($title ?? 'Dashboard') }}</title>
 
   <style>
     :root{
@@ -51,10 +51,11 @@
     })();
   </script>
 
+  @includeIf('partials.client-translations')
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="h-screen overflow-hidden bg-background text-foreground" data-dashboard-layout>
+<body class="h-screen overflow-hidden bg-background text-foreground {{ app()->getLocale() === 'ar' ? 'dashboard-rtl' : '' }}" data-dashboard-layout>
   @includeIf('partials.toasts')
 
   @php
@@ -62,7 +63,11 @@
     $userRole = $user?->role ? str_replace('_', ' ', $user->role) : '';
     $subLine = ($user?->role === 'alumni') ? ($user?->academic_id ?? '') : ($user?->email ?? '');
     $initials = $user?->name ? collect(explode(' ', $user->name))->map(fn($n)=>mb_substr($n,0,1))->join('') : 'U';
-    $appName = 'Alumni System';
+    $appName = __('Alumni System');
+    $isRtl = app()->getLocale() === 'ar';
+    $sidebarHiddenClass = $isRtl ? 'translate-x-full' : '-translate-x-full';
+    $sidebarMobilePosition = $isRtl ? 'right-0 border-l border-border border-r-0' : 'left-0 border-r border-border';
+    $panelIcon = $isRtl ? 'panel-right' : 'panel-left';
 
     $brandHref = match($user?->role) {
       'alumni' => '/alumni',
@@ -75,11 +80,11 @@
 
   <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden bg-black/50 md:hidden"></div>
 
-  <div class="h-screen w-full flex overflow-hidden">
+  <div class="h-screen w-full flex overflow-hidden {{ $isRtl ? 'md:flex-row-reverse' : '' }}">
 
     <aside id="dashboardSidebar"
-           class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-card
-                  h-screen flex-shrink-0 overflow-hidden -translate-x-full transition-all duration-300
+           class="fixed inset-y-0 {{ $sidebarMobilePosition }} z-50 flex w-64 flex-col bg-card
+                  h-screen flex-shrink-0 overflow-hidden {{ $sidebarHiddenClass }} transition-all duration-300
                   md:static md:translate-x-0">
 
       <div class="border-b p-4 flex-shrink-0 flex items-center justify-between gap-2">
@@ -89,14 +94,14 @@
           </div>
           <div class="flex flex-col min-w-0" data-sidebar-text>
             <span class="font-semibold text-sm truncate">{{ $appName }}</span>
-            <span class="text-xs text-muted-foreground capitalize" data-sidebar-role>{{ $role ?? $userRole }}</span>
+            <span class="text-xs text-muted-foreground capitalize" data-sidebar-role>{{ __($role ?? $userRole) }}</span>
           </div>
         </a>
 
         <button type="button"
                 class="md:hidden h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
                 data-mobile-sidebar-close
-                aria-label="Close menu">
+                aria-label="{{ __('common.close_menu') }}">
           <i data-lucide="x" class="h-4 w-4"></i>
         </button>
       </div>
@@ -114,7 +119,7 @@
              {{ $active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground' }}">
             <span class="flex items-center gap-3 min-w-0">
               <i data-lucide="{{ $item['icon'] ?? 'circle' }}" class="h-4 w-4 sidebar-item-icon flex-shrink-0"></i>
-              <span class="truncate" data-sidebar-text>{{ $item['label'] }}</span>
+              <span class="truncate" data-sidebar-text>{{ __($item['label']) }}</span>
             </span>
 
             @if(isset($item['badge']) && $item['badge'] > 0)
@@ -144,7 +149,7 @@
                   data-sidebar-item
                   class="w-full justify-start gap-2 inline-flex items-center rounded-md px-3 py-2 text-sm hover:bg-accent/50 transition">
             <i data-lucide="log-out" class="h-4 w-4 sidebar-item-icon"></i>
-            <span data-sidebar-footer-label>Logout</span>
+            <span data-sidebar-footer-label>{{ __('nav.logout') }}</span>
           </button>
         </form>
       </div>
@@ -157,29 +162,27 @@
           <button type="button"
                   class="md:hidden h-9 w-9 inline-flex items-center justify-center rounded-md border border-border"
                   data-mobile-sidebar-open
-                  aria-label="Open menu">
-            <i data-lucide="panel-left" class="h-4 w-4"></i>
+                  aria-label="{{ __('common.open_menu') }}">
+            <i data-lucide="{{ $panelIcon }}" class="h-4 w-4"></i>
           </button>
 
           <button type="button"
                   class="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-md border border-border hover:bg-accent/50"
                   data-sidebar-toggle
-                  aria-label="Toggle sidebar">
-            <i data-lucide="panel-left" class="h-4 w-4"></i>
+                  aria-label="{{ __('common.toggle_sidebar') }}">
+            <i data-lucide="{{ $panelIcon }}" class="h-4 w-4"></i>
           </button>
 
-          <h1 class="text-lg font-semibold">{{ $title ?? '' }}</h1>
+          <h1 class="text-lg font-semibold">{{ __($title ?? '') }}</h1>
         </div>
 
         <div class="flex items-center gap-2">
           @includeIf('partials.notifications-dropdown')
 
-          <button class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50" aria-label="Language" type="button">
-            <i data-lucide="globe" class="h-4 w-4"></i>
-          </button>
+          @include('partials.language-dropdown')
 
           <button class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
-                  data-theme-toggle aria-label="Theme" type="button">
+                  data-theme-toggle aria-label="{{ __('common.theme') }}" type="button">
             <i data-lucide="moon" class="h-4 w-4"></i>
           </button>
         </div>

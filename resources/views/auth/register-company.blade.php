@@ -6,23 +6,19 @@
   <div class="absolute inset-0 bg-gradient-to-br from-background via-background to-background"></div>
   <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0)_55%)]"></div>
 
-  <div class="absolute top-4 left-4 flex items-center gap-2 text-sm text-muted-foreground">
+  @php($isRtl = app()->getLocale() === 'ar')
+  <div class="absolute top-4 left-4 app-top-back flex items-center gap-2 text-sm text-muted-foreground">
     <a href="/login" class="inline-flex items-center gap-2 hover:text-foreground transition">
-      <i data-lucide="chevron-left" class="h-4 w-4"></i>
+      <i data-lucide="{{ $isRtl ? 'chevron-right' : 'chevron-left' }}" class="h-4 w-4"></i>
       <span>Login</span>
     </a>
   </div>
 
-  <div class="absolute top-4 right-4 flex items-center gap-2">
+    <div class="absolute top-4 right-4 app-top-actions flex items-center gap-2">
+    @include('partials.language-dropdown')
     <button type="button"
             class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
-            aria-label="Language">
-      <i data-lucide="globe" class="h-4 w-4"></i>
-    </button>
-
-    <button type="button"
-            class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
-            data-theme-toggle aria-label="Theme">
+            data-theme-toggle aria-label="{{ __('common.theme') }}">
       <i data-lucide="sun" class="h-4 w-4"></i>
     </button>
   </div>
