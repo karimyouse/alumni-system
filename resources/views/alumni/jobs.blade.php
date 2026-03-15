@@ -1,20 +1,18 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Job Opportunities';
+  $title = __('Job Opportunities');
   $role  = 'Alumni';
-
-  $jobsBadge = $jobs->total();
 
   $nav = [
     ['label' => 'Overview', 'href' => '/alumni', 'icon' => 'layout-dashboard'],
     ['label' => 'My Profile', 'href' => '/alumni/profile', 'icon' => 'user'],
-    ['label' => 'Job Opportunities', 'href' => '/alumni/jobs', 'icon' => 'briefcase', 'badge' => $jobsBadge],
-    ['label' => 'Workshops', 'href' => '/alumni/workshops', 'icon' => 'calendar-days'],
+    ['label' => 'Job Opportunities', 'href' => '/alumni/jobs', 'icon' => 'briefcase'],
+    ['label' => 'Workshops', 'href' => '/alumni/workshops', 'icon' => 'calendar-days', 'badge' => $workshopBadgeCount ?? 0],
     ['label' => 'Scholarships', 'href' => '/alumni/scholarships', 'icon' => 'graduation-cap'],
-    ['label' => 'Recommendations', 'href' => '/alumni/recommendations', 'icon' => 'send'],
+    ['label' => 'Recommendations', 'href' => '/alumni/recommendations', 'icon' => 'send', 'badge' => $recommendationsReceived ?? 0],
     ['label' => 'Leaderboard', 'href' => '/alumni/leaderboard', 'icon' => 'trophy'],
-    ['label' => 'My Applications', 'href' => '/alumni/applications', 'icon' => 'file-text'],
+    ['label' => 'My Applications', 'href' => '/alumni/applications', 'icon' => 'file-text', 'badge' => $applicationsBadgeCount ?? 0],
   ];
 @endphp
 
@@ -23,19 +21,19 @@
 
   <div class="flex items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold">{{ __('Job Opportunities') }}</h1>
-      <p class="text-muted-foreground">{{ __('Find your next career opportunity') }}</p>
+      <h1 class="text-2xl font-bold">Job Opportunities</h1>
+      <p class="text-muted-foreground">Find your next career opportunity</p>
     </div>
 
     <form method="GET" action="{{ route('alumni.jobs') }}" class="flex items-center gap-2">
       <div class="relative">
         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></i>
-        <input name="q" value="{{ $q }}" placeholder="{{ __('Search jobs...') }}"
+        <input name="q" value="{{ $q }}" placeholder="Search jobs..."
                class="w-64 rounded-md border border-input bg-background/60 pl-9 pr-3 py-2 text-sm" />
       </div>
 
       <button type="submit" class="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50">
-        <i data-lucide="{{ app()->getLocale() === 'ar' ? 'arrow-left' : 'arrow-right' }}" class="h-4 w-4"></i>
+        <i data-lucide="arrow-right" class="h-4 w-4"></i>
       </button>
     </form>
   </div>
@@ -44,7 +42,6 @@
     @foreach($jobs as $job)
       @php
         $applied = in_array($job->id, $appliedJobIds);
-        $saved = isset($savedJobIds) && in_array($job->id, $savedJobIds);
       @endphp
 
       <div class="rounded-xl border border-border bg-card">
@@ -88,11 +85,12 @@
                 <span class="text-xs rounded-full bg-secondary px-3 py-1">{{ $job->salary }}</span>
               @endif
 
+              @php $saved = isset($savedJobIds) && in_array($job->id, $savedJobIds); @endphp
               <form method="POST" action="{{ route('alumni.jobs.save', $job) }}">
                 @csrf
                 <button type="submit"
                         class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
-                  {{ $saved ? __('Saved') : __('Save') }}
+                  {{ $saved ? 'Saved' : 'Save' }}
                 </button>
               </form>
 
@@ -101,7 +99,7 @@
                 <button type="submit"
                         class="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90"
                         {{ $applied ? 'disabled' : '' }}>
-                  {{ $applied ? __('Applied') : __('Apply Now') }}
+                  {{ $applied ? 'Applied' : 'Apply Now' }}
                 </button>
               </form>
             </div>

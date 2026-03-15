@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\College;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
+use App\Models\Job;
+use App\Models\Scholarship;
 use App\Models\SuccessStory;
+use App\Models\User;
+use App\Models\Workshop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,43 +38,47 @@ class SuccessStoriesController extends Controller
             return $story;
         });
 
-        return view('college.success-stories', compact('stories'));
+        return view('college.success-stories', array_merge(
+            compact('stories'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function create()
     {
-        return view('college.success-stories-create', [
+        return view('college.success-stories-create', array_merge([
             'story' => null,
             'isEdit' => false,
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function store(Request $request)
     {
         $data = $this->validateStory($request);
+        $publishNow = $request->boolean('is_published');
 
         SuccessStory::create([
-            'name' => $data['name'],
-            'graduation_year' => $data['graduation_year'],
-            'current_position' => $data['current_position'],
-            'title' => $data['title'],
-            'body' => $data['body'],
-            'is_published' => $request->boolean('is_published'),
-            'published_at' => $request->boolean('is_published') ? now() : null,
-            'created_by' => auth::id(),
+            'name' => trim($data['name']),
+            'graduation_year' => trim($data['graduation_year']),
+            'current_position' => !empty($data['current_position']) ? trim($data['current_position']) : null,
+            'title' => trim($data['title']),
+            'body' => trim($data['body']),
+            'is_published' => $publishNow,
+            'published_at' => $publishNow ? now() : null,
+            'created_by' => Auth::id(),
         ]);
 
         return redirect()
             ->route('college.successStories')
-            ->with('toast_success', $request->boolean('is_published') ? 'Story published.' : 'Story saved as draft.');
+            ->with('toast_success', $publishNow ? 'Story published.' : 'Story saved as draft.');
     }
 
     public function edit(SuccessStory $story)
     {
-        return view('college.success-stories-create', [
+        return view('college.success-stories-create', array_merge([
             'story' => $story,
             'isEdit' => true,
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function update(Request $request, SuccessStory $story)
@@ -78,11 +87,11 @@ class SuccessStoriesController extends Controller
         $publishNow = $request->boolean('is_published');
 
         $story->update([
-            'name' => $data['name'],
-            'graduation_year' => $data['graduation_year'],
-            'current_position' => $data['current_position'],
-            'title' => $data['title'],
-            'body' => $data['body'],
+            'name' => trim($data['name']),
+            'graduation_year' => trim($data['graduation_year']),
+            'current_position' => !empty($data['current_position']) ? trim($data['current_position']) : null,
+            'title' => trim($data['title']),
+            'body' => trim($data['body']),
             'is_published' => $publishNow,
             'published_at' => $publishNow ? ($story->published_at ?: now()) : null,
         ]);
@@ -121,5 +130,17 @@ class SuccessStoriesController extends Controller
             'body' => ['required', 'string', 'max:5000'],
             'is_published' => ['nullable'],
         ]);
+    }
+
+    private function buildNavCounts(): array
+    {
+        return [
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'workshopBadgeCount' => Workshop::count(),
+            'jobBadgeCount' => Job::count(),
+            'announcementBadgeCount' => Announcement::count(),
+            'scholarshipBadgeCount' => Scholarship::count(),
+            'successStoryBadgeCount' => SuccessStory::count(),
+        ];
     }
 }

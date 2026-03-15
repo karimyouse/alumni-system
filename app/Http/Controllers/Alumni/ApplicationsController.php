@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Alumni;
 
 use App\Http\Controllers\Controller;
+use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\Recommendation;
 use App\Models\ScholarshipApplication;
+use App\Models\Workshop;
 use App\Models\WorkshopRegistration;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class ApplicationsController extends Controller
 {
@@ -16,26 +20,26 @@ class ApplicationsController extends Controller
 
         if ($type === 'workshops') {
             if ($raw === 'registered') {
-                return [__('Accepted'), 'bg-green-500/15 text-green-400'];
+                return ['Accepted', 'bg-green-500/15 text-green-400'];
             }
             if ($raw === 'cancelled') {
-                return [__('Rejected'), 'bg-red-500/15 text-red-400'];
+                return ['Rejected', 'bg-red-500/15 text-red-400'];
             }
-            return [__(ucfirst($raw)), 'bg-secondary text-secondary-foreground'];
+            return [ucfirst($raw), 'bg-secondary text-secondary-foreground'];
         }
 
         return match ($raw) {
-            'pending'  => [__('Pending'), 'bg-muted text-foreground'],
-            'reviewed' => [__('Under Review'), 'bg-blue-500/15 text-blue-400'],
-            'accepted' => [__('Accepted'), 'bg-green-500/15 text-green-400'],
-            'rejected' => [__('Rejected'), 'bg-red-500/15 text-red-400'],
-            default    => [__(ucfirst($raw)), 'bg-secondary text-secondary-foreground'],
+            'pending'  => ['Pending', 'bg-muted text-foreground'],
+            'reviewed' => ['Under Review', 'bg-blue-500/15 text-blue-400'],
+            'accepted' => ['Accepted', 'bg-green-500/15 text-green-400'],
+            'rejected' => ['Rejected', 'bg-red-500/15 text-red-400'],
+            default    => [ucfirst($raw), 'bg-secondary text-secondary-foreground'],
         };
     }
 
     public function index()
     {
-        $userId = Auth::id();
+        $userId = (int) Auth::id();
 
         $jobApps = JobApplication::with('job')
             ->where('alumni_user_id', $userId)
@@ -46,9 +50,9 @@ class ApplicationsController extends Controller
                 return [
                     'id' => $a->id,
                     'type' => 'jobs',
-                    'title' => $a->job?->title ?? __('Job'),
-                    'org' => $a->job?->company_name ?? __('Company'),
-                    'date_text' => __('Applied') . ' ' . ($a->applied_date ?: ($a->created_at?->format('M d, Y') ?? '')),
+                    'title' => $a->job?->title ?? 'Job',
+                    'org' => $a->job?->company_name ?? 'Company',
+                    'date_text' => 'Applied ' . ($a->applied_date ?: ($a->created_at?->format('M d, Y') ?? '')),
                     'status_label' => $label,
                     'status_class' => $class,
                     'icon' => 'briefcase',
@@ -64,9 +68,9 @@ class ApplicationsController extends Controller
                 return [
                     'id' => $a->id,
                     'type' => 'scholarships',
-                    'title' => $a->scholarship?->title ?? __('Scholarship'),
+                    'title' => $a->scholarship?->title ?? 'Scholarship',
                     'org' => 'PTC',
-                    'date_text' => __('Applied') . ' ' . ($a->applied_date ?: ($a->created_at?->format('M d, Y') ?? '')),
+                    'date_text' => 'Applied ' . ($a->applied_date ?: ($a->created_at?->format('M d, Y') ?? '')),
                     'status_label' => $label,
                     'status_class' => $class,
                     'icon' => 'graduation-cap',
@@ -82,9 +86,9 @@ class ApplicationsController extends Controller
                 return [
                     'id' => $r->id,
                     'type' => 'workshops',
-                    'title' => $r->workshop?->title ?? __('Workshop'),
+                    'title' => $r->workshop?->title ?? 'Workshop',
                     'org' => 'PTC',
-                    'date_text' => __('Applied') . ' ' . ($r->created_at?->format('M d, Y') ?? ''),
+                    'date_text' => 'Applied ' . ($r->created_at?->format('M d, Y') ?? ''),
                     'status_label' => $label,
                     'status_class' => $class,
                     'icon' => 'calendar-days',
@@ -94,10 +98,10 @@ class ApplicationsController extends Controller
         $all = $jobApps->concat($schApps)->concat($wsRegs)->values();
 
         $tabs = [
-            ['key' => 'all', 'label' => __('All'), 'count' => $all->count()],
-            ['key' => 'jobs', 'label' => __('Jobs'), 'count' => $jobApps->count()],
-            ['key' => 'scholarships', 'label' => __('Scholarships'), 'count' => $schApps->count()],
-            ['key' => 'workshops', 'label' => __('Workshops'), 'count' => $wsRegs->count()],
+            ['key' => 'all', 'label' => 'All', 'count' => $all->count()],
+            ['key' => 'jobs', 'label' => 'Jobs', 'count' => $jobApps->count()],
+            ['key' => 'scholarships', 'label' => 'Scholarships', 'count' => $schApps->count()],
+            ['key' => 'workshops', 'label' => 'Workshops', 'count' => $wsRegs->count()],
         ];
 
         $itemsByTab = [
@@ -107,7 +111,13 @@ class ApplicationsController extends Controller
             'workshops' => $wsRegs,
         ];
 
-        return view('alumni.applications', compact('tabs', 'itemsByTab'));
+        $navBadges = $this->getNavBadges($userId);
+
+        return view('alumni.applications', compact('tabs', 'itemsByTab') + [
+            'jobBadgeCount' => $navBadges['jobBadgeCount'],
+            'workshopBadgeCount' => $navBadges['workshopBadgeCount'],
+            'recommendationsReceived' => $navBadges['recommendationsReceived'],
+        ]);
     }
 
     public function show(string $type, int $id)
@@ -157,28 +167,28 @@ class ApplicationsController extends Controller
             $app = JobApplication::where('alumni_user_id', $userId)->findOrFail($id);
 
             if (!in_array($app->status, ['pending', 'reviewed'])) {
-                return back()->with('toast_success', __('You cannot withdraw this application now.'));
+                return back()->with('toast_success', 'You cannot withdraw this application now.');
             }
 
             $app->delete();
 
             return redirect()
                 ->route('alumni.applications')
-                ->with('toast_success', __('Application withdrawn successfully.'));
+                ->with('toast_success', 'Application withdrawn successfully.');
         }
 
         if ($type === 'scholarships') {
             $app = ScholarshipApplication::where('alumni_user_id', $userId)->findOrFail($id);
 
             if (!in_array($app->status, ['pending', 'reviewed'])) {
-                return back()->with('toast_success', __('You cannot withdraw this application now.'));
+                return back()->with('toast_success', 'You cannot withdraw this application now.');
             }
 
             $app->delete();
 
             return redirect()
                 ->route('alumni.applications')
-                ->with('toast_success', __('Scholarship application withdrawn.'));
+                ->with('toast_success', 'Scholarship application withdrawn.');
         }
 
         $app = WorkshopRegistration::with('workshop')
@@ -193,6 +203,35 @@ class ApplicationsController extends Controller
 
         return redirect()
             ->route('alumni.applications')
-            ->with('toast_success', __('Workshop registration cancelled.'));
+            ->with('toast_success', 'Workshop registration cancelled.');
+    }
+
+    private function getNavBadges(int $userId): array
+    {
+        $jobsQuery = Job::query();
+
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $jobsQuery->where('approval_status', 'approved');
+        }
+
+        if (Schema::hasColumn('jobs', 'status')) {
+            $jobsQuery->where('status', 'active');
+        }
+
+        $workshopsQuery = Workshop::query();
+
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            $workshopsQuery->where('proposal_status', 'approved');
+        }
+
+        if (Schema::hasColumn('workshops', 'status')) {
+            $workshopsQuery->where('status', 'upcoming');
+        }
+
+        return [
+            'jobBadgeCount' => (clone $jobsQuery)->count(),
+            'workshopBadgeCount' => (clone $workshopsQuery)->count(),
+            'recommendationsReceived' => Recommendation::where('to_user_id', $userId)->count(),
+        ];
     }
 }

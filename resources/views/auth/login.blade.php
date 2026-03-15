@@ -1,22 +1,29 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen relative overflow-hidden flex items-center justify-center">
+<div class="min-h-screen relative flex items-center justify-center">
 
   <div class="absolute inset-0 bg-gradient-to-br from-background via-background to-background"></div>
   <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0)_55%)]"></div>
 
   @php($isRtl = app()->getLocale() === 'ar')
-  <div class="absolute top-4 left-4 app-top-back flex items-center gap-2 text-sm text-muted-foreground">
-    <a href="/" class="inline-flex items-center gap-2 hover:text-foreground transition">
-      <i data-lucide="{{ $isRtl ? 'chevron-right' : 'chevron-left' }}" class="h-4 w-4"></i>
-      <span>{{ __('nav.home') }}</span>
+  <div class="absolute top-4 {{ $isRtl ? 'right-4' : 'left-4' }} flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="/" class="inline-flex items-center gap-2 hover:text-foreground transition {{ $isRtl ? 'flex-row-reverse' : '' }}">
+      <i data-lucide="chevron-left" class="h-4 w-4"></i>
+      <span>{{ __("Home") }}</span>
     </a>
   </div>
 
-  <div class="absolute top-4 right-4 app-top-actions flex items-center gap-2">
-    @include('partials.language-dropdown')
-    <button type="button" class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50" data-theme-toggle aria-label="{{ __('common.theme') }}">
+  <div class="absolute top-4 {{ $isRtl ? 'left-4' : 'right-4' }} flex items-center gap-2">
+    @include('partials.language-dropdown', [
+      'buttonClass' => 'h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50',
+      'buttonLabel' => __('Language'),
+      'menuWidth' => 'w-36',
+      'menuAlignClass' => $isRtl ? 'left-0 origin-top-left' : 'right-0 origin-top-right',
+      'menuTextAlignClass' => app()->getLocale() === 'ar' ? 'text-right' : 'text-left',
+    ])
+
+    <button type="button" class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50" data-theme-toggle aria-label="{{ __('Theme') }}">
       <i data-lucide="sun" class="h-4 w-4"></i>
     </button>
   </div>
@@ -26,15 +33,15 @@
       <div class="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-3">
         <i data-lucide="graduation-cap" class="w-6 h-6"></i>
       </div>
-      <h1 class="text-2xl font-bold">{{ __('Welcome Back') }}</h1>
-      <p class="text-sm text-muted-foreground">{{ __('Sign in to your account') }}</p>
+      <h1 class="text-2xl font-bold">{{ __("Welcome Back") }}</h1>
+      <p class="text-sm text-muted-foreground">{{ __("Sign in to your account") }}</p>
     </div>
 
     @if ($errors->any())
       <div class="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
         <div class="font-semibold text-destructive mb-1 inline-flex items-center gap-2">
           <i data-lucide="alert-triangle" class="h-4 w-4"></i>
-          {{ __('Cannot sign in') }}
+          {{ __("Cannot sign in") }}
         </div>
 
         <div class="text-destructive/90">
@@ -46,7 +53,7 @@
             <a href="{{ route('support.request.show', ['role'=>old('role','alumni'), 'identifier'=>old('identifier','')]) }}"
                class="inline-flex items-center gap-2 text-sm text-primary hover:underline">
               <i data-lucide="help-circle" class="h-4 w-4"></i>
-              {{ __('Contact Support') }}
+              {{ __("Contact Support") }}
             </a>
           </div>
         @endif
@@ -55,19 +62,19 @@
 
     <div class="grid grid-cols-4 gap-1 rounded-lg bg-muted p-1 mb-6">
       <button type="button" data-role="alumni" class="role-tab active">
-        <i data-lucide="graduation-cap"></i><span>{{ __('Alumni') }}</span>
+        <i data-lucide="graduation-cap"></i><span>{{ __("Alumni") }}</span>
       </button>
 
       <button type="button" data-role="college" class="role-tab">
-        <i data-lucide="building-2"></i><span>{{ __('College') }}</span>
+        <i data-lucide="building-2"></i><span>{{ __("College") }}</span>
       </button>
 
       <button type="button" data-role="company" class="role-tab">
-        <i data-lucide="briefcase"></i><span>{{ __('Company') }}</span>
+        <i data-lucide="briefcase"></i><span>{{ __("Company") }}</span>
       </button>
 
       <button type="button" data-role="admin" class="role-tab">
-        <i data-lucide="shield-check"></i><span>{{ __('Super Admin') }}</span>
+        <i data-lucide="shield-check"></i><span>{{ __("Admin") }}</span>
       </button>
     </div>
 
@@ -76,7 +83,7 @@
       <input type="hidden" name="role" id="role-input" value="{{ old('role', 'alumni') }}">
 
       <div>
-        <label class="text-sm font-medium" id="identifier-label">{{ __('Academic ID') }}</label>
+        <label class="text-sm font-medium" id="identifier-label">{{ __("Academic ID") }}</label>
         <input
           type="text"
           name="identifier"
@@ -92,10 +99,10 @@
 
       <div>
         <div class="flex items-center justify-between gap-3">
-          <label class="text-sm font-medium">{{ __('Password') }}</label>
+          <label class="text-sm font-medium">{{ __("Password") }}</label>
 
           <a href="{{ route('password.request') }}" id="forgot-link" class="text-sm text-primary hover:underline">
-            {{ __('Forgot Password?') }}
+            {{ __("Forgot Password?") }}
           </a>
         </div>
 
@@ -111,18 +118,18 @@
       </div>
 
       <button type="submit" class="w-full rounded-md bg-primary px-4 py-2 text-primary-foreground font-medium hover:opacity-90 transition">
-        {{ __('Sign In') }}
+        {{ __("Sign In") }}
       </button>
 
-      <div class="mt-4 flex items-center justify-center gap-3 text-sm">
-        <a href="{{ route('support.track.show') }}" class="text-muted-foreground hover:text-foreground transition">
-          {{ __('Track Support Request') }}
-        </a>
-        <span class="text-border">•</span>
-        <a href="{{ route('support.request.show', ['role'=>old('role','alumni'), 'identifier'=>old('identifier','')]) }}" class="text-primary hover:underline">
-          {{ __('Contact Support') }}
-        </a>
-      </div>
+      @if(\Illuminate\Support\Facades\Route::has('support.request.show'))
+        <div class="text-center pt-1">
+          <a href="{{ route('support.request.show', ['role'=>old('role','alumni'), 'identifier'=>old('identifier','')]) }}"
+             class="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+            <i data-lucide="life-buoy" class="h-4 w-4"></i>
+            {{ __("Need help? Contact Support") }}
+          </a>
+        </div>
+      @endif
 
       <div id="company-extra" class="hidden">
         <div class="my-6 border-t border-border"></div>
@@ -133,12 +140,12 @@
 
         <a href="/register" class="block">
           <button type="button" class="w-full rounded-md border border-border bg-background/20 px-4 py-2 font-medium hover:bg-accent/40 transition">
-            {{ __('Create Account') }}
+            {{ __("Create Account") }}
           </button>
         </a>
 
         <div class="mt-3 text-center text-xs text-muted-foreground">
-          {{ __('Company registration requires admin approval') }}
+          {{ __("Company registration requires admin approval") }}
         </div>
       </div>
     </form>

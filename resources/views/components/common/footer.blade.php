@@ -23,11 +23,36 @@
       <div>
         <h4 class="font-semibold mb-4">Quick Links</h4>
         <ul class="space-y-2 text-sm text-muted-foreground">
-          <li><a href="{{ route('home') }}" class="hover:text-foreground transition-colors">{{ __('nav.home') }}</a></li>
-          <li><a href="{{ route('home') }}#about" class="hover:text-foreground transition-colors">{{ __('nav.about') }}</a></li>
-          <li><a href="{{ route('login') }}" class="hover:text-foreground transition-colors">{{ __('nav.login') }}</a></li>
-          <li><a href="#" class="hover:text-foreground transition-colors">{{ __('footer.privacy') }}</a></li>
-          <li><a href="#" class="hover:text-foreground transition-colors">{{ __('footer.terms') }}</a></li>
+          <li>
+            <a href="{{ route('home') }}" class="hover:text-foreground transition-colors">
+              {{ __('nav.home') }}
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('home') }}#about" class="hover:text-foreground transition-colors">
+              {{ __('nav.about') }}
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('login') }}" class="hover:text-foreground transition-colors">
+              {{ __('nav.login') }}
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('support.request.show') }}" class="hover:text-foreground transition-colors">
+              Support
+            </a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-foreground transition-colors">
+              {{ __('footer.privacy') }}
+            </a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-foreground transition-colors">
+              {{ __('footer.terms') }}
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -36,15 +61,28 @@
         <ul class="space-y-3 text-sm text-muted-foreground">
           <li class="flex items-center gap-2">
             <i data-lucide="mail" class="h-4 w-4"></i>
-            alumni@college.edu
+            <a href="mailto:karim51600002@gmail.com"
+               class="hover:text-foreground transition-colors">
+              karim51600002@gmail.com
+            </a>
           </li>
           <li class="flex items-center gap-2">
             <i data-lucide="phone" class="h-4 w-4"></i>
-            +970 598656034
+            <a href="https://wa.me/qr/2CN5D4DU4ZDCO1"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="hover:text-foreground transition-colors">
+              +970 598656034
+            </a>
           </li>
           <li class="flex items-start gap-2">
             <i data-lucide="map-pin" class="h-4 w-4 mt-0.5"></i>
-            <span>{{ $institutionName }}<br />Gaza, Palestine</span>
+            <a href="https://www.ptcdb.edu.ps/"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="hover:text-foreground transition-colors">
+              {{ $institutionName }}<br />Gaza, Palestine
+            </a>
           </li>
         </ul>
       </div>
@@ -55,7 +93,12 @@
         &copy; {{ $year }} Alumni Tracking System. {{ __('footer.rights') }}.
       </p>
       <p class="text-sm text-muted-foreground">
-        {{ $institutionName }}
+        <a href="https://www.ptcdb.edu.ps/"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="hover:text-foreground transition-colors">
+          {{ $institutionName }}
+        </a>
       </p>
     </div>
   </div>

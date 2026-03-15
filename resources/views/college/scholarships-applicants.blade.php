@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Scholarship Applicants';
+  $title = __('Scholarship Applicants');
   $role='College';
 
   $nav = [

@@ -14,6 +14,11 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('body');
+
+            $table->string('name');
+            $table->string('graduation_year', 50);
+            $table->string('current_position')->nullable();
+
             $table->foreignId('alumni_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->boolean('is_published')->default(true);
             $table->timestamp('published_at')->nullable();

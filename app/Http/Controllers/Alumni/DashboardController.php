@@ -7,6 +7,7 @@ use App\Models\AlumniProfile;
 use App\Models\Job;
 use App\Models\JobApplication;
 use App\Models\Recommendation;
+use App\Models\ScholarshipApplication;
 use App\Models\User;
 use App\Models\Workshop;
 use App\Models\WorkshopRegistration;
@@ -21,6 +22,7 @@ class DashboardController extends Controller
         $userId = (int) $user->id;
 
         $profile = AlumniProfile::where('user_id', $userId)->first();
+
         $profileCompletion = $this->calculateProfileCompletion($user, $profile);
 
         $profileViews = 0;
@@ -28,9 +30,7 @@ class DashboardController extends Controller
             $profileViews = (int) ($profile->profile_views ?? 0);
         }
 
-        $jobApplicationsCount = JobApplication::where('alumni_user_id', $userId)->count();
-        $workshopsCount = WorkshopRegistration::where('alumni_user_id', $userId)->count();
-        $recommendationsReceived = Recommendation::where('to_user_id', $userId)->count();
+        $navBadges = $this->getNavBadges($userId);
 
         $leaderboardData = $this->buildLeaderboardData();
 
@@ -49,10 +49,11 @@ class DashboardController extends Controller
             $jobsQuery->where('status', 'active');
         }
 
-        $jobBadgeCount = (clone $jobsQuery)->count();
+        $recentJobs = (clone $jobsQuery)->take(3)->get()->map(function ($job) {
+            $job->posted_text = $job->created_at
+                ? $job->created_at->diffForHumans()
+                : ($job->posted ?? 'Recently');
 
-        $recentJobs = $jobsQuery->take(3)->get()->map(function ($job) {
-            $job->posted_text = $job->created_at ? $job->created_at->diffForHumans() : ($job->posted ?? __('Recently'));
             return $job;
         });
 
@@ -66,8 +67,7 @@ class DashboardController extends Controller
             $workshopsQuery->where('status', 'upcoming');
         }
 
-        $workshopBadgeCount = (clone $workshopsQuery)->count();
-        $upcomingWorkshops = $workshopsQuery->take(2)->get();
+        $upcomingWorkshops = (clone $workshopsQuery)->take(2)->get();
 
         $topLeaderboard = $leaderboardData->take(3)->map(function ($item) {
             return [
@@ -83,8 +83,8 @@ class DashboardController extends Controller
                 $data = is_array($notification->data) ? $notification->data : [];
 
                 return [
-                    'message' => $data['message'] ?? $data['title'] ?? __('New update available'),
-                    'time' => $notification->created_at?->diffForHumans() ?? __('Recently'),
+                    'message' => $data['message'] ?? $data['title'] ?? 'New update available',
+                    'time' => $notification->created_at?->diffForHumans() ?? 'Recently',
                 ];
             })
             ->values()
@@ -92,16 +92,16 @@ class DashboardController extends Controller
 
         if (empty($notifications)) {
             $notifications = [
-                ['message' => __('No new notifications yet.'), 'time' => ''],
+                ['message' => 'No new notifications yet.', 'time' => ''],
             ];
         }
 
         return view('alumni.index', [
-            'userName' => $user->name ?? __('Alumni'),
+            'userName' => $user->name ?? 'Alumni',
             'profileViews' => $profileViews,
             'profileCompletion' => $profileCompletion,
-            'jobApplicationsCount' => $jobApplicationsCount,
-            'workshopsCount' => $workshopsCount,
+            'jobApplicationsCount' => $navBadges['jobApplicationsCount'],
+            'workshopsCount' => $navBadges['registeredWorkshopsCount'],
             'leaderboardPoints' => $leaderboardPoints,
             'leaderboardRank' => $leaderboardRank,
             'leaderboardActivities' => $leaderboardActivities,
@@ -109,10 +109,55 @@ class DashboardController extends Controller
             'upcomingWorkshops' => $upcomingWorkshops,
             'notifications' => $notifications,
             'topLeaderboard' => $topLeaderboard,
-            'jobBadgeCount' => $jobBadgeCount,
-            'workshopBadgeCount' => $workshopBadgeCount,
-            'recommendationsReceived' => $recommendationsReceived,
+
+            'jobBadgeCount' => $navBadges['jobBadgeCount'],
+            'workshopBadgeCount' => $navBadges['workshopBadgeCount'],
+            'recommendationsReceived' => $navBadges['recommendationsReceived'],
+            'applicationsBadgeCount' => $navBadges['applicationsBadgeCount'],
         ]);
+    }
+
+    private function getNavBadges(int $userId): array
+    {
+        $jobsQuery = Job::query();
+
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $jobsQuery->where('approval_status', 'approved');
+        }
+
+        if (Schema::hasColumn('jobs', 'status')) {
+            $jobsQuery->where('status', 'active');
+        }
+
+        $workshopsQuery = Workshop::query();
+
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            $workshopsQuery->where('proposal_status', 'approved');
+        }
+
+        if (Schema::hasColumn('workshops', 'status')) {
+            $workshopsQuery->where('status', 'upcoming');
+        }
+
+        $registeredWorkshopsQuery = WorkshopRegistration::where('alumni_user_id', $userId);
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $registeredWorkshopsQuery->where('status', 'registered');
+        }
+
+        $jobApplicationsCount = JobApplication::where('alumni_user_id', $userId)->count();
+        $scholarshipApplicationsCount = class_exists(\App\Models\ScholarshipApplication::class)
+            ? ScholarshipApplication::where('alumni_user_id', $userId)->count()
+            : 0;
+        $registeredWorkshopsCount = (clone $registeredWorkshopsQuery)->count();
+
+        return [
+            'jobBadgeCount' => (clone $jobsQuery)->count(),
+            'workshopBadgeCount' => (clone $workshopsQuery)->count(),
+            'recommendationsReceived' => Recommendation::where('to_user_id', $userId)->count(),
+            'jobApplicationsCount' => $jobApplicationsCount,
+            'registeredWorkshopsCount' => $registeredWorkshopsCount,
+            'applicationsBadgeCount' => $jobApplicationsCount + $scholarshipApplicationsCount + $registeredWorkshopsCount,
+        ];
     }
 
     private function buildLeaderboardData()
@@ -134,7 +179,7 @@ class DashboardController extends Controller
                     ($givenRecommendations * 10) +
                     ($receivedRecommendations * 15);
 
-                $name = $user->name ?? __('Alumni');
+                $name = $user->name ?? 'Alumni';
                 $initials = collect(explode(' ', $name))
                     ->filter()
                     ->map(fn ($part) => mb_substr($part, 0, 1))
@@ -173,6 +218,7 @@ class DashboardController extends Controller
         ];
 
         $completed = collect($checks)->filter()->count();
+
         return (int) round(($completed / count($checks)) * 100);
     }
 }

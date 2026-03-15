@@ -1,7 +1,8 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'User Management';
+ $title = __('User Management');
+
 
   $nav = [
     ['label'=>'Overview','href'=>'/admin','icon'=>'layout-dashboard'],
@@ -126,7 +127,7 @@
               </button>
             </form>
 
-            
+
             <details class="relative">
               <summary class="h-9 w-9 cursor-pointer inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50">
                 <i data-lucide="more-horizontal" class="h-4 w-4 text-muted-foreground"></i>

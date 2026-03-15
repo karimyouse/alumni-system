@@ -4,7 +4,10 @@ namespace App\Http\Controllers\College;
 
 use App\Http\Controllers\Controller;
 use App\Models\AlumniProfile;
+use App\Models\Announcement;
 use App\Models\Job;
+use App\Models\Scholarship;
+use App\Models\SuccessStory;
 use App\Models\User;
 use App\Models\Workshop;
 use Illuminate\Support\Facades\Schema;
@@ -68,15 +71,15 @@ class DashboardController extends Controller
 
         $departmentStats = $this->buildDepartmentStats();
 
-        return view('college.index', compact(
-            'totalAlumni',
-            'employmentRate',
-            'activeJobPosts',
-            'upcomingCount',
-            'recentAlumni',
-            'upcomingEvents',
-            'departmentStats'
-        ));
+        return view('college.index', array_merge([
+            'totalAlumni' => $totalAlumni,
+            'employmentRate' => $employmentRate,
+            'activeJobPosts' => $activeJobPosts,
+            'upcomingCount' => $upcomingCount,
+            'recentAlumni' => $recentAlumni,
+            'upcomingEvents' => $upcomingEvents,
+            'departmentStats' => $departmentStats,
+        ], $this->buildNavCounts()));
     }
 
     private function buildDepartmentStats(): array
@@ -115,5 +118,17 @@ class DashboardController extends Controller
                 'employed' => $employedPercent,
             ];
         })->values()->all();
+    }
+
+    private function buildNavCounts(): array
+    {
+        return [
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'workshopBadgeCount' => Workshop::count(),
+            'jobBadgeCount' => Job::count(),
+            'announcementBadgeCount' => Announcement::count(),
+            'scholarshipBadgeCount' => Scholarship::count(),
+            'successStoryBadgeCount' => SuccessStory::count(),
+        ];
     }
 }

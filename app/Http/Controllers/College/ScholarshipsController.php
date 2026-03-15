@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\College;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
+use App\Models\Job;
 use App\Models\Scholarship;
+use App\Models\SuccessStory;
+use App\Models\User;
+use App\Models\Workshop;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -32,15 +37,18 @@ class ScholarshipsController extends Controller
             return $scholarship;
         });
 
-        return view('college.scholarships', compact('scholarships', 'q'));
+        return view('college.scholarships', array_merge(
+            compact('scholarships', 'q'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function create()
     {
-        return view('college.scholarships-create', [
+        return view('college.scholarships-create', array_merge([
             'scholarship' => null,
             'isEdit' => false,
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function store(Request $request)
@@ -63,10 +71,10 @@ class ScholarshipsController extends Controller
 
     public function edit(Scholarship $scholarship)
     {
-        return view('college.scholarships-create', [
+        return view('college.scholarships-create', array_merge([
             'scholarship' => $scholarship,
             'isEdit' => true,
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function update(Request $request, Scholarship $scholarship)
@@ -96,7 +104,10 @@ class ScholarshipsController extends Controller
         $scholarship->display_amount = $this->formatAmount($scholarship->amount);
         $scholarship->display_deadline = $scholarship->deadline ?: '—';
 
-        return view('college.scholarships-applicants', compact('scholarship'));
+        return view('college.scholarships-applicants', array_merge(
+            compact('scholarship'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function destroy(Scholarship $scholarship)
@@ -159,5 +170,17 @@ class ScholarshipsController extends Controller
         }
 
         return null;
+    }
+
+    private function buildNavCounts(): array
+    {
+        return [
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'workshopBadgeCount' => Workshop::count(),
+            'jobBadgeCount' => Job::count(),
+            'announcementBadgeCount' => Announcement::count(),
+            'scholarshipBadgeCount' => Scholarship::count(),
+            'successStoryBadgeCount' => SuccessStory::count(),
+        ];
     }
 }

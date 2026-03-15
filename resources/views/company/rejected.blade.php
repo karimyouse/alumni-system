@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Request Rejected';
+  $title = __('Request Rejected');
   $role='Company';
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],

@@ -1,7 +1,10 @@
 @php
   $navUnreadCount = $navUnreadCount ?? 0;
   $navNotifications = $navNotifications ?? collect([]);
-  $menuAlign = app()->getLocale() === 'ar' ? 'left-0' : 'right-0';
+  $isRtl = app()->getLocale() === 'ar';
+  $menuAlignClass = $isRtl ? 'left-0 origin-top-left' : 'right-0 origin-top-right';
+  $badgePositionClass = $isRtl ? '-top-1 -left-1' : '-top-1 -right-1';
+  $textAlignClass = $isRtl ? 'text-right' : 'text-left';
 
   $normalizeInternal = function ($u) {
     if (!is_string($u) || trim($u) === '') return null;
@@ -21,11 +24,11 @@
   <div id="notifWrap" class="relative">
     <button id="notifBtn"
             class="relative h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
-            aria-label="{{ __('common.notifications') }}" type="button">
+            aria-label="Notifications" type="button">
       <i data-lucide="bell" class="h-4 w-4"></i>
 
       @if($navUnreadCount > 0)
-        <span class="absolute -top-1 {{ app()->getLocale() === 'ar' ? '-left-1' : '-right-1' }} min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px]
+        <span class="absolute {{ $badgePositionClass }} min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px]
                      inline-flex items-center justify-center">
           {{ $navUnreadCount > 9 ? '9+' : $navUnreadCount }}
         </span>
@@ -33,9 +36,9 @@
     </button>
 
     <div id="notifMenu"
-         class="hidden absolute {{ $menuAlign }} mt-2 w-[380px] max-w-[92vw] rounded-xl border border-border bg-card shadow-2xl z-[99999] overflow-hidden">
-      <div class="p-4 border-b border-border flex items-center justify-between gap-3">
-        <div class="font-semibold text-sm">{{ __('common.notifications') }}</div>
+         class="hidden absolute {{ $menuAlignClass }} mt-2 w-[380px] max-w-[92vw] rounded-xl border border-border bg-card shadow-2xl z-[99999] overflow-hidden">
+      <div class="p-4 border-b border-border flex items-center justify-between">
+        <div class="font-semibold text-sm">{{ __('Notifications') }}</div>
 
         @if($navUnreadCount > 0)
           @php $backTo = $normalizeInternal(url()->current()); @endphp
@@ -43,7 +46,7 @@
             @csrf
             <input type="hidden" name="redirect_to" value="{{ $backTo }}">
             <button type="submit" class="text-xs text-primary hover:underline">
-              {{ __('common.mark_all_read') }}
+              {{ __('Mark all read') }}
             </button>
           </form>
         @endif
@@ -54,7 +57,7 @@
           @php
             $data = is_array($n->data) ? $n->data : [];
 
-            $title = $data['title'] ?? __('common.notification');
+            $title = $data['title'] ?? __('Notification');
             $body  = $data['message'] ?? ($data['body'] ?? '');
 
             $url = $data['action_url']
@@ -85,7 +88,7 @@
             <input type="hidden" name="redirect_to" value="{{ $redirectTo }}">
 
             <button type="submit"
-                    class="w-full {{ app()->getLocale() === 'ar' ? 'text-right' : 'text-left' }} p-4 hover:bg-accent/40 transition flex gap-3">
+                    class="w-full {{ $textAlignClass }} p-4 hover:bg-accent/40 transition flex gap-3 {{ $isRtl ? 'flex-row-reverse' : '' }}">
               <span class="mt-1 w-2 h-2 rounded-full {{ $isUnread ? 'bg-primary' : 'bg-muted' }}"></span>
 
               <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -97,14 +100,12 @@
                 @if($body)
                   <div class="text-xs text-muted-foreground mt-1 line-clamp-2">{{ $body }}</div>
                 @endif
-                @if($time)
-                  <div class="text-[11px] text-muted-foreground mt-2">{{ $time }}</div>
-                @endif
+                <div class="text-[11px] text-muted-foreground mt-2">{{ $time }}</div>
               </div>
             </button>
           </form>
         @empty
-          <div class="p-5 text-sm text-muted-foreground">{{ __('common.no_notifications') }}</div>
+          <div class="p-6 text-sm text-muted-foreground {{ $textAlignClass }}">{{ __('No notifications.') }}</div>
         @endforelse
       </div>
     </div>
@@ -113,10 +114,12 @@
   <script>
     (function () {
       const wrap = document.getElementById('notifWrap');
+      if (!wrap) return;
+
       const btn = document.getElementById('notifBtn');
       const menu = document.getElementById('notifMenu');
 
-      if (!wrap || !btn || !menu) return;
+      menu.addEventListener('click', (e) => e.stopPropagation());
 
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -124,15 +127,11 @@
       });
 
       document.addEventListener('click', function (e) {
-        if (!wrap.contains(e.target)) {
-          menu.classList.add('hidden');
-        }
+        if (!wrap.contains(e.target)) menu.classList.add('hidden');
       });
 
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          menu.classList.add('hidden');
-        }
+        if (e.key === 'Escape') menu.classList.add('hidden');
       });
     })();
   </script>

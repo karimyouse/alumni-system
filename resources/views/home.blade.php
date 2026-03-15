@@ -14,18 +14,18 @@
   $whyMatters = [
     [
       'icon' => 'target',
-      'title' => __('home.why.problem.title'),
-      'description' => __('home.why.problem.description'),
+      'title' => __('home.about.problem.title'),
+      'description' => __('home.about.problem.description'),
     ],
     [
       'icon' => 'handshake',
-      'title' => __('home.why.solution.title'),
-      'description' => __('home.why.solution.description'),
+      'title' => __('home.about.solution.title'),
+      'description' => __('home.about.solution.description'),
     ],
     [
       'icon' => 'trending-up',
-      'title' => __('home.why.impact.title'),
-      'description' => __('home.why.impact.description'),
+      'title' => __('home.about.impact.title'),
+      'description' => __('home.about.impact.description'),
     ],
   ];
 

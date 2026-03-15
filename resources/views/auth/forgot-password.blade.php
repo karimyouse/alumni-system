@@ -1,26 +1,20 @@
 @extends('layouts.app')
 
+@php
+  $title = __('Forgot Password');
+@endphp
+
 @section('content')
-@php($isRtl = app()->getLocale() === 'ar')
 <div class="min-h-screen relative overflow-hidden flex items-center justify-center">
 
   <div class="absolute inset-0 bg-gradient-to-br from-background via-background to-background"></div>
   <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0)_55%)]"></div>
 
-  <div class="absolute top-4 left-4 app-top-back flex items-center gap-2 text-sm text-muted-foreground">
+  <div class="absolute top-4 left-4 flex items-center gap-2 text-sm text-muted-foreground">
     <a href="{{ route('login') }}" class="inline-flex items-center gap-2 hover:text-foreground transition">
-      <i data-lucide="{{ $isRtl ? 'chevron-right' : 'chevron-left' }}" class="h-4 w-4"></i>
-      <span>{{ __('Back') }}</span>
+      <i data-lucide="chevron-left" class="h-4 w-4"></i>
+      <span>{{ __("Back") }}</span>
     </a>
-  </div>
-
-  <div class="absolute top-4 right-4 app-top-actions flex items-center gap-2">
-    @include('partials.language-dropdown')
-    <button type="button"
-            class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
-            data-theme-toggle aria-label="{{ __('common.theme') }}">
-      <i data-lucide="sun" class="h-4 w-4"></i>
-    </button>
   </div>
 
   <div class="relative z-10 w-full max-w-md rounded-xl border border-border bg-card/80 backdrop-blur p-6 shadow-xl">
@@ -29,37 +23,40 @@
         <i data-lucide="key-round" class="w-6 h-6"></i>
       </div>
 
-      <h1 class="text-2xl font-bold">{{ __('Forgot Password') }}</h1>
+      <h1 class="text-2xl font-bold">{{ __("Forgot Password") }}</h1>
       <p class="text-sm text-muted-foreground">
-        {{ __('We will send a password reset link to your registered email.') }}
+        {{ __("We will send a password reset link to your registered email.") }}
       </p>
     </div>
+
 
     @if ($errors->any())
       <div class="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
         <div class="font-semibold text-destructive mb-1 inline-flex items-center gap-2">
           <i data-lucide="alert-triangle" class="h-4 w-4"></i>
-          {{ __('Cannot continue') }}
+          {{ __("Cannot continue") }}
         </div>
         <div class="text-destructive/90">{{ $errors->first() }}</div>
       </div>
     @endif
 
+
     @if (session('toast_success'))
       <div class="mb-5 rounded-xl border border-green-500/25 bg-green-500/10 p-4 text-sm">
         <div class="font-semibold text-green-400 mb-1 inline-flex items-center gap-2">
           <i data-lucide="check-circle-2" class="h-4 w-4"></i>
-          {{ __('Success') }}
+          {{ __("Success") }}
         </div>
         <div class="text-green-300/90">{{ session('toast_success') }}</div>
       </div>
     @endif
 
+
     @if (app()->environment('local') && session('reset_link'))
       <div class="mb-5 rounded-xl border border-border bg-accent/10 p-4 text-sm">
         <div class="font-semibold mb-2 inline-flex items-center gap-2">
           <i data-lucide="link" class="h-4 w-4"></i>
-          {{ __('Reset Link (Local Only)') }}
+          {{ __("Reset Link (Local Only)") }}
         </div>
 
         <div class="text-xs text-muted-foreground break-all mb-3">
@@ -69,23 +66,24 @@
         <button type="button"
                 class="rounded-md border border-border px-3 py-2 text-xs hover:bg-accent/40"
                 onclick="copyResetLink('{{ addslashes(session('reset_link')) }}')">
-          {{ __('Copy link') }}
+          {{ __("Copy link") }}
         </button>
       </div>
     @endif
 
+
     <div class="grid grid-cols-4 gap-1 rounded-lg bg-muted p-1 mb-6">
       <button type="button" data-role="alumni" class="role-tab active">
-        <i data-lucide="graduation-cap"></i><span>{{ __('Alumni') }}</span>
+        <i data-lucide="graduation-cap"></i><span>{{ __("Alumni") }}</span>
       </button>
       <button type="button" data-role="college" class="role-tab">
-        <i data-lucide="building-2"></i><span>{{ __('College') }}</span>
+        <i data-lucide="building-2"></i><span>{{ __("College") }}</span>
       </button>
       <button type="button" data-role="company" class="role-tab">
-        <i data-lucide="briefcase"></i><span>{{ __('Company') }}</span>
+        <i data-lucide="briefcase"></i><span>{{ __("Company") }}</span>
       </button>
       <button type="button" data-role="admin" class="role-tab">
-        <i data-lucide="shield-check"></i><span>{{ __('Admin') }}</span>
+        <i data-lucide="shield-check"></i><span>{{ __("Admin") }}</span>
       </button>
     </div>
 
@@ -94,7 +92,7 @@
       <input type="hidden" name="role" id="role-input" value="{{ old('role', $role ?? 'alumni') }}">
 
       <div>
-        <label class="text-sm font-medium" id="identifier-label">{{ __('Academic ID') }}</label>
+        <label class="text-sm font-medium" id="identifier-label">{{ __("Academic ID") }}</label>
         <input
           type="text"
           name="identifier"
@@ -111,31 +109,32 @@
 
       <button type="submit"
         class="w-full rounded-md bg-primary px-4 py-2 text-primary-foreground font-medium hover:opacity-90 transition">
-        {{ __('Send Reset Link') }}
+        {{ __("Send Reset Link") }}
       </button>
 
       <div class="text-center text-xs text-muted-foreground">
-        {{ __('If the account exists, the link will be sent to the registered email.') }}
+        {{ __("If the account exists, the link will be sent to the registered email.") }}
       </div>
 
+
       <div class="rounded-xl border border-border bg-background/40 p-4 text-sm">
-        <div class="font-semibold mb-1">{{ __('Need help?') }}</div>
+        <div class="font-semibold mb-1">{{ __("Need help?") }}</div>
         <div class="text-xs text-muted-foreground mb-3">
-          {{ __('If you didn’t receive the email, you can contact support or track your request.') }}
+          {{ __("If you didn’t receive the email, you can contact support or track your request.") }}
         </div>
 
         <div class="flex items-center justify-between gap-3">
           @if(\Illuminate\Support\Facades\Route::has('support.request.show'))
             <a class="text-sm text-primary hover:underline"
                href="{{ route('support.request.show', ['role'=>old('role', $role ?? 'alumni'), 'identifier'=>old('identifier', $identifier ?? '')]) }}">
-              {{ __('Contact Support') }}
+              {{ __("Contact Support?") }}
             </a>
           @endif
 
           @if(\Illuminate\Support\Facades\Route::has('support.track.show'))
             <a class="text-sm text-muted-foreground hover:text-foreground hover:underline"
                href="{{ route('support.track.show') }}">
-              {{ __('Track request') }}
+              {{ __("Track request") }}
             </a>
           @endif
         </div>

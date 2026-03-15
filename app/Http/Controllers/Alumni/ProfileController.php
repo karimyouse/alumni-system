@@ -4,26 +4,41 @@ namespace App\Http\Controllers\Alumni;
 
 use App\Http\Controllers\Controller;
 use App\Models\AlumniProfile;
+use App\Models\Job;
+use App\Models\JobApplication;
+use App\Models\Recommendation;
+use App\Models\Scholarship;
+use App\Models\ScholarshipApplication;
+use App\Models\Workshop;
+use App\Models\WorkshopRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class ProfileController extends Controller
 {
     public function show()
     {
         $user = Auth::user();
+        $userId = (int) $user->id;
 
         $profile = AlumniProfile::firstOrCreate(
             ['user_id' => $user->id],
             []
         );
 
-        return view('alumni.profile', compact('user', 'profile'));
+        $navCounts = $this->buildNavCounts($userId);
+
+        return view('alumni.profile', array_merge([
+            'user' => $user,
+            'profile' => $profile,
+        ], $navCounts));
     }
 
     public function update(Request $request)
     {
         $user = Auth::user();
+        $userId = (int) $user->id;
 
         $data = $request->validate([
             'name' => ['required','string','max:255'],
@@ -57,6 +72,61 @@ class ProfileController extends Controller
             ]
         );
 
-        return back()->with('toast_success', __('Profile updated successfully!'));
+        return redirect()
+            ->route('alumni.profile')
+            ->with('toast_success', 'Profile updated successfully!');
+    }
+
+    private function buildNavCounts(int $userId): array
+    {
+        $jobsQuery = Job::query()->orderByDesc('id');
+
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $jobsQuery->where('approval_status', 'approved');
+        }
+
+        if (Schema::hasColumn('jobs', 'status')) {
+            $jobsQuery->where('status', 'active');
+        }
+
+        $jobBadgeCount = (clone $jobsQuery)->count();
+
+        $workshopsQuery = Workshop::query()->orderByDesc('id');
+
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            $workshopsQuery->where('proposal_status', 'approved');
+        }
+
+        if (Schema::hasColumn('workshops', 'status')) {
+            $workshopsQuery->where('status', 'upcoming');
+        }
+
+        $workshopBadgeCount = (clone $workshopsQuery)->count();
+
+        $scholarshipBadgeCount = Scholarship::query()->count();
+
+        $recommendationsReceived = Recommendation::where('to_user_id', $userId)->count();
+
+        $jobApplicationsCount = JobApplication::where('alumni_user_id', $userId)->count();
+        $scholarshipApplicationsCount = ScholarshipApplication::where('alumni_user_id', $userId)->count();
+
+        $workshopApplicationsQuery = WorkshopRegistration::where('alumni_user_id', $userId);
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $workshopApplicationsQuery->where('status', 'registered');
+        }
+        $workshopApplicationsCount = $workshopApplicationsQuery->count();
+
+        $applicationsBadgeCount =
+            $jobApplicationsCount +
+            $scholarshipApplicationsCount +
+            $workshopApplicationsCount;
+
+        return [
+            'jobBadgeCount' => $jobBadgeCount,
+            'workshopBadgeCount' => $workshopBadgeCount,
+            'scholarshipBadgeCount' => $scholarshipBadgeCount,
+            'recommendationsReceived' => $recommendationsReceived,
+            'applicationsBadgeCount' => $applicationsBadgeCount,
+        ];
     }
 }

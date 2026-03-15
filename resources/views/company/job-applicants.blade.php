@@ -1,15 +1,15 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Job Applicants';
+  $title = __('Job Applicants');
   $role='Company';
 
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],
-    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase'],
-    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users'],
-    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text'],
-    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days'],
+    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text','badge'=>$applicationBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
   ];
 
   $statusPill = fn($s) => match($s){

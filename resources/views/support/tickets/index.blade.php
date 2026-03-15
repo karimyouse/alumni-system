@@ -1,7 +1,8 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'My Support Tickets';
+  $title = __('My Support Tickets');
+
 
   $role = auth()->user()?->role ?? 'alumni';
   $home = match($role) {

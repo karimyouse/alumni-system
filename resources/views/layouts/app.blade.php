@@ -6,7 +6,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ __($title ?? 'Alumni Tracking System') }}</title>
+    <title>{{ isset($title) ? $title . ' | PTC Alumni Tracking System' : 'PTC Alumni Tracking System' }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
+    <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=2">
+    <meta name="theme-color" content="{{ $appSettings->primary_color ?? '#2563eb' }}">
 
 
     <script>
@@ -21,7 +24,7 @@
       })();
     </script>
 
-    
+
     <style>
       :root{
         --primary: {{ $appTheme['primary_hsl'] ?? '217 91% 60%' }};
@@ -30,21 +33,107 @@
       }
     </style>
 
-    @includeIf('partials.client-translations')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.client-translations')
+    @include('partials.asset-bundle')
 
-    {{-- ✅ Optional extra head from pages --}}
     @stack('head')
 </head>
 
 <body class="min-h-screen bg-background text-foreground">
 
-    {{-- ✅ Global toasts (single source) --}}
     @includeIf('partials.toasts')
 
     @yield('content')
 
-    {{-- ✅ Optional extra scripts from pages --}}
+
+    <script>
+      (function () {
+        function setupLanguageDropdowns() {
+          document.querySelectorAll('[data-lang-dropdown]').forEach(function (wrap) {
+            if (wrap.dataset.langDropdownReady === '1') return;
+            wrap.dataset.langDropdownReady = '1';
+
+            var toggle = wrap.querySelector('[data-lang-toggle]');
+            var menu = wrap.querySelector('[data-lang-menu]');
+
+            if (!toggle || !menu) return;
+
+            function syncRedirectFields() {
+              var redirectTo = window.location.pathname + window.location.search;
+              var fragment = window.location.hash ? window.location.hash.substring(1) : '';
+
+              wrap.querySelectorAll('[data-lang-redirect]').forEach(function (input) {
+                input.value = redirectTo + window.location.hash;
+              });
+
+              wrap.querySelectorAll('[data-lang-fragment]').forEach(function (input) {
+                input.value = fragment;
+              });
+            }
+
+            function closeMenu() {
+              menu.classList.add('hidden');
+              toggle.setAttribute('aria-expanded', 'false');
+            }
+
+            function openMenu() {
+              syncRedirectFields();
+              menu.classList.remove('hidden');
+              toggle.setAttribute('aria-expanded', 'true');
+            }
+
+            toggle.addEventListener('click', function (event) {
+              event.preventDefault();
+              event.stopPropagation();
+
+              var isHidden = menu.classList.contains('hidden');
+              document.querySelectorAll('[data-lang-menu]').forEach(function (otherMenu) {
+                if (otherMenu !== menu) {
+                  otherMenu.classList.add('hidden');
+                }
+              });
+              document.querySelectorAll('[data-lang-toggle]').forEach(function (otherToggle) {
+                if (otherToggle !== toggle) {
+                  otherToggle.setAttribute('aria-expanded', 'false');
+                }
+              });
+
+              if (isHidden) {
+                openMenu();
+              } else {
+                closeMenu();
+              }
+            });
+
+            wrap.querySelectorAll('form').forEach(function (form) {
+              form.addEventListener('submit', function () {
+                syncRedirectFields();
+              });
+            });
+
+            document.addEventListener('click', function (event) {
+              if (!wrap.contains(event.target)) {
+                closeMenu();
+              }
+            });
+
+            document.addEventListener('keydown', function (event) {
+              if (event.key === 'Escape') {
+                closeMenu();
+              }
+            });
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', setupLanguageDropdowns);
+        } else {
+          setupLanguageDropdowns();
+        }
+      })();
+    </script>
+
+
     @stack('scripts')
 </body>
 </html>

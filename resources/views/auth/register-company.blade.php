@@ -7,18 +7,25 @@
   <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0)_55%)]"></div>
 
   @php($isRtl = app()->getLocale() === 'ar')
-  <div class="absolute top-4 left-4 app-top-back flex items-center gap-2 text-sm text-muted-foreground">
-    <a href="/login" class="inline-flex items-center gap-2 hover:text-foreground transition">
-      <i data-lucide="{{ $isRtl ? 'chevron-right' : 'chevron-left' }}" class="h-4 w-4"></i>
-      <span>Login</span>
+  <div class="absolute top-4 {{ $isRtl ? 'right-4' : 'left-4' }} flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="/login" class="inline-flex items-center gap-2 hover:text-foreground transition {{ $isRtl ? 'flex-row-reverse' : '' }}">
+      <i data-lucide="chevron-left" class="h-4 w-4"></i>
+      <span>{{ __("Login") }}</span>
     </a>
   </div>
 
-    <div class="absolute top-4 right-4 app-top-actions flex items-center gap-2">
-    @include('partials.language-dropdown')
+  <div class="absolute top-4 {{ $isRtl ? 'left-4' : 'right-4' }} flex items-center gap-2">
+    @include('partials.language-dropdown', [
+      'buttonClass' => 'h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50',
+      'buttonLabel' => __('Language'),
+      'menuWidth' => 'w-36',
+      'menuAlignClass' => $isRtl ? 'left-0 origin-top-left' : 'right-0 origin-top-right',
+      'menuTextAlignClass' => app()->getLocale() === 'ar' ? 'text-right' : 'text-left',
+    ])
+
     <button type="button"
             class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
-            data-theme-toggle aria-label="{{ __('common.theme') }}">
+            data-theme-toggle aria-label="{{ __('Theme') }}">
       <i data-lucide="sun" class="h-4 w-4"></i>
     </button>
   </div>
@@ -29,14 +36,14 @@
         <i data-lucide="building-2" class="w-6 h-6"></i>
       </div>
 
-      <h1 class="text-xl font-bold">Company Registration</h1>
-      <p class="text-sm text-muted-foreground">Create your company account</p>
+      <h1 class="text-xl font-bold">{{ __("Company Registration") }}</h1>
+      <p class="text-sm text-muted-foreground">{{ __("Create your company account") }}</p>
     </div>
 
-    
+
     @if ($errors->any())
       <div class="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm">
-        <div class="font-semibold text-destructive mb-1">Please fix the following:</div>
+        <div class="font-semibold text-destructive mb-1">{{ __("Please fix the following:") }}</div>
         <ul class="list-disc pl-5 space-y-1 text-destructive/90">
           @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
@@ -139,7 +146,7 @@
 
       <div class="text-center text-xs text-muted-foreground pt-2">
         Already have an account?
-        <a href="/login" class="text-primary hover:underline">Sign In</a>
+        <a href="/login" class="text-primary hover:underline">{{ __("Sign In") }}</a>
       </div>
     </form>
   </div>

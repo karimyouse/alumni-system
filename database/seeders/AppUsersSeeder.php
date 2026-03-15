@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class DemoUsersSeeder extends Seeder
+class AppUsersSeeder extends Seeder
 {
     public function run(): void
     {
@@ -20,29 +20,47 @@ class DemoUsersSeeder extends Seeder
             ]
         );
 
+        User::updateOrCreate(
+            ['academic_id' => '2141091051'],
+            [
+                'name' => 'Ali Yousef',
+                'email' => 'ali@gmail.com',
+                'role' => 'alumni',
+                'password' => Hash::make('ali@123'),
+            ]
+        );
+
+
 
         User::updateOrCreate(
-    ['academic_id' => '2141091051'],
-    [
-        'name' => 'Ali Yousef',
-        'email' => 'ali@gmail.com',
-        'role' => 'alumni',
-        'password' => Hash::make('ali@123'),
-    ]
-);
+            ['academic_id' => '2141091010'],
+            [
+                'name' => 'Ahmed Saleh',
+                'email' => 'ahmedsaleh@gmail.com',
+                'role' => 'alumni',
+                'password' => Hash::make('ahmed@2026'),
+            ]
+        );
 
+        User::updateOrCreate(
+            ['academic_id' => '2141091045'],
+            [
+                'name' => 'Ahmed Abu Ammra',
+                'email' => 'ahmedammra@gmail.com',
+                'role' => 'alumni',
+                'password' => Hash::make('ahmedamm@2026'),
+            ]
+        );
 
-
-     User::updateOrCreate(
-    ['academic_id' => '2141091010'],
-    [
-        'name' => 'Ahmed Saleh',
-        'email' => 'ahmed@gmail.com',
-        'role' => 'alumni',
-        'password' => Hash::make('ahmed@123'),
-    ]
-);
-
+        User::updateOrCreate(
+            ['academic_id' => '2141091020'],
+            [
+                'name' => 'Mohammed Abu Hajar',
+                'email' => 'mohammed@gmail.com',
+                'role' => 'alumni',
+                'password' => Hash::make('mohammed@2026'),
+            ]
+        );
 
         User::updateOrCreate(
             ['email' => 'college@ptc.edu'],
@@ -54,7 +72,6 @@ class DemoUsersSeeder extends Seeder
             ]
         );
 
-
         User::updateOrCreate(
             ['email' => 'company@techcorp.com'],
             [
@@ -64,7 +81,6 @@ class DemoUsersSeeder extends Seeder
                 'password' => Hash::make('company123'),
             ]
         );
-
 
         User::updateOrCreate(
             ['email' => 'admin@ptc.edu'],

@@ -1,39 +1,41 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Scholarships';
-  $role='Alumni';
+  $title = __('Scholarships');
+  $role  = 'Alumni';
 
   $nav = [
-    ['label'=>'Overview','href'=>'/alumni','icon'=>'layout-dashboard'],
-    ['label'=>'My Profile','href'=>'/alumni/profile','icon'=>'user'],
-    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase'],
-    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days'],
-    ['label'=>'Scholarships','href'=>'/alumni/scholarships','icon'=>'graduation-cap'],
-    ['label'=>'Recommendations','href'=>'/alumni/recommendations','icon'=>'message-square'],
-    ['label'=>'Leaderboard','href'=>'/alumni/leaderboard','icon'=>'trophy'],
-    ['label'=>'My Applications','href'=>'/alumni/applications','icon'=>'file-text'],
+    ['label'=>'Overview','href'=>'/alumni','icon'=>'layout-dashboard', 'badge'=>null],
+    ['label'=>'My Profile','href'=>'/alumni/profile','icon'=>'user', 'badge'=>null],
+    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase', 'badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days', 'badge'=>$workshopBadgeCount ?? 0],
+    ['label'=>'Scholarships','href'=>'/alumni/scholarships','icon'=>'graduation-cap', 'badge'=>null],
+    ['label'=>'Recommendations','href'=>'/alumni/recommendations','icon'=>'message-square', 'badge'=>$recommendationsReceived ?? 0],
+    ['label'=>'Leaderboard','href'=>'/alumni/leaderboard','icon'=>'trophy', 'badge'=>null],
+    ['label'=>'My Applications','href'=>'/alumni/applications','icon'=>'file-text', 'badge'=>$applicationsBadgeCount ?? 0],
   ];
 
-  $statusPill = fn($s) => match($s) {
-    'open' => [__('Open'),'bg-green-500/15 text-green-400'],
-    'closing_soon' => [__('Closing Soon'),'bg-orange-500/15 text-orange-400'],
-    'closed' => [__('Closed'),'bg-red-500/15 text-red-400'],
-    default => [__(ucfirst($s)),'bg-secondary text-secondary-foreground'],
+  $statusPill = function ($status) {
+    return match (strtolower((string) $status)) {
+      'open' => ['Open', 'bg-green-500/15 text-green-400'],
+      'closed' => ['Closed', 'bg-red-500/15 text-red-400'],
+      default => [ucfirst((string) $status), 'bg-secondary text-secondary-foreground'],
+    };
   };
 @endphp
 
 @section('content')
 <div class="space-y-6">
-  <div class="flex items-center justify-between">
+
+  <div class="flex items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold">{{ __('Scholarships') }}</h1>
-      <p class="text-sm text-muted-foreground">{{ __('Browse scholarships and apply online') }}</p>
+      <h1 class="text-2xl font-bold">Scholarships</h1>
+      <p class="text-muted-foreground">Explore available scholarships</p>
     </div>
   </div>
 
   <div class="space-y-4">
-    @foreach($scholarships as $s)
+    @forelse($scholarships as $s)
       @php
         [$pillTxt, $pillCls] = $statusPill($s->status ?? 'open');
         $applied = in_array($s->id, $appliedIds ?? []);
@@ -46,24 +48,27 @@
           </div>
 
           <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-lg font-semibold">{{ $s->title }}</h3>
-              <span class="text-xs rounded-full px-2 py-1 {{ $pillCls }}">{{ $pillTxt }}</span>
-              @if($applied)
-                <span class="text-xs rounded-full px-2 py-1 bg-blue-500/15 text-blue-400">{{ __('Applied') }}</span>
-              @endif
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="font-semibold text-lg">{{ $s->title }}</h3>
+              <span class="text-xs rounded-full px-2 py-1 {{ $pillCls }}">
+                {{ $pillTxt }}
+              </span>
             </div>
 
             <div class="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-              @if($s->amount)
-                <span class="inline-flex items-center gap-1"><i data-lucide="dollar-sign" class="h-3 w-3"></i> {{ $s->amount }}</span>
+              @if(!empty($s->amount))
+                <span>{{ $s->amount }}</span>
               @endif
-              @if($s->deadline)
-                <span class="inline-flex items-center gap-1"><i data-lucide="calendar" class="h-3 w-3"></i> {{ __('Deadline:') }} {{ $s->deadline }}</span>
+
+              @if(!empty($s->deadline))
+                <span class="inline-flex items-center gap-1">
+                  <i data-lucide="clock" class="h-3 w-3"></i>
+                  {{ $s->deadline }}
+                </span>
               @endif
             </div>
 
-            @if($s->description)
+            @if(!empty($s->description))
               <p class="text-sm text-muted-foreground mt-2 max-w-3xl">
                 {{ $s->description }}
               </p>
@@ -74,28 +79,36 @@
         <div class="flex items-center gap-2">
           <a href="{{ route('alumni.scholarships.show', $s) }}"
              class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-            {{ __('Details') }}
+            View
           </a>
 
-          @if(!$applied && ($s->status ?? 'open') !== 'closed')
+          @if($applied)
+            <button type="button"
+                    class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground opacity-70 cursor-not-allowed"
+                    disabled>
+              Applied
+            </button>
+          @else
             <form method="POST" action="{{ route('alumni.scholarships.apply', $s) }}">
               @csrf
-              <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-                {{ __('Apply') }}
+              <button type="submit"
+                      class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+                Apply
               </button>
             </form>
-          @else
-            <button class="rounded-md border border-border px-4 py-2 text-sm opacity-70 cursor-not-allowed" disabled>
-              {{ $applied ? __('Applied') : __('Closed') }}
-            </button>
           @endif
         </div>
       </div>
-    @endforeach
+    @empty
+      <div class="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+        No scholarships available yet.
+      </div>
+    @endforelse
   </div>
 
   <div>
     {{ $scholarships->links() }}
   </div>
+
 </div>
 @endsection

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\User;
+use App\Models\Workshop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -26,9 +28,12 @@ class ApplicationsController extends Controller
     public function index(Request $request)
     {
         $companyId = Auth::id();
-        $tab = $request->query('tab', 'all'); 
+        $tab = $request->query('tab', 'all');
 
-        $jobIds = Job::where('company_user_id', $companyId)->pluck('id');
+        $jobIds = Job::query()
+            ->where('organizer_role', 'company')
+            ->where('company_user_id', $companyId)
+            ->pluck('id');
 
         $appsAll = JobApplication::with(['job', 'alumni'])
             ->whereIn('job_id', $jobIds)
@@ -65,23 +70,44 @@ class ApplicationsController extends Controller
             ];
         })->values();
 
-        return view('company.applications', compact('tab', 'counts', 'items'));
+        return view('company.applications', array_merge(
+            compact('tab', 'counts', 'items'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function updateStatus(Request $request, JobApplication $application)
     {
         $application->load('job');
 
-        if ((int)($application->job?->company_user_id) !== (int)Auth::id()) {
+        if ((int) ($application->job?->company_user_id) !== (int) Auth::id()) {
             abort(403);
         }
 
         $data = $request->validate([
-            'status' => ['required','in:pending,reviewed,accepted,rejected'],
+            'status' => ['required', 'in:pending,reviewed,accepted,rejected'],
         ]);
 
         $application->update(['status' => $data['status']]);
 
         return back()->with('toast_success', 'Application status updated.');
+    }
+
+    private function buildNavCounts(): array
+    {
+        $companyId = (int) Auth::id();
+
+        $companyJobsQuery = Job::query()
+            ->where('organizer_role', 'company')
+            ->where('company_user_id', $companyId);
+
+        $jobIds = (clone $companyJobsQuery)->pluck('id');
+
+        return [
+            'jobBadgeCount' => (clone $companyJobsQuery)->count(),
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'applicationBadgeCount' => JobApplication::whereIn('job_id', $jobIds)->count(),
+            'workshopBadgeCount' => Workshop::where('company_user_id', $companyId)->count(),
+        ];
     }
 }

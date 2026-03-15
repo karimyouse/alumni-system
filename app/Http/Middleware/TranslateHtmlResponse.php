@@ -231,20 +231,28 @@ class TranslateHtmlResponse
 
         $map = [];
 
+        $enPath = resource_path('lang/en.json');
         $arPath = resource_path('lang/ar.json');
+
+        $en = file_exists($enPath) ? json_decode((string) file_get_contents($enPath), true) : [];
         $ar = file_exists($arPath) ? json_decode((string) file_get_contents($arPath), true) : [];
 
-        if (is_array($ar)) {
-            foreach ($ar as $key => $value) {
-                if (!is_string($key) || !is_string($value)) {
+        if (is_array($en) && is_array($ar)) {
+            foreach ($en as $key => $englishValue) {
+                $arabicValue = $ar[$key] ?? null;
+
+                if (!is_string($englishValue) || !is_string($arabicValue)) {
                     continue;
                 }
 
-                if (trim($key) === '' || $key === $value) {
+                $englishValue = trim($englishValue);
+                $arabicValue = trim($arabicValue);
+
+                if ($englishValue === '' || $arabicValue === '' || $englishValue === $arabicValue) {
                     continue;
                 }
 
-                $map[$key] = $value;
+                $map[$englishValue] = $arabicValue;
             }
         }
 
@@ -261,7 +269,7 @@ class TranslateHtmlResponse
             'Resolved' => 'تم الحل',
             'In Progress' => 'قيد المعالجة',
             'Pending' => 'قيد الانتظار',
-            'Approved' => 'مقبول',
+            'Approved' => 'معتمد',
             'Rejected' => 'مرفوض',
             'Under Review' => 'قيد المراجعة',
             'Active' => 'نشط',
@@ -305,6 +313,15 @@ class TranslateHtmlResponse
             'Updated:' => 'آخر تحديث:',
             'Date:' => 'التاريخ:',
             'Deadline:' => 'آخر موعد:',
+            'All' => 'الكل',
+            'Available' => 'متاح',
+            'Employed' => 'موظف',
+            'Accepted' => 'مقبول',
+            'Reviewed' => 'تمت المراجعة',
+            'Closing Soon' => 'ينتهي قريباً',
+            'Open Support Tickets' => 'تذاكر الدعم المفتوحة',
+            'No new notifications yet.' => 'لا توجد إشعارات جديدة حتى الآن.',
+            'New update available' => 'يوجد تحديث جديد',
         ];
 
         $map = $extra + $map;

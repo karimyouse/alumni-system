@@ -1,17 +1,17 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Announcements';
+  $title = __('Announcements');
   $role='College';
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
-    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
-    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
-    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
-    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone','badge'=>$announcementBadgeCount ?? 0],
+    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap','badge'=>$scholarshipBadgeCount ?? 0],
+    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award','badge'=>$successStoryBadgeCount ?? 0],
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
 

@@ -104,7 +104,10 @@ html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item] {
 
 html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item] > span:first-child,
 html[lang="ar"] #dashboardSidebar [data-sidebar-brand],
-
+html[lang="ar"] #dashboardSidebar .border-t > div:first-child,
+html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] {
+    align-items: center;
+}
 
 html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item] > span:first-child {
     width: 100%;
@@ -124,20 +127,7 @@ html[lang="ar"] #dashboardSidebar [data-sidebar-user-meta] {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    text-align: right;
-    width: 100%;
 }
-
-html[lang="ar"] #dashboardSidebar [data-sidebar-brand] > [data-sidebar-text] > * {
-    width: 100%;
-    text-align: right;
-}
-
-html[lang="ar"] #dashboardSidebar [data-sidebar-brand] > [data-sidebar-text] [data-sidebar-role] {
-    display: block;
-    margin-top: 2px;
-}
-
 
 html[lang="ar"] #dashboardSidebar .sidebar-item-icon {
     margin-right: 0 !important;
@@ -148,30 +138,10 @@ html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] {
     flex-direction: row-reverse;
 }
 
-html[lang="ar"] #dashboardSidebar .border-t > div:first-child {
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    text-align: right !important;
+html[lang="ar"] #dashboardSidebar .border-t > div:first-child,
+html[lang="ar"] #dashboardSidebar [data-sidebar-brand] {
+    align-items: center;
 }
-
-html[lang="ar"] #dashboardSidebar .border-t > div:first-child > div:last-child {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end !important;
-    text-align: right !important;
-    width: 100%;
-}
-
-html[lang="ar"] #dashboardSidebar form {
-    width: 100%;
-}
-
-html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] {
-    width: 100%;
-    justify-content: flex-start !important;
-    text-align: right !important;
-}
-
 
 html[lang="ar"] body.dashboard-sidebar-collapsed #dashboardSidebar [data-sidebar-item],
 html[lang="ar"] body.dashboard-sidebar-collapsed #dashboardSidebar [data-sidebar-brand],

@@ -1,15 +1,15 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Company Dashboard';
+  $title = __('Company Dashboard');
   $role='Company';
 
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],
-    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase'],
-    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users'],
-    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text', 'badge'=>$pendingCount ?? 0],
-    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days'],
+    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text','badge'=>$applicationBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
   ];
 @endphp
 
@@ -25,11 +25,19 @@
         </p>
       </div>
 
-      <a href="{{ route('company.jobs.create') }}"
-         class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-        <i data-lucide="plus" class="h-4 w-4"></i>
-        Post New Job
-      </a>
+      <div class="flex items-center gap-2 flex-wrap">
+    <a href="{{ route('company.workshops.create') }}"
+     class="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+    <i data-lucide="calendar-days" class="h-4 w-4"></i>
+    Propose Workshop
+    </a>
+
+    <a href="{{ route('company.jobs.create') }}"
+     class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+    <i data-lucide="plus" class="h-4 w-4"></i>
+    Post New Job
+  </a>
+</div>
     </div>
   </div>
 

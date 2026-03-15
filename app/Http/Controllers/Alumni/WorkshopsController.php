@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Alumni;
 
 use App\Http\Controllers\Controller;
+use App\Models\Job;
+use App\Models\JobApplication;
+use App\Models\Recommendation;
+use App\Models\ScholarshipApplication;
 use App\Models\Workshop;
 use App\Models\WorkshopRegistration;
 use Illuminate\Support\Facades\Auth;
@@ -12,9 +16,17 @@ class WorkshopsController extends Controller
 {
     public function index()
     {
-        $userId = Auth::id();
+        $userId = (int) Auth::id();
 
-        $workshops = Workshop::query()
+        $workshopsQuery = Workshop::query()
+            ->when(
+                Schema::hasColumn('workshops', 'proposal_status'),
+                fn ($q) => $q->where('proposal_status', 'approved')
+            )
+            ->when(
+                Schema::hasColumn('workshops', 'status'),
+                fn ($q) => $q->where('status', 'upcoming')
+            )
             ->withCount([
                 'registrations as registered_count' => function ($q) {
                     if (Schema::hasColumn('workshop_registrations', 'status')) {
@@ -22,8 +34,9 @@ class WorkshopsController extends Controller
                     }
                 }
             ])
-            ->orderByDesc('id')
-            ->get();
+            ->orderByDesc('id');
+
+        $workshops = $workshopsQuery->get();
 
         $regQuery = WorkshopRegistration::where('alumni_user_id', $userId);
 
@@ -33,27 +46,41 @@ class WorkshopsController extends Controller
 
         $registeredIds = $regQuery->pluck('workshop_id')->toArray();
 
-        return view('alumni.workshops', compact('workshops', 'registeredIds'));
+        $navBadges = $this->getNavBadges($userId);
+
+        return view('alumni.workshops', [
+            'workshops' => $workshops,
+            'registeredIds' => $registeredIds,
+            'jobBadgeCount' => $navBadges['jobBadgeCount'],
+            'recommendationsReceived' => $navBadges['recommendationsReceived'],
+            'applicationsBadgeCount' => $navBadges['applicationsBadgeCount'],
+        ]);
     }
 
     public function register(Workshop $workshop)
     {
-        $userId = Auth::id();
+        $userId = (int) Auth::id();
 
-        if (Schema::hasColumn('workshops', 'proposal_status')) {
-            if (($workshop->proposal_status ?? 'approved') !== 'approved') {
-                return back()->with('toast_success', __('This workshop is not available yet.'));
-            }
+        if (!$this->isWorkshopAvailableToAlumni($workshop)) {
+            return back()->with('toast_success', 'This workshop is not available yet.');
         }
 
+        $registrationQuery = WorkshopRegistration::where('workshop_id', $workshop->id)
+            ->where('alumni_user_id', $userId);
+
         if (Schema::hasColumn('workshop_registrations', 'status')) {
-            $already = WorkshopRegistration::where('workshop_id', $workshop->id)
-                ->where('alumni_user_id', $userId)
+            $already = (clone $registrationQuery)
                 ->where('status', 'registered')
                 ->exists();
 
             if ($already) {
-                return back()->with('toast_success', __('You are already registered.'));
+                return back()->with('toast_success', 'You are already registered.');
+            }
+        } else {
+            $already = (clone $registrationQuery)->exists();
+
+            if ($already) {
+                return back()->with('toast_success', 'You are already registered.');
             }
         }
 
@@ -69,8 +96,8 @@ class WorkshopsController extends Controller
 
                 $count = $countQuery->count();
 
-                if ($count >= (int)$cap) {
-                    return back()->with('toast_success', __('Workshop is full.'));
+                if ($count >= (int) $cap) {
+                    return back()->with('toast_success', 'Workshop is full.');
                 }
             }
         }
@@ -88,19 +115,24 @@ class WorkshopsController extends Controller
 
         WorkshopRegistration::updateOrCreate($attrs, $values);
 
-        return back()->with('toast_success', __('Successfully registered!'));
+        return back()->with('toast_success', 'Successfully registered!');
     }
 
     public function cancel(Workshop $workshop)
     {
-        $userId = Auth::id();
+        $userId = (int) Auth::id();
 
-        $reg = WorkshopRegistration::where('workshop_id', $workshop->id)
-            ->where('alumni_user_id', $userId)
-            ->first();
+        $regQuery = WorkshopRegistration::where('workshop_id', $workshop->id)
+            ->where('alumni_user_id', $userId);
+
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $regQuery->where('status', 'registered');
+        }
+
+        $reg = $regQuery->first();
 
         if (!$reg) {
-            return back()->with('toast_success', __('No registration found.'));
+            return back()->with('toast_success', 'No active registration found.');
         }
 
         if (Schema::hasColumn('workshop_registrations', 'status')) {
@@ -109,6 +141,53 @@ class WorkshopsController extends Controller
             $reg->delete();
         }
 
-        return back()->with('toast_success', __('Registration cancelled.'));
+        return back()->with('toast_success', 'Registration cancelled.');
+    }
+
+    private function isWorkshopAvailableToAlumni(Workshop $workshop): bool
+    {
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            if (($workshop->proposal_status ?? 'approved') !== 'approved') {
+                return false;
+            }
+        }
+
+        if (Schema::hasColumn('workshops', 'status')) {
+            if (($workshop->status ?? 'upcoming') !== 'upcoming') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function getNavBadges(int $userId): array
+    {
+        $jobsQuery = Job::query();
+
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $jobsQuery->where('approval_status', 'approved');
+        }
+
+        if (Schema::hasColumn('jobs', 'status')) {
+            $jobsQuery->where('status', 'active');
+        }
+
+        $registeredWorkshopsQuery = WorkshopRegistration::where('alumni_user_id', $userId);
+        if (Schema::hasColumn('workshop_registrations', 'status')) {
+            $registeredWorkshopsQuery->where('status', 'registered');
+        }
+
+        $jobApplicationsCount = JobApplication::where('alumni_user_id', $userId)->count();
+        $scholarshipApplicationsCount = class_exists(\App\Models\ScholarshipApplication::class)
+            ? ScholarshipApplication::where('alumni_user_id', $userId)->count()
+            : 0;
+        $registeredWorkshopsCount = (clone $registeredWorkshopsQuery)->count();
+
+        return [
+            'jobBadgeCount' => (clone $jobsQuery)->count(),
+            'recommendationsReceived' => Recommendation::where('to_user_id', $userId)->count(),
+            'applicationsBadgeCount' => $jobApplicationsCount + $scholarshipApplicationsCount + $registeredWorkshopsCount,
+        ];
     }
 }

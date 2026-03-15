@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Admin Dashboard';
+  $title = __('Admin Dashboard');
 
   $nav = [
     ['label'=>'Overview','href'=>'/admin','icon'=>'layout-dashboard'],

@@ -17,6 +17,8 @@ class SupportRequestController extends Controller
         return view('support.request', [
             'role' => strtolower((string)$request->query('role', 'alumni')),
             'identifier' => (string)$request->query('identifier', ''),
+
+
             'lastCode'  => (string) $request->cookie('support_last_code', ''),
             'lastEmail' => (string) $request->cookie('support_last_email', ''),
         ]);
@@ -26,22 +28,27 @@ class SupportRequestController extends Controller
     {
         if (!Schema::hasTable('support_tickets')) {
             return back()->withErrors([
-                'message' => __('Support system is not ready yet. Please try again later.'),
+                'message' => 'Support system is not ready yet. Please try again later.',
             ])->withInput();
         }
 
         $data = $request->validate([
             'role' => ['required', 'in:alumni,college,company,admin'],
             'identifier' => ['required', 'string', 'max:255'],
+
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
+
             'title' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
         ]);
 
         $role = strtolower(trim($data['role']));
         $identifier = trim((string)$data['identifier']);
+
+
         $emailLower = strtolower(trim((string)$data['email']));
+
 
         $field = ($role === 'alumni') ? 'academic_id' : 'email';
 
@@ -55,6 +62,7 @@ class SupportRequestController extends Controller
 
         $user = $userQuery->first();
 
+
         $existing = $this->findOpenTicket($user?->id, $emailLower, $role, $identifier);
 
         if ($existing) {
@@ -62,7 +70,7 @@ class SupportRequestController extends Controller
 
             return redirect()
                 ->route('support.track.show', ['code' => $existing->tracking_code, 'email' => $emailLower])
-                ->with('toast_success', __('You already have an open support request. Redirected to your latest ticket.'))
+                ->with('toast_success', 'You already have an open support request. Redirected to your latest ticket.')
                 ->cookie($this->supportCookie('support_last_code', $existing->tracking_code))
                 ->cookie($this->supportCookie('support_last_email', $emailLower));
         }
@@ -81,11 +89,14 @@ class SupportRequestController extends Controller
 
         if (Schema::hasColumn('support_tickets', 'role')) $attrs['role'] = $role;
         if (Schema::hasColumn('support_tickets', 'identifier')) $attrs['identifier'] = $identifier;
+
         if (Schema::hasColumn('support_tickets', 'title')) $attrs['title'] = $data['title'];
         if (Schema::hasColumn('support_tickets', 'subject')) $attrs['subject'] = $data['title'];
+
         if (Schema::hasColumn('support_tickets', 'admin_id')) $attrs['admin_id'] = null;
         if (Schema::hasColumn('support_tickets', 'admin_reply')) $attrs['admin_reply'] = null;
         if (Schema::hasColumn('support_tickets', 'resolved_at')) $attrs['resolved_at'] = null;
+
 
         if (Schema::hasColumn('support_tickets', 'tracking_code')) {
             $attrs['tracking_code'] = $this->generateTrackingCode();
@@ -93,7 +104,9 @@ class SupportRequestController extends Controller
 
         $ticket = SupportTicket::create($attrs);
 
+
         $this->ensureTrackingCode($ticket);
+
 
         try {
             if (Schema::hasTable('notifications')) {
@@ -102,7 +115,7 @@ class SupportRequestController extends Controller
 
                 foreach ($admins as $admin) {
                     $admin->notify(new SupportTicketCreatedNotification([
-                        'title' => __('New Support Ticket'),
+                        'title' => 'New Support Ticket',
                         'message' => "New ticket: {$data['title']} ({$data['name']})",
                         'action_url' => $url,
                         'icon' => 'help-circle',
@@ -112,57 +125,55 @@ class SupportRequestController extends Controller
             }
         } catch (\Throwable $e) {}
 
+
         return redirect()
             ->route('support.track.show', ['code' => $ticket->tracking_code, 'email' => $emailLower])
-            ->with('toast_success', __('Request sent. Save your tracking code:') . ' ' . $ticket->tracking_code)
+            ->with('toast_success', "Request sent. Save your tracking code: {$ticket->tracking_code}")
             ->cookie($this->supportCookie('support_last_code', $ticket->tracking_code))
             ->cookie($this->supportCookie('support_last_email', $emailLower));
     }
 
-    private function findOpenTicket(?int $userId, string $emailLower, string $role, string $identifier): ?SupportTicket
+    private function findOpenTicket(?int $userId, string $email, string $role, string $identifier): ?SupportTicket
     {
-        $query = SupportTicket::query()
-            ->whereIn('status', ['open', 'in_progress']);
+        $q = SupportTicket::query()
+            ->whereIn('status', ['open','in_progress'])
+            ->orderByDesc('id');
 
         if ($userId) {
-            $query->where('user_id', $userId);
-        } else {
-            $query->whereRaw('LOWER(email) = ?', [$emailLower]);
-            if (Schema::hasColumn('support_tickets', 'role')) {
-                $query->where('role', $role);
-            }
-            if (Schema::hasColumn('support_tickets', 'identifier')) {
-                $query->where('identifier', $identifier);
-            }
+            return $q->where('user_id', $userId)->first();
         }
 
-        return $query->latest('id')->first();
+
+        $q->where('email', $email);
+
+        if (Schema::hasColumn('support_tickets', 'role')) $q->where('role', $role);
+        if (Schema::hasColumn('support_tickets', 'identifier')) $q->where('identifier', $identifier);
+
+        return $q->first();
+    }
+
+    private function ensureTrackingCode(SupportTicket $ticket): void
+    {
+        try {
+            if (!Schema::hasColumn('support_tickets', 'tracking_code')) return;
+            if (!empty($ticket->tracking_code)) return;
+
+            $ticket->forceFill(['tracking_code' => $this->generateTrackingCode()])->save();
+        } catch (\Throwable $e) {}
     }
 
     private function generateTrackingCode(): string
     {
         do {
-            $code = 'SUP-' . strtoupper(Str::random(7));
+            $code = 'SUP-' . strtoupper(Str::random(8));
         } while (SupportTicket::where('tracking_code', $code)->exists());
 
         return $code;
     }
 
-    private function ensureTrackingCode(SupportTicket $ticket): void
-    {
-        if (!Schema::hasColumn('support_tickets', 'tracking_code')) {
-            return;
-        }
-
-        if (!empty($ticket->tracking_code)) {
-            return;
-        }
-
-        $ticket->forceFill(['tracking_code' => $this->generateTrackingCode()])->save();
-    }
-
     private function supportCookie(string $key, string $value)
     {
+
         return Cookie::make($key, $value, 60 * 24 * 30);
     }
 }

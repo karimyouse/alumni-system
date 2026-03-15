@@ -10,34 +10,34 @@
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
-  --background: 0 0% 100%;
+  --background: 210 40% 98%;
   --foreground: 0 0% 9%;
-  --border: 0 0% 90%;
-  --card: 0 0% 98%;
+  --border: 220 13% 91%;
+  --card: 0 0% 100%;
   --card-foreground: 0 0% 9%;
-  --card-border: 0 0% 94%;
-  --sidebar: 0 0% 96%;
+  --card-border: 220 14% 94%;
+  --sidebar: 0 0% 100%;
   --sidebar-foreground: 0 0% 9%;
-  --sidebar-border: 0 0% 92%;
+  --sidebar-border: 220 13% 91%;
   --sidebar-primary: 210 85% 45%;
   --sidebar-primary-foreground: 0 0% 98%;
   --sidebar-accent: 0 0% 92%;
   --sidebar-accent-foreground: 0 0% 9%;
   --sidebar-ring: 210 85% 45%;
-  --popover: 0 0% 94%;
+  --popover: 0 0% 100%;
   --popover-foreground: 0 0% 9%;
-  --popover-border: 0 0% 90%;
+  --popover-border: 220 13% 91%;
   --primary: 210 85% 45%;
   --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 91%;
+  --secondary: 210 20% 96%;
   --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 93%;
+  --muted: 210 20% 96%;
   --muted-foreground: 0 0% 35%;
-  --accent: 210 15% 92%;
+  --accent: 210 20% 96%;
   --accent-foreground: 0 0% 9%;
   --destructive: 0 72% 42%;
   --destructive-foreground: 0 0% 98%;
-  --input: 0 0% 75%;
+  --input: 220 13% 91%;
   --ring: 210 85% 45%;
   --chart-1: 210 85% 35%;
   --chart-2: 185 75% 38%;
@@ -309,85 +309,3 @@
   }
 }
 
-
-
-@layer base {
-  html[dir="rtl"] body,
-  html[dir="rtl"] input,
-  html[dir="rtl"] textarea,
-  html[dir="rtl"] select,
-  html[dir="rtl"] button {
-    font-family: Tahoma, "Segoe UI", Arial, var(--font-sans);
-  }
-
-  html[dir="rtl"] body {
-    direction: rtl;
-    text-align: right;
-  }
-
-  html[dir="rtl"] input:not([type="email"]):not([type="url"]),
-  html[dir="rtl"] textarea,
-  html[dir="rtl"] select {
-    text-align: right;
-  }
-
-  html[dir="rtl"] input[type="email"],
-  html[dir="rtl"] input[type="url"],
-  html[dir="rtl"] input[name="email"],
-  html[dir="rtl"] input[name="code"],
-  html[dir="rtl"] input[name="identifier"],
-  html[dir="rtl"] .font-mono {
-    direction: ltr;
-    text-align: left;
-  }
-
-  html[dir="rtl"] .text-left {
-    text-align: right !important;
-  }
-
-  html[dir="rtl"] .app-top-back {
-    left: auto;
-    right: 1rem;
-  }
-
-  html[dir="rtl"] .app-top-actions {
-    right: auto;
-    left: 1rem;
-  }
-
-  html[dir="rtl"] ul.list-disc {
-    padding-left: 0;
-    padding-right: 1.25rem;
-  }
-
-  html[dir="rtl"] table th,
-  html[dir="rtl"] table td {
-    text-align: right;
-  }
-}
-
-
-.dashboard-rtl {
-  text-align: right;
-}
-
-.dashboard-rtl .app-top-actions,
-.dashboard-rtl .app-top-back {
-  direction: rtl;
-}
-
-.dashboard-rtl [data-sidebar-item] .sidebar-item-icon,
-[dir="rtl"] .sidebar-item-icon {
-  margin-inline-end: 0.75rem;
-  margin-inline-start: 0;
-}
-
-[dir="rtl"] input,
-[dir="rtl"] textarea,
-[dir="rtl"] select {
-  text-align: right;
-}
-
-[dir="rtl"] .role-tab {
-  direction: rtl;
-}

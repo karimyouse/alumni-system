@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Content Management';
+  $title = __('Content Management');
 
   $nav = [
     ['label'=>'Overview','href'=>'/admin','icon'=>'layout-dashboard'],
@@ -316,7 +316,7 @@
     document.getElementById('rejectModal').classList.remove('hidden');
   }
 
- 
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeAllModals();
   });

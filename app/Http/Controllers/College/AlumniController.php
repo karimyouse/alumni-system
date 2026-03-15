@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\College;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
+use App\Models\Job;
+use App\Models\Scholarship;
+use App\Models\SuccessStory;
 use App\Models\User;
+use App\Models\Workshop;
 use Illuminate\Http\Request;
 
 class AlumniController extends Controller
@@ -26,15 +31,35 @@ class AlumniController extends Controller
 
         $alumni = $query->orderByDesc('id')->paginate(12)->withQueryString();
 
-        return view('college.alumni-management', compact('alumni', 'q'));
+        return view('college.alumni-management', array_merge(
+            compact('alumni', 'q'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function show(User $alumnus)
     {
-        if ($alumnus->role !== 'alumni') abort(404);
+        if ($alumnus->role !== 'alumni') {
+            abort(404);
+        }
 
         $alumnus->load('alumniProfile');
 
-        return view('college.alumni-show', compact('alumnus'));
+        return view('college.alumni-show', array_merge(
+            compact('alumnus'),
+            $this->buildNavCounts()
+        ));
+    }
+
+    private function buildNavCounts(): array
+    {
+        return [
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'workshopBadgeCount' => Workshop::count(),
+            'jobBadgeCount' => Job::count(),
+            'announcementBadgeCount' => Announcement::count(),
+            'scholarshipBadgeCount' => Scholarship::count(),
+            'successStoryBadgeCount' => SuccessStory::count(),
+        ];
     }
 }

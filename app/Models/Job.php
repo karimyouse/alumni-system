@@ -8,6 +8,8 @@ class Job extends Model
 {
     protected $fillable = [
         'company_user_id',
+        'organizer_user_id',
+        'organizer_role',
         'title',
         'company_name',
         'location',
@@ -17,8 +19,6 @@ class Job extends Model
         'posted',
         'status',
         'views',
-
-        // ✅ College review fields
         'approval_status',
         'approved_at',
         'approved_by',
@@ -39,5 +39,10 @@ class Job extends Model
     public function company()
     {
         return $this->belongsTo(\App\Models\User::class, 'company_user_id');
+    }
+
+    public function organizer()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'organizer_user_id');
     }
 }

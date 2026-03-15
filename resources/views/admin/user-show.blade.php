@@ -1,7 +1,8 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'User Profile';
+  $title = __('User Profile');
+
 
   $nav = [
     ['label'=>'Overview','href'=>'/admin','icon'=>'layout-dashboard'],

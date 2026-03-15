@@ -1,17 +1,17 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'College Dashboard';
+  $title = __('College Dashboard');
   $role  = 'College';
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
-    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
-    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
-    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
-    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone','badge'=>$announcementBadgeCount ?? 0],
+    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap','badge'=>$scholarshipBadgeCount ?? 0],
+    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award','badge'=>$successStoryBadgeCount ?? 0],
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
 
@@ -31,15 +31,15 @@
         </p>
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <a href="{{ route('college.workshops.create') }}"
            class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition inline-flex items-center"
            data-testid="button-add-workshop">
-          <i data-lucide="plus" class="h-4 w-4 mr-2 inline"></i>
+          <i data-lucide="calendar-days" class="h-4 w-4 mr-2 inline"></i>
           Add Workshop
         </a>
 
-        <a href="/college/jobs"
+        <a href="{{ route('college.jobs.create') }}"
            class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 transition inline-flex items-center"
            data-testid="button-post-job">
           <i data-lucide="briefcase" class="h-4 w-4 mr-2 inline"></i>
@@ -75,7 +75,7 @@
       </div>
       <div class="text-3xl font-bold mt-3">{{ number_format($activeJobPosts) }}</div>
       <div class="text-xs text-muted-foreground mt-1">
-        From partner companies
+        From partner companies and college posts
       </div>
     </div>
 
@@ -211,7 +211,14 @@
     </div>
 
     <div class="p-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <a href="{{ route('college.jobs.create') }}"
+           class="rounded-md border border-border py-4 hover:bg-accent/50 transition flex flex-col items-center gap-2"
+           data-testid="button-quick-job">
+          <i data-lucide="briefcase" class="h-5 w-5"></i>
+          <span class="text-sm">Post Job</span>
+        </a>
+
         <a href="{{ route('college.workshops.create') }}"
            class="rounded-md border border-border py-4 hover:bg-accent/50 transition flex flex-col items-center gap-2"
            data-testid="button-quick-workshop">

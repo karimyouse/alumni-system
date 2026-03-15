@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\SupportTicketsController;
@@ -55,7 +56,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/test-theme', 'test-theme');
 
 
-Route::match(['GET','POST'], '/lang', function (Request $request) {
+Route::match(['GET', 'POST'], '/lang', function (Request $request) {
     $locale = $request->input('locale')
         ?? $request->query('locale')
         ?? $request->input('lang')
@@ -65,57 +66,56 @@ Route::match(['GET','POST'], '/lang', function (Request $request) {
         $locale = app()->getLocale() === 'ar' ? 'en' : 'ar';
     }
 
-    if (!in_array($locale, ['en','ar'], true)) {
+    if (!in_array($locale, ['en', 'ar'], true)) {
         abort(404);
     }
 
     session(['locale' => $locale]);
     app()->setLocale($locale);
+    Cookie::queue(Cookie::forever('locale', $locale));
 
-    $localeCookie = cookie()->forever('locale', $locale);
+    $redirectTo = $request->input('redirect_to') ?? $request->query('redirect_to');
+    $fallback = '/';
 
-    $fragment = ltrim((string) ($request->input('fragment') ?? $request->query('fragment') ?? ''), '#');
+    if (is_string($redirectTo) && trim($redirectTo) !== '') {
+        $redirectTo = trim($redirectTo);
+        $appUrl = rtrim((string) config('app.url', ''), '/');
+        $origin = rtrim($request->getSchemeAndHttpHost(), '/');
 
-    $normalizeTarget = function (?string $target) use ($request): ?string {
-        if (!is_string($target) || trim($target) === '') {
-            return null;
+        if (str_starts_with($redirectTo, '/')) {
+            return redirect($redirectTo);
         }
 
-        $target = trim($target);
-
-        if (str_starts_with($target, '/')) {
-            return $target;
+        if ($appUrl !== '' && str_starts_with($redirectTo, $appUrl)) {
+            $path = substr($redirectTo, strlen($appUrl));
+            return redirect($path !== '' ? $path : $fallback);
         }
 
-        $parts = parse_url($target);
-
-        if (!$parts || empty($parts['path'])) {
-            return null;
+        if ($origin !== '' && str_starts_with($redirectTo, $origin)) {
+            $path = substr($redirectTo, strlen($origin));
+            return redirect($path !== '' ? $path : $fallback);
         }
-
-        if (!empty($parts['scheme']) && !in_array($parts['scheme'], ['http', 'https'], true)) {
-            return null;
-        }
-
-        if (!empty($parts['host']) && $parts['host'] !== $request->getHost()) {
-            return null;
-        }
-
-        $path = $parts['path'] ?? '/';
-        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
-
-        return $path . $query;
-    };
-
-    $target = $normalizeTarget($request->input('redirect_to') ?? $request->query('redirect_to'))
-        ?? $normalizeTarget(url()->previous())
-        ?? '/';
-
-    if ($fragment !== '') {
-        $target .= '#' . $fragment;
     }
 
-    return redirect($target)->cookie($localeCookie);
+    $previous = url()->previous();
+    $appUrl = rtrim((string) config('app.url', ''), '/');
+    $origin = rtrim($request->getSchemeAndHttpHost(), '/');
+
+    if (is_string($previous) && str_starts_with($previous, '/')) {
+        return redirect($previous);
+    }
+
+    if ($appUrl !== '' && is_string($previous) && str_starts_with($previous, $appUrl)) {
+        $path = substr($previous, strlen($appUrl));
+        return redirect($path !== '' ? $path : $fallback);
+    }
+
+    if ($origin !== '' && is_string($previous) && str_starts_with($previous, $origin)) {
+        $path = substr($previous, strlen($origin));
+        return redirect($path !== '' ? $path : $fallback);
+    }
+
+    return redirect($fallback);
 })->name('lang.switch');
 
 
@@ -235,8 +235,15 @@ Route::prefix('college')->middleware(['auth', 'role:college'])->group(function (
     Route::post('/workshops/{workshop}/update', [CollegeWorkshopsController::class, 'update'])->name('college.workshops.update');
     Route::get('/workshops/{workshop}/manage', [CollegeWorkshopsController::class, 'manage'])->name('college.workshops.manage');
     Route::post('/workshops/{workshop}/delete', [CollegeWorkshopsController::class, 'destroy'])->name('college.workshops.delete');
+    Route::post('/workshops/{workshop}/approve', [CollegeWorkshopsController::class, 'approve'])->name('college.workshops.approve');
+    Route::post('/workshops/{workshop}/reject', [CollegeWorkshopsController::class, 'reject'])->name('college.workshops.reject');
 
     Route::get('/jobs', [CollegeJobsController::class, 'index'])->name('college.jobs');
+    Route::get('/jobs/create', [CollegeJobsController::class, 'create'])->name('college.jobs.create');
+    Route::post('/jobs', [CollegeJobsController::class, 'store'])->name('college.jobs.store');
+    Route::get('/jobs/{job}/edit', [CollegeJobsController::class, 'edit'])->name('college.jobs.edit');
+    Route::post('/jobs/{job}/update', [CollegeJobsController::class, 'update'])->name('college.jobs.update');
+    Route::post('/jobs/{job}/delete', [CollegeJobsController::class, 'destroy'])->name('college.jobs.delete');
     Route::post('/jobs/{job}/approve', [CollegeJobsController::class, 'approve'])->name('college.jobs.approve');
     Route::post('/jobs/{job}/reject', [CollegeJobsController::class, 'reject'])->name('college.jobs.reject');
     Route::post('/jobs/{job}/feature', [CollegeJobsController::class, 'toggleFeatured'])->name('college.jobs.feature');
@@ -294,6 +301,9 @@ Route::prefix('company')->middleware(['auth', 'role:company', 'company.approved'
     Route::get('/workshops', [CompanyWorkshopsController::class, 'index'])->name('company.workshops');
     Route::get('/workshops/create', [CompanyWorkshopsController::class, 'create'])->name('company.workshops.create');
     Route::post('/workshops', [CompanyWorkshopsController::class, 'store'])->name('company.workshops.store');
+    Route::get('/workshops/{workshop}/edit', [CompanyWorkshopsController::class, 'edit'])->name('company.workshops.edit');
+    Route::post('/workshops/{workshop}/update', [CompanyWorkshopsController::class, 'update'])->name('company.workshops.update');
+    Route::post('/workshops/{workshop}/delete', [CompanyWorkshopsController::class, 'destroy'])->name('company.workshops.delete');
     Route::get('/workshops/{workshop}', [CompanyWorkshopsController::class, 'manage'])->name('company.workshops.manage');
 });
 

@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Manage Workshop';
+  $title = __('Manage Workshop');
   $role='College';
 
   $nav = [
@@ -14,6 +14,8 @@
     ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
+
+  $isCompanyWorkshop = !is_null($workshop->company_user_id ?? null);
 @endphp
 
 @section('content')
@@ -43,10 +45,12 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <a href="{{ route('college.workshops.edit', $workshop) }}"
-         class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
-        Edit
-      </a>
+      @unless($isCompanyWorkshop)
+        <a href="{{ route('college.workshops.edit', $workshop) }}"
+           class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
+          Edit
+        </a>
+      @endunless
 
       <a href="{{ route('college.workshops') }}"
          class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">

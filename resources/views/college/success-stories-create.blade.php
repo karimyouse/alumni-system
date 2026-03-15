@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = $isEdit ? 'Edit Story' : 'New Story';
+  $title = $isEdit ? __('Edit Story') : __('New Story');
   $role='College';
 
   $nav = [

@@ -3,7 +3,8 @@
 @php
   use Illuminate\Support\Str;
 
-  $title = 'Support Center';
+  $title = __('Support Center');
+
 
   $nav = [
     ['label'=>'Overview','href'=>'/admin','icon'=>'layout-dashboard'],
@@ -345,7 +346,7 @@
       });
     });
 
-    
+
     const hash = window.location.hash || '';
     if (hash.startsWith('#ticket-')) {
       const id = hash.replace('#ticket-', '').trim();

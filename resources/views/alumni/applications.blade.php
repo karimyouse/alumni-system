@@ -1,16 +1,16 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'My Applications';
+  $title = __('My Applications');
   $role  = 'Alumni';
 
   $nav = [
     ['label'=>'Overview','href'=>'/alumni','icon'=>'layout-dashboard'],
     ['label'=>'My Profile','href'=>'/alumni/profile','icon'=>'user'],
-    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase'],
-    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days'],
+    ['label'=>'Job Opportunities','href'=>'/alumni/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/alumni/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
     ['label'=>'Scholarships','href'=>'/alumni/scholarships','icon'=>'graduation-cap'],
-    ['label'=>'Recommendations','href'=>'/alumni/recommendations','icon'=>'message-square'],
+    ['label'=>'Recommendations','href'=>'/alumni/recommendations','icon'=>'message-square','badge'=>$recommendationsReceived ?? 0],
     ['label'=>'Leaderboard','href'=>'/alumni/leaderboard','icon'=>'trophy'],
     ['label'=>'My Applications','href'=>'/alumni/applications','icon'=>'file-text'],
   ];
@@ -19,9 +19,10 @@
 @section('content')
 <div class="space-y-6">
   <div>
-    <h1 class="text-2xl font-bold">{{ __('My Applications') }}</h1>
-    <p class="text-sm text-muted-foreground">{{ __('Track your job, scholarship, and workshop applications') }}</p>
+    <h1 class="text-2xl font-bold">My Applications</h1>
+    <p class="text-sm text-muted-foreground">Track your job, scholarship, and workshop applications</p>
   </div>
+
 
   <div class="inline-flex rounded-lg bg-muted p-1 gap-1" id="tabs">
     @foreach($tabs as $i => $t)
@@ -34,6 +35,7 @@
       </button>
     @endforeach
   </div>
+
 
   @foreach($tabs as $i => $t)
     @php $list = $itemsByTab[$t['key']] ?? collect(); @endphp
@@ -61,14 +63,14 @@
           </div>
 
           <a href="{{ route('alumni.applications.show', ['type'=>$it['type'], 'id'=>$it['id']]) }}"
-             class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-            {{ __('View Details') }}
-          </a>
+   class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+  View Details
+</a>
 
         </div>
       @empty
         <div class="rounded-xl border border-border bg-card p-6">
-          <div class="text-sm text-muted-foreground">{{ __('No items in this tab yet.') }}</div>
+          <div class="text-sm text-muted-foreground">No items in this tab yet.</div>
         </div>
       @endforelse
     </div>

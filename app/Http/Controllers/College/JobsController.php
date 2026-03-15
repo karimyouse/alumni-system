@@ -3,7 +3,13 @@
 namespace App\Http\Controllers\College;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use App\Models\Job;
+use App\Models\Scholarship;
+use App\Models\SuccessStory;
+use App\Models\User;
+use App\Models\Workshop;
+use App\Notifications\ContentReviewNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -12,71 +18,305 @@ class JobsController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->query('status', 'all'); 
-        $q = trim((string)$request->query('q',''));
+        $status = $request->query('status', 'all');
+        $q = trim((string) $request->query('q', ''));
 
-        $query = Job::query()->orderByDesc('id');
+        $query = Job::query()
+            ->with('company')
+            ->orderByDesc('id');
 
         if ($q !== '') {
             $query->where(function ($x) use ($q) {
-                $x->where('title','like',"%{$q}%")
-                  ->orWhere('company_name','like',"%{$q}%")
-                  ->orWhere('location','like',"%{$q}%");
+                $x->where('title', 'like', "%{$q}%")
+                  ->orWhere('company_name', 'like', "%{$q}%")
+                  ->orWhere('location', 'like', "%{$q}%");
             });
         }
 
-        if (Schema::hasColumn('jobs','approval_status') && $status !== 'all') {
+        if (Schema::hasColumn('jobs', 'approval_status') && $status !== 'all') {
             $query->where('approval_status', $status);
         }
 
         $jobs = $query->paginate(10)->withQueryString();
 
+        $jobs->getCollection()->transform(function ($job) {
+            $job->is_company_submission = !is_null($job->company_user_id ?? null);
+            $job->display_owner_name = $job->is_company_submission
+                ? ($job->company?->name ?? ($job->company_name ?? 'Company'))
+                : 'PTC College';
+
+            return $job;
+        });
+
         $counts = [
             'all' => Job::count(),
-            'approved' => Schema::hasColumn('jobs','approval_status') ? Job::where('approval_status','approved')->count() : 0,
-            'pending'  => Schema::hasColumn('jobs','approval_status') ? Job::where('approval_status','pending')->count() : 0,
-            'rejected' => Schema::hasColumn('jobs','approval_status') ? Job::where('approval_status','rejected')->count() : 0,
+            'approved' => Schema::hasColumn('jobs', 'approval_status') ? Job::where('approval_status', 'approved')->count() : 0,
+            'pending'  => Schema::hasColumn('jobs', 'approval_status') ? Job::where('approval_status', 'pending')->count() : 0,
+            'rejected' => Schema::hasColumn('jobs', 'approval_status') ? Job::where('approval_status', 'rejected')->count() : 0,
         ];
 
-        return view('college.jobs', compact('jobs','status','q','counts'));
+        return view('college.jobs', array_merge(
+            compact('jobs', 'status', 'q', 'counts'),
+            $this->buildNavCounts()
+        ));
     }
 
-    public function approve(\App\Models\Job $job)
-{
-    $job->forceFill([
-        'approval_status' => 'approved',
-        'approved_at' => now(),
-        'approved_by' => auth::id(),
-        'reject_reason' => null,
-    ])->save();
+    public function create()
+    {
+        return view('college.jobs.create', array_merge([
+            'job' => null,
+            'isEdit' => false,
+            'companyName' => 'PTC College',
+        ], $this->buildNavCounts()));
+    }
 
-    return back()->with('toast_success', 'Job approved.');
-}
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'type' => ['nullable', 'string', 'max:50'],
+            'salary' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string', 'max:5000'],
+        ]);
 
-public function reject(\Illuminate\Http\Request $request, \App\Models\Job $job)
-{
-    $data = $request->validate([
-        'reject_reason' => ['nullable','string','max:2000'],
-    ]);
+        $attrs = [
+            'company_user_id' => null,
+            'title' => $data['title'],
+            'company_name' => $data['company_name'] ?: 'PTC College',
+            'location' => $data['location'] ?: null,
+            'type' => $data['type'] ?: null,
+            'salary' => $data['salary'] ?: null,
+            'description' => $data['description'] ?: null,
+        ];
 
-    $job->forceFill([
-        'approval_status' => 'rejected',
-        'approved_at' => null,
-        'approved_by' => auth::id(),
-        'reject_reason' => $data['reject_reason'] ?? 'Rejected by college.',
-    ])->save();
+        if (Schema::hasColumn('jobs', 'status')) {
+            $attrs['status'] = 'active';
+        }
 
-    return back()->with('toast_success', 'Job rejected (saved in database).');
-}
+        if (Schema::hasColumn('jobs', 'posted')) {
+            $attrs['posted'] = now()->format('M d, Y');
+        }
 
-public function toggleFeatured(\App\Models\Job $job)
-{
-    $job->forceFill([
-        'is_featured' => !(bool) $job->is_featured
-    ])->save();
+        if (Schema::hasColumn('jobs', 'views')) {
+            $attrs['views'] = 0;
+        }
 
-    return back()->with('toast_success', $job->is_featured ? 'Job featured.' : 'Job unfeatured.');
-}
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $attrs['approval_status'] = 'approved';
+        }
 
+        if (Schema::hasColumn('jobs', 'approved_at')) {
+            $attrs['approved_at'] = now();
+        }
 
+        if (Schema::hasColumn('jobs', 'approved_by')) {
+            $attrs['approved_by'] = Auth::id();
+        }
+
+        if (Schema::hasColumn('jobs', 'reject_reason')) {
+            $attrs['reject_reason'] = null;
+        }
+
+        if (Schema::hasColumn('jobs', 'is_featured')) {
+            $attrs['is_featured'] = false;
+        }
+
+        Job::create($attrs);
+
+        return redirect()
+            ->route('college.jobs')
+            ->with('toast_success', 'Job created successfully.');
+    }
+
+    public function edit(Job $job)
+    {
+        $this->ensureCollegeOwnsJob($job);
+
+        return view('college.jobs.create', array_merge([
+            'job' => $job,
+            'isEdit' => true,
+            'companyName' => 'PTC College',
+        ], $this->buildNavCounts()));
+    }
+
+    public function update(Request $request, Job $job)
+    {
+        $this->ensureCollegeOwnsJob($job);
+
+        $data = $this->validateJob($request);
+
+        $update = [
+            'title' => $data['title'],
+            'company_name' => $data['company_name'] ?: 'PTC College',
+            'location' => $data['location'] ?: null,
+            'type' => $data['type'] ?: null,
+            'salary' => $data['salary'] ?: null,
+            'description' => $data['description'] ?: null,
+        ];
+
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $update['approval_status'] = 'approved';
+        }
+
+        if (Schema::hasColumn('jobs', 'approved_at')) {
+            $update['approved_at'] = now();
+        }
+
+        if (Schema::hasColumn('jobs', 'approved_by')) {
+            $update['approved_by'] = Auth::id();
+        }
+
+        if (Schema::hasColumn('jobs', 'reject_reason')) {
+            $update['reject_reason'] = null;
+        }
+
+        $job->update($update);
+
+        return redirect()
+            ->route('college.jobs')
+            ->with('toast_success', 'Job updated successfully.');
+    }
+
+    public function destroy(Job $job)
+    {
+        $this->ensureCollegeOwnsJob($job);
+
+        $job->delete();
+
+        return back()->with('toast_success', 'Job deleted successfully.');
+    }
+
+    public function approve(Job $job)
+    {
+        $this->ensureCompanySubmittedJob($job);
+
+        $job->forceFill([
+            'approval_status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => Auth::id(),
+            'reject_reason' => null,
+        ])->save();
+
+        $this->notifyCompany($job, true);
+        $this->notifyAlumniAboutApprovedJob($job);
+
+        return back()->with('toast_success', 'Job approved.');
+    }
+
+    public function reject(Request $request, Job $job)
+    {
+        $this->ensureCompanySubmittedJob($job);
+
+        $data = $request->validate([
+            'reject_reason' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $reason = $data['reject_reason'] ?? 'Rejected by college.';
+
+        $job->forceFill([
+            'approval_status' => 'rejected',
+            'approved_at' => null,
+            'approved_by' => Auth::id(),
+            'reject_reason' => $reason,
+        ])->save();
+
+        $this->notifyCompany($job, false, $reason);
+
+        return back()->with('toast_success', 'Job rejected.');
+    }
+
+    public function toggleFeatured(Job $job)
+    {
+        $job->forceFill([
+            'is_featured' => !(bool) $job->is_featured
+        ])->save();
+
+        return back()->with('toast_success', $job->is_featured ? 'Job featured.' : 'Job unfeatured.');
+    }
+
+    private function validateJob(Request $request): array
+    {
+        return $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'type' => ['nullable', 'string', 'max:50'],
+            'salary' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string', 'max:5000'],
+        ]);
+    }
+
+    private function ensureCollegeOwnsJob(Job $job): void
+    {
+        if (!is_null($job->company_user_id ?? null)) {
+            abort(403);
+        }
+    }
+
+    private function ensureCompanySubmittedJob(Job $job): void
+    {
+        if (is_null($job->company_user_id ?? null)) {
+            abort(403);
+        }
+    }
+
+    private function notifyCompany(Job $job, bool $approved, ?string $reason = null): void
+    {
+        try {
+            $company = $job->company;
+            if (!$company) {
+                return;
+            }
+
+            $company->notify(new ContentReviewNotification([
+                'kind' => 'content_review',
+                'content_type' => 'job',
+                'content_id' => $job->id,
+                'status' => $approved ? 'approved' : 'rejected',
+                'title' => $approved ? 'Your job was approved' : 'Your job was rejected',
+                'message' => $approved
+                    ? 'Your job "' . $job->title . '" has been approved and is now visible to alumni.'
+                    : 'Your job "' . $job->title . '" was rejected.' . ($reason ? ' Reason: ' . $reason : ''),
+                'icon' => 'briefcase',
+                'admin_note' => $reason,
+                'url' => route('company.jobs'),
+            ]));
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function notifyAlumniAboutApprovedJob(Job $job): void
+    {
+        try {
+            $alumniUsers = User::query()->where('role', 'alumni')->get();
+
+            foreach ($alumniUsers as $alumnus) {
+                $alumnus->notify(new ContentReviewNotification([
+                    'kind' => 'content_review',
+                    'content_type' => 'job',
+                    'content_id' => $job->id,
+                    'status' => 'approved',
+                    'title' => 'New job opportunity available',
+                    'message' => '"' . $job->title . '" at ' . ($job->company_name ?: 'PTC College') . ' is now available for you.',
+                    'icon' => 'briefcase',
+                    'url' => route('alumni.jobs.show', $job),
+                ]));
+            }
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function buildNavCounts(): array
+    {
+        return [
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'workshopBadgeCount' => Workshop::count(),
+            'jobBadgeCount' => Job::count(),
+            'announcementBadgeCount' => Announcement::count(),
+            'scholarshipBadgeCount' => Scholarship::count(),
+            'successStoryBadgeCount' => SuccessStory::count(),
+        ];
+    }
 }

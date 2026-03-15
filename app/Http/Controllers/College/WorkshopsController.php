@@ -3,8 +3,14 @@
 namespace App\Http\Controllers\College;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
+use App\Models\Job;
+use App\Models\Scholarship;
+use App\Models\SuccessStory;
+use App\Models\User;
 use App\Models\Workshop;
 use App\Models\WorkshopRegistration;
+use App\Notifications\ContentReviewNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,35 +18,73 @@ use Illuminate\Support\Facades\Schema;
 
 class WorkshopsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $workshops = Workshop::query()
+        $status = $request->query('status', 'all');
+        $q = trim((string) $request->query('q', ''));
+
+        $query = Workshop::query()
+            ->with('company')
             ->withCount([
-                'registrations as registered_count' => function ($q) {
+                'registrations as registered_count' => function ($sub) {
                     if (Schema::hasColumn('workshop_registrations', 'status')) {
-                        $q->where('status', 'registered');
+                        $sub->where('status', 'registered');
                     }
                 }
             ])
-            ->orderByDesc('id')
-            ->paginate(10)
-            ->through(function ($workshop) {
-                $workshop->display_status = $this->resolveWorkshopStatus($workshop);
-                $workshop->display_capacity = $this->resolveWorkshopCapacity($workshop);
-                $workshop->display_registered = (int) ($workshop->registered_count ?? 0);
-                $workshop->display_spots_label = $this->buildSpotsLabel($workshop);
-                return $workshop;
-            });
+            ->orderByDesc('id');
 
-        return view('college.workshops', compact('workshops'));
+        if ($q !== '') {
+            $query->where(function ($x) use ($q) {
+                $x->where('title', 'like', "%{$q}%")
+                  ->orWhere('location', 'like', "%{$q}%");
+            });
+        }
+
+        if ($status !== 'all' && Schema::hasColumn('workshops', 'proposal_status')) {
+            $query->where('proposal_status', $status);
+        }
+
+        $workshops = $query->paginate(10)->withQueryString();
+
+        $workshops->getCollection()->transform(function ($workshop) {
+            $workshop->display_status = $this->resolveWorkshopStatus($workshop);
+            $workshop->display_capacity = $this->resolveWorkshopCapacity($workshop);
+            $workshop->display_registered = (int) ($workshop->registered_count ?? 0);
+            $workshop->display_spots_label = $this->buildSpotsLabel($workshop);
+            $workshop->is_company_submission = !is_null($workshop->company_user_id ?? null);
+            $workshop->display_owner_name = $workshop->is_company_submission
+                ? ($workshop->company?->name ?? 'Company')
+                : 'PTC College';
+
+            return $workshop;
+        });
+
+        $counts = [
+            'all' => Workshop::count(),
+            'approved' => Schema::hasColumn('workshops', 'proposal_status')
+                ? Workshop::where('proposal_status', 'approved')->count()
+                : 0,
+            'pending' => Schema::hasColumn('workshops', 'proposal_status')
+                ? Workshop::where('proposal_status', 'pending')->count()
+                : 0,
+            'rejected' => Schema::hasColumn('workshops', 'proposal_status')
+                ? Workshop::where('proposal_status', 'rejected')->count()
+                : 0,
+        ];
+
+        return view('college.workshops', array_merge(
+            compact('workshops', 'counts', 'status', 'q'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function create()
     {
-        return view('college.workshops.create', [
+        return view('college.workshops.create', array_merge([
             'workshop' => null,
             'isEdit' => false,
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function store(Request $request)
@@ -58,14 +102,18 @@ class WorkshopsController extends Controller
 
     public function edit(Workshop $workshop)
     {
-        return view('college.workshops.create', [
+        $this->ensureCollegeOwnsWorkshop($workshop);
+
+        return view('college.workshops.create', array_merge([
             'workshop' => $workshop,
             'isEdit' => true,
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function update(Request $request, Workshop $workshop)
     {
+        $this->ensureCollegeOwnsWorkshop($workshop);
+
         $data = $this->validateWorkshop($request);
 
         $attrs = $this->buildWorkshopAttributes($data, $workshop);
@@ -94,14 +142,97 @@ class WorkshopsController extends Controller
         $workshop->display_spots_label = $this->buildSpotsLabel($workshop);
         $workshop->display_status = $this->resolveWorkshopStatus($workshop);
 
-        return view('college.workshops-manage', compact('workshop', 'registrations'));
+        return view('college.workshops-manage', array_merge(
+            compact('workshop', 'registrations'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function destroy(Workshop $workshop)
     {
+        $this->ensureCollegeOwnsWorkshop($workshop);
+
         $workshop->delete();
 
         return back()->with('toast_success', 'Workshop deleted successfully.');
+    }
+
+    public function approve(Workshop $workshop)
+    {
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            $workshop->forceFill(['proposal_status' => 'approved'])->save();
+        }
+
+        $this->notifyWorkshopOwner($workshop, true);
+        $this->notifyAlumniAboutApprovedWorkshop($workshop);
+
+        return back()->with('toast_success', 'Workshop approved.');
+    }
+
+    public function reject(Request $request, Workshop $workshop)
+    {
+        if (Schema::hasColumn('workshops', 'proposal_status')) {
+            $workshop->forceFill(['proposal_status' => 'rejected'])->save();
+        }
+
+        $reason = trim((string) $request->input('reject_reason', ''));
+
+        $this->notifyWorkshopOwner($workshop, false, $reason);
+
+        return back()->with('toast_success', 'Workshop rejected.');
+    }
+
+    private function ensureCollegeOwnsWorkshop(Workshop $workshop): void
+    {
+        if (!is_null($workshop->company_user_id ?? null)) {
+            abort(403);
+        }
+    }
+
+    private function notifyWorkshopOwner(Workshop $workshop, bool $approved, ?string $reason = null): void
+    {
+        try {
+            $company = $workshop->company;
+            if (!$company) {
+                return;
+            }
+
+            $company->notify(new ContentReviewNotification([
+                'kind' => 'content_review',
+                'content_type' => 'workshop',
+                'content_id' => $workshop->id,
+                'status' => $approved ? 'approved' : 'rejected',
+                'title' => $approved ? 'Your workshop was approved' : 'Your workshop was rejected',
+                'message' => $approved
+                    ? 'Your workshop "' . $workshop->title . '" has been approved and is now visible to alumni.'
+                    : 'Your workshop "' . $workshop->title . '" was rejected.' . ($reason ? ' Reason: ' . $reason : ''),
+                'icon' => 'calendar-days',
+                'admin_note' => $reason,
+                'url' => route('company.workshops'),
+            ]));
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function notifyAlumniAboutApprovedWorkshop(Workshop $workshop): void
+    {
+        try {
+            $alumniUsers = User::query()->where('role', 'alumni')->get();
+
+            foreach ($alumniUsers as $alumnus) {
+                $alumnus->notify(new ContentReviewNotification([
+                    'kind' => 'content_review',
+                    'content_type' => 'workshop',
+                    'content_id' => $workshop->id,
+                    'status' => 'approved',
+                    'title' => 'New workshop available',
+                    'message' => '"' . $workshop->title . '" is now available for registration.',
+                    'icon' => 'calendar-days',
+                    'url' => route('alumni.workshops'),
+                ]));
+            }
+        } catch (\Throwable $e) {
+        }
     }
 
     private function validateWorkshop(Request $request): array
@@ -209,6 +340,10 @@ class WorkshopsController extends Controller
 
     private function resolveWorkshopStatus(Workshop $workshop): string
     {
+        if (!empty($workshop->proposal_status) && in_array($workshop->proposal_status, ['pending', 'rejected'], true)) {
+            return strtolower((string) $workshop->proposal_status);
+        }
+
         if (!empty($workshop->status)) {
             return strtolower((string) $workshop->status);
         }
@@ -223,5 +358,17 @@ class WorkshopsController extends Controller
         }
 
         return 'upcoming';
+    }
+
+    private function buildNavCounts(): array
+    {
+        return [
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'workshopBadgeCount' => Workshop::count(),
+            'jobBadgeCount' => Job::count(),
+            'announcementBadgeCount' => Announcement::count(),
+            'scholarshipBadgeCount' => Scholarship::count(),
+            'successStoryBadgeCount' => SuccessStory::count(),
+        ];
     }
 }

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
-use App\Models\AlumniProfile;
 use App\Models\Job;
 use App\Models\JobApplication;
 use App\Models\User;
+use App\Models\Workshop;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
@@ -17,7 +17,9 @@ class DashboardController extends Controller
         $company = Auth::user();
         $companyId = (int) $company->id;
 
-        $jobsQuery = Job::query()->where('company_user_id', $companyId);
+        $jobsQuery = Job::query()
+            ->where('organizer_role', 'company')
+            ->where('company_user_id', $companyId);
 
         $jobsCount = (clone $jobsQuery)->count();
         $activeJobsCount = (clone $jobsQuery)->where('status', 'active')->count();
@@ -126,7 +128,7 @@ class DashboardController extends Controller
             ->take(3)
             ->values();
 
-        return view('company.index', [
+        return view('company.index', array_merge([
             'companyName' => $company->name ?? 'Company',
             'jobsCount' => $jobsCount,
             'activeJobsCount' => $activeJobsCount,
@@ -140,6 +142,24 @@ class DashboardController extends Controller
             'latestJobs' => $latestJobs,
             'recentApplications' => $recentApplications,
             'recommendedCandidates' => $recommendedCandidates,
-        ]);
+        ], $this->buildNavCounts()));
+    }
+
+    private function buildNavCounts(): array
+    {
+        $companyId = (int) Auth::id();
+
+        $companyJobsQuery = Job::query()
+            ->where('organizer_role', 'company')
+            ->where('company_user_id', $companyId);
+
+        $jobIds = (clone $companyJobsQuery)->pluck('id');
+
+        return [
+            'jobBadgeCount' => (clone $companyJobsQuery)->count(),
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'applicationBadgeCount' => JobApplication::whereIn('job_id', $jobIds)->count(),
+            'workshopBadgeCount' => Workshop::where('company_user_id', $companyId)->count(),
+        ];
     }
 }

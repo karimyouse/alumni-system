@@ -1,28 +1,36 @@
 @extends('layouts.dashboard')
 
 @php
-  $title = 'Workshops';
+  $title = __('Workshops');
   $role  = 'College';
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
-    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
-    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
-    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
-    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone','badge'=>$announcementBadgeCount ?? 0],
+    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap','badge'=>$scholarshipBadgeCount ?? 0],
+    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award','badge'=>$successStoryBadgeCount ?? 0],
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
+
+  $pill = fn($s) => match($s) {
+    'approved' => ['Approved','bg-green-500/15 text-green-400'],
+    'pending' => ['Pending','bg-orange-500/15 text-orange-400'],
+    'rejected' => ['Rejected','bg-red-500/15 text-red-400'],
+    'completed' => ['Completed','bg-secondary text-secondary-foreground'],
+    default => [ucfirst($s ?? 'Upcoming'),'bg-primary text-primary-foreground'],
+  };
 @endphp
 
 @section('content')
-<div class="space-y-5">
+<div class="space-y-6">
 
   <div class="flex items-start justify-between gap-4 flex-wrap">
     <div>
-      <h1 class="text-2xl font-bold">Workshops</h1>
-      <p class="text-sm text-muted-foreground">Manage workshops and events</p>
+      <h1 class="text-2xl font-bold">Workshops Review</h1>
+      <p class="text-sm text-muted-foreground">Approve company workshops and manage college workshops</p>
     </div>
 
     <a href="{{ route('college.workshops.create') }}"
@@ -32,96 +40,165 @@
     </a>
   </div>
 
-  <div class="space-y-4">
-    @forelse($workshops as $w)
-      @php
-        $statusClass = match($w->display_status) {
-          'completed' => 'bg-secondary text-secondary-foreground',
-          'cancelled' => 'bg-red-500/10 text-red-400',
-          default => 'bg-primary text-primary-foreground',
-        };
-      @endphp
+  <div class="flex flex-wrap gap-2">
+    @php
+      $tabs = [
+        ['key'=>'all','label'=>'All','count'=>$counts['all'] ?? 0],
+        ['key'=>'approved','label'=>'Approved','count'=>$counts['approved'] ?? 0],
+        ['key'=>'pending','label'=>'Pending','count'=>$counts['pending'] ?? 0],
+        ['key'=>'rejected','label'=>'Rejected','count'=>$counts['rejected'] ?? 0],
+      ];
+    @endphp
 
-      <div class="rounded-xl border border-border bg-card px-5 py-5">
-        <div class="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
-
-          <div class="flex items-center gap-4 min-w-0 flex-1">
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-              <i data-lucide="calendar-days" class="h-5 w-5"></i>
-            </div>
-
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-3 flex-wrap">
-                <h3 class="font-semibold text-base md:text-lg leading-tight tracking-tight">
-                  {{ $w->title }}
-                </h3>
-
-                <span class="text-[11px] rounded-full px-3 py-1 {{ $statusClass }}">
-                  {{ ucfirst($w->display_status) }}
-                </span>
-              </div>
-
-              <div class="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                <span class="inline-flex items-center gap-1.5">
-                  <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
-                  {{ $w->date }}
-                </span>
-
-                <span class="inline-flex items-center gap-1.5">
-                  <i data-lucide="clock" class="h-3.5 w-3.5"></i>
-                  {{ $w->time }}
-                </span>
-
-                <span class="inline-flex items-center gap-1.5">
-                  <i data-lucide="map-pin" class="h-3.5 w-3.5"></i>
-                  {{ $w->location }}
-                </span>
-
-                <span class="inline-flex items-center gap-1.5">
-                  <i data-lucide="users" class="h-3.5 w-3.5"></i>
-                  {{ $w->display_spots_label }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 flex-wrap justify-end">
-            <a href="{{ route('college.workshops.edit', $w) }}"
-               class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
-               title="Edit Workshop">
-              <i data-lucide="pencil" class="h-4 w-4"></i>
-            </a>
-
-            <form method="POST" action="{{ route('college.workshops.delete', $w) }}"
-                  onsubmit="return confirm('Are you sure you want to delete this workshop?');">
-              @csrf
-              <button type="submit"
-                      class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
-                      title="Delete Workshop">
-                <i data-lucide="trash-2" class="h-4 w-4"></i>
-              </button>
-            </form>
-
-            <a href="{{ route('college.workshops.manage', $w) }}"
-               class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
-              View Registrations
-            </a>
-          </div>
-
-        </div>
-      </div>
-    @empty
-      <div class="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
-        No workshops yet. Click <b>Add Workshop</b> to create one.
-      </div>
-    @endforelse
+    @foreach($tabs as $t)
+      <a href="{{ route('college.workshops', ['status'=>$t['key'], 'q'=>$q]) }}"
+         class="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm
+         {{ ($status ?? 'all') === $t['key'] ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground' }}">
+        {{ $t['label'] }}
+        <span class="text-xs rounded-full bg-secondary px-2 py-0.5 text-secondary-foreground">
+          {{ $t['count'] }}
+        </span>
+      </a>
+    @endforeach
   </div>
 
-  @if(method_exists($workshops, 'links'))
-    <div class="pt-2">
-      {{ $workshops->links() }}
+  <form method="GET" action="{{ route('college.workshops') }}" class="rounded-xl border border-border bg-card p-5">
+    <input type="hidden" name="status" value="{{ $status ?? 'all' }}">
+    <div class="flex flex-col md:flex-row gap-3 md:items-center">
+      <div class="flex-1">
+        <input name="q" value="{{ $q }}"
+               class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
+               placeholder="Search by title or location">
+      </div>
+      <div class="flex gap-2">
+        <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+          Search
+        </button>
+        <a href="{{ route('college.workshops', ['status'=>$status ?? 'all']) }}"
+           class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+          Reset
+        </a>
+      </div>
     </div>
-  @endif
+  </form>
+
+  <div class="rounded-xl border border-border bg-card overflow-hidden">
+    <div class="overflow-auto">
+      <table class="w-full">
+        <thead class="border-b bg-muted/40">
+          <tr>
+            <th class="text-left p-4 font-medium">Workshop</th>
+            <th class="text-left p-4 font-medium">Owner</th>
+            <th class="text-left p-4 font-medium">Location</th>
+            <th class="text-left p-4 font-medium">Status</th>
+            <th class="text-left p-4 font-medium">Registrations</th>
+            <th class="text-left p-4 font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($workshops as $w)
+            @php
+              [$stLabel, $stClass] = $pill($w->display_status);
+              $isCompanyWorkshop = !is_null($w->company_user_id ?? null);
+            @endphp
+            <tr class="border-b last:border-0">
+              <td class="p-4">
+                <div class="font-semibold">{{ $w->title }}</div>
+                <div class="text-xs text-muted-foreground">
+                  {{ $w->date ?? '—' }} • {{ $w->time ?? '—' }}
+                </div>
+              </td>
+
+              <td class="p-4 text-sm text-muted-foreground">
+                {{ $w->display_owner_name ?? ($isCompanyWorkshop ? 'Company' : 'PTC College') }}
+              </td>
+
+              <td class="p-4 text-sm text-muted-foreground">
+                {{ $w->location ?? '—' }}
+              </td>
+
+              <td class="p-4">
+                <span class="text-xs rounded-full px-2 py-1 {{ $stClass }}">{{ $stLabel }}</span>
+                <div class="text-[11px] text-muted-foreground mt-1">
+                  {{ $isCompanyWorkshop ? 'Company submission' : 'College workshop' }}
+                </div>
+                @if(($w->proposal_status ?? '') === 'rejected' && !empty($w->reject_reason))
+                  <div class="text-[11px] text-muted-foreground mt-1">
+                    Reason: {{ $w->reject_reason }}
+                  </div>
+                @endif
+              </td>
+
+              <td class="p-4 text-sm text-muted-foreground">
+                {{ $w->display_spots_label }}
+              </td>
+
+              <td class="p-4">
+                @if($isCompanyWorkshop)
+                  <div class="flex flex-col gap-2">
+                    <a href="{{ route('college.workshops.manage', $w) }}"
+                       class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50 text-center">
+                      View Registrations
+                    </a>
+
+                    @if(($w->proposal_status ?? 'approved') === 'pending')
+                      <form method="POST" action="{{ route('college.workshops.approve', $w) }}">
+                        @csrf
+                        <button type="submit"
+                                class="w-full rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90">
+                          Approve
+                        </button>
+                      </form>
+
+                      <form method="POST" action="{{ route('college.workshops.reject', $w) }}" class="space-y-2">
+                        @csrf
+                        <input name="reject_reason"
+                               class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
+                               placeholder="Reject reason (optional)">
+                        <button type="submit"
+                                class="w-full rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
+                          Reject
+                        </button>
+                      </form>
+                    @endif
+                  </div>
+                @else
+                  <div class="flex flex-col gap-2">
+                    <a href="{{ route('college.workshops.manage', $w) }}"
+                       class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50 text-center">
+                      View Registrations
+                    </a>
+
+                    <a href="{{ route('college.workshops.edit', $w) }}"
+                       class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50 text-center">
+                      Edit
+                    </a>
+
+                    <form method="POST" action="{{ route('college.workshops.delete', $w) }}"
+                          onsubmit="return confirm('Are you sure you want to delete this workshop?');">
+                      @csrf
+                      <button type="submit"
+                              class="w-full rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                @endif
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td class="p-6 text-sm text-muted-foreground" colspan="6">No workshops found.</td>
+            </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    {{ $workshops->links() }}
+  </div>
 
 </div>
 @endsection

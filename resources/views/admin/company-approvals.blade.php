@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Company Approvals';
+  $title = __('Company Approvals');
   $role='Admin';
 
   $nav = [

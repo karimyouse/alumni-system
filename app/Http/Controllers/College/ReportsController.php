@@ -105,7 +105,7 @@ class ReportsController extends Controller
         $collegeUsers = User::where('role', 'college')->count();
         $admins = User::whereIn('role', ['admin', 'super_admin'])->count();
 
-        return view('college.reports', [
+        return view('college.reports', array_merge([
             'totalAlumni' => $totalAlumni,
             'employmentRate' => $employmentRate,
             'partnerCompanies' => $partnerCompanies,
@@ -123,6 +123,18 @@ class ReportsController extends Controller
             'collegeUsers' => $collegeUsers,
             'admins' => $admins,
             'jobsCount' => $jobsCount,
-        ]);
+        ], $this->buildNavCounts()));
+    }
+
+    private function buildNavCounts(): array
+    {
+        return [
+            'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+            'workshopBadgeCount' => Workshop::count(),
+            'jobBadgeCount' => Job::count(),
+            'announcementBadgeCount' => Announcement::count(),
+            'scholarshipBadgeCount' => Scholarship::count(),
+            'successStoryBadgeCount' => SuccessStory::count(),
+        ];
     }
 }

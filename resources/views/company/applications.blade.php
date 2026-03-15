@@ -1,23 +1,23 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Applications';
+  $title = __('Applications');
   $role='Company';
 
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],
-    ['label'=>'Jobs','href'=>'/company/jobs','icon'=>'briefcase'],
-    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users'],
-    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text'],
-    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days'],
+    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text','badge'=>$applicationBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
   ];
 
   $tabs = [
-    ['key'=>'all','label'=>'All'],
-    ['key'=>'pending','label'=>'Pending'],
-    ['key'=>'reviewed','label'=>'Under Review'],
-    ['key'=>'accepted','label'=>'Accepted'],
-    ['key'=>'rejected','label'=>'Rejected'],
+    ['key' => 'all', 'label' => 'All'],
+    ['key' => 'pending', 'label' => 'Pending'],
+    ['key' => 'reviewed', 'label' => 'Under Review'],
+    ['key' => 'accepted', 'label' => 'Accepted'],
+    ['key' => 'rejected', 'label' => 'Rejected'],
   ];
 @endphp
 
@@ -83,10 +83,10 @@
                 <form method="POST" action="{{ route('company.applications.status', $it['id']) }}" class="flex items-center gap-2">
                   @csrf
                   <select name="status" class="rounded-md border border-input bg-background/60 px-3 py-2 text-sm">
-                    <option value="pending"  {{ $it['status']==='pending'?'selected':'' }}>Pending</option>
-                    <option value="reviewed" {{ $it['status']==='reviewed'?'selected':'' }}>Under Review</option>
-                    <option value="accepted" {{ $it['status']==='accepted'?'selected':'' }}>Accepted</option>
-                    <option value="rejected" {{ $it['status']==='rejected'?'selected':'' }}>Rejected</option>
+                    <option value="pending"  {{ $it['status']==='pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="reviewed" {{ $it['status']==='reviewed' ? 'selected' : '' }}>Under Review</option>
+                    <option value="accepted" {{ $it['status']==='accepted' ? 'selected' : '' }}>Accepted</option>
+                    <option value="rejected" {{ $it['status']==='rejected' ? 'selected' : '' }}>Rejected</option>
                   </select>
 
                   <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">

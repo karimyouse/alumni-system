@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Approval Pending';
+  $title = __('Approval Pending');
   $role='Company';
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],

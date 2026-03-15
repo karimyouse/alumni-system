@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\User;
+use App\Models\Workshop;
+use App\Notifications\ContentReviewNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +19,7 @@ class JobsController extends Controller
         $companyId = Auth::id();
 
         $jobs = Job::query()
+            ->where('organizer_role', 'company')
             ->where('company_user_id', $companyId)
             ->withCount('applications')
             ->orderByDesc('id')
@@ -29,26 +33,30 @@ class JobsController extends Controller
             return $job;
         });
 
-        return view('company.jobs', compact('jobs'));
+        return view('company.jobs', array_merge(
+            compact('jobs'),
+            $this->buildNavCounts()
+        ));
     }
 
     public function create()
     {
-        return view('company.job-create', [
+        return view('company.job-create', array_merge([
             'job' => null,
             'isEdit' => false,
             'companyName' => Auth::user()?->name ?? '',
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function store(Request $request)
     {
         $companyId = Auth::id();
-
         $data = $this->validateJob($request);
 
         $attrs = [
             'company_user_id' => $companyId,
+            'organizer_user_id' => $companyId,
+            'organizer_role' => 'company',
             'title' => $data['title'],
             'company_name' => $data['company_name'],
             'location' => $data['location'] ?: null,
@@ -69,48 +77,44 @@ class JobsController extends Controller
             $attrs['posted'] = now()->format('M d, Y');
         }
 
+        if (Schema::hasColumn('jobs', 'approval_status')) {
+            $attrs['approval_status'] = 'pending';
+        }
+
+        if (Schema::hasColumn('jobs', 'approved_at')) {
+            $attrs['approved_at'] = null;
+        }
+
+        if (Schema::hasColumn('jobs', 'approved_by')) {
+            $attrs['approved_by'] = null;
+        }
+
+        if (Schema::hasColumn('jobs', 'reject_reason')) {
+            $attrs['reject_reason'] = null;
+        }
+
+        if (Schema::hasColumn('jobs', 'is_featured')) {
+            $attrs['is_featured'] = false;
+        }
+
         $job = Job::create($attrs);
 
-        if (Schema::hasColumn('jobs', 'approval_status')) {
-            $fill = ['approval_status' => 'pending'];
-
-            if (Schema::hasColumn('jobs', 'approved_at')) {
-                $fill['approved_at'] = null;
-            }
-
-            if (Schema::hasColumn('jobs', 'approved_by')) {
-                $fill['approved_by'] = null;
-            }
-
-            if (Schema::hasColumn('jobs', 'reject_reason')) {
-                $fill['reject_reason'] = null;
-            }
-
-            if (Schema::hasColumn('jobs', 'is_featured')) {
-                $fill['is_featured'] = false;
-            }
-
-            $job->forceFill($fill)->save();
-
-            return redirect()
-                ->route('company.jobs')
-                ->with('toast_success', 'Job submitted for college review.');
-        }
+        $this->notifyCollegesAboutJob($job);
 
         return redirect()
             ->route('company.jobs')
-            ->with('toast_success', 'Job posted successfully.');
+            ->with('toast_success', 'Job submitted for college review.');
     }
 
     public function edit(Job $job)
     {
         $this->ensureOwner($job);
 
-        return view('company.job-create', [
+        return view('company.job-create', array_merge([
             'job' => $job,
             'isEdit' => true,
             'companyName' => Auth::user()?->name ?? '',
-        ]);
+        ], $this->buildNavCounts()));
     }
 
     public function update(Request $request, Job $job)
@@ -130,25 +134,31 @@ class JobsController extends Controller
 
         if (Schema::hasColumn('jobs', 'approval_status')) {
             $update['approval_status'] = 'pending';
+        }
 
-            if (Schema::hasColumn('jobs', 'approved_at')) {
-                $update['approved_at'] = null;
-            }
+        if (Schema::hasColumn('jobs', 'approved_at')) {
+            $update['approved_at'] = null;
+        }
 
-            if (Schema::hasColumn('jobs', 'approved_by')) {
-                $update['approved_by'] = null;
-            }
+        if (Schema::hasColumn('jobs', 'approved_by')) {
+            $update['approved_by'] = null;
+        }
 
-            if (Schema::hasColumn('jobs', 'reject_reason')) {
-                $update['reject_reason'] = null;
-            }
+        if (Schema::hasColumn('jobs', 'reject_reason')) {
+            $update['reject_reason'] = null;
+        }
+
+        if (Schema::hasColumn('jobs', 'is_featured')) {
+            $update['is_featured'] = false;
         }
 
         $job->update($update);
 
+        $this->notifyCollegesAboutJob($job, true);
+
         return redirect()
             ->route('company.jobs')
-            ->with('toast_success', 'Job updated successfully.');
+            ->with('toast_success', 'Job updated and re-submitted for college review.');
     }
 
     public function destroy(Job $job)
@@ -169,7 +179,10 @@ class JobsController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('company.job-applicants', compact('job', 'apps'));
+        return view('company.job-applicants', array_merge(
+            compact('job', 'apps'),
+            $this->buildNavCounts()
+        ));
     }
 
     private function validateJob(Request $request): array
@@ -186,7 +199,7 @@ class JobsController extends Controller
 
     private function ensureOwner(Job $job): void
     {
-        if ((int) $job->company_user_id !== (int) Auth::id()) {
+        if (($job->organizer_role ?? null) !== 'company' || (int) $job->company_user_id !== (int) Auth::id()) {
             abort(403);
         }
     }
@@ -208,13 +221,9 @@ class JobsController extends Controller
     {
         $approval = strtolower((string) ($job->approval_status ?? ''));
 
-        if ($approval === 'pending') {
-            return 'Pending Approval';
-        }
-
-        if ($approval === 'rejected') {
-            return 'Rejected';
-        }
+        if ($approval === 'pending') return 'Pending Approval';
+        if ($approval === 'rejected') return 'Rejected';
+        if ($approval === 'approved') return 'Approved';
 
         $status = strtolower((string) ($job->status ?? 'active'));
 
@@ -228,13 +237,9 @@ class JobsController extends Controller
     {
         $approval = strtolower((string) ($job->approval_status ?? ''));
 
-        if ($approval === 'pending') {
-            return 'bg-secondary text-secondary-foreground';
-        }
-
-        if ($approval === 'rejected') {
-            return 'bg-red-500/10 text-red-400';
-        }
+        if ($approval === 'pending') return 'bg-secondary text-secondary-foreground';
+        if ($approval === 'rejected') return 'bg-red-500/10 text-red-400';
+        if ($approval === 'approved') return 'bg-green-500/10 text-green-400';
 
         $status = strtolower((string) ($job->status ?? 'active'));
 
@@ -242,5 +247,56 @@ class JobsController extends Controller
             'closed' => 'bg-red-500/10 text-red-400',
             default => 'bg-green-500/10 text-green-400',
         };
+    }
+
+    private function notifyCollegesAboutJob(Job $job, bool $updated = false): void
+    {
+        try {
+            $colleges = User::query()->where('role', 'college')->get();
+            $companyName = Auth::user()?->name ?? ($job->company_name ?? 'Company');
+
+            foreach ($colleges as $college) {
+                $college->notify(new ContentReviewNotification([
+                    'kind' => 'content_review',
+                    'content_type' => 'job',
+                    'content_id' => $job->id,
+                    'status' => 'pending',
+                    'title' => $updated ? 'Company updated a job for review' : 'New company job needs review',
+                    'message' => $companyName . ' submitted "' . $job->title . '" for review.',
+                    'icon' => 'briefcase',
+                    'url' => route('college.jobs', ['status' => 'pending']),
+                ]));
+            }
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function buildNavCounts(): array
+    {
+    $companyId = Auth::id();
+
+    $jobsQuery = Job::query()
+        ->where('company_user_id', $companyId);
+
+    if (Schema::hasColumn('jobs', 'organizer_role')) {
+        $jobsQuery->where('organizer_role', 'company');
+    }
+
+    $jobIds = (clone $jobsQuery)->pluck('id');
+
+    $applicationsQuery = JobApplication::query()->whereIn('job_id', $jobIds);
+
+    $workshopsQuery = Workshop::query()->where('company_user_id', $companyId);
+
+    if (Schema::hasColumn('workshops', 'organizer_role')) {
+        $workshopsQuery->where('organizer_role', 'company');
+    }
+
+    return [
+        'jobBadgeCount' => (clone $jobsQuery)->count(),
+        'alumniBadgeCount' => User::where('role', 'alumni')->count(),
+        'applicationBadgeCount' => (clone $applicationsQuery)->count(),
+        'workshopBadgeCount' => (clone $workshopsQuery)->count(),
+    ];
     }
 }

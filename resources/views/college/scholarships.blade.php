@@ -1,17 +1,17 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Scholarships';
+  $title = __('Scholarships');
   $role='College';
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
-    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
-    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
-    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
-    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap'],
-    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award'],
+    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
+    ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone','badge'=>$announcementBadgeCount ?? 0],
+    ['label'=>'Scholarships','href'=>'/college/scholarships','icon'=>'graduation-cap','badge'=>$scholarshipBadgeCount ?? 0],
+    ['label'=>'Success Stories','href'=>'/college/success-stories','icon'=>'award','badge'=>$successStoryBadgeCount ?? 0],
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
 @endphp
@@ -92,26 +92,26 @@
           </div>
 
           <div class="flex items-center gap-2 flex-wrap justify-end">
-  <a href="{{ route('college.scholarships.edit', $s) }}"
-     class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
-     title="Edit">
-    <i data-lucide="file-pen-line" class="h-4 w-4"></i>
-  </a>
+            <a href="{{ route('college.scholarships.edit', $s) }}"
+               class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
+               title="Edit">
+              <i data-lucide="file-pen-line" class="h-4 w-4"></i>
+            </a>
 
-  <form method="POST" action="{{ route('college.scholarships.delete', $s) }}"
-        onsubmit="return confirm('Delete this scholarship?');">
-    @csrf
-    <button class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
-            title="Delete">
-      <i data-lucide="trash-2" class="h-4 w-4"></i>
-    </button>
-  </form>
+            <form method="POST" action="{{ route('college.scholarships.delete', $s) }}"
+                  onsubmit="return confirm('Delete this scholarship?');">
+              @csrf
+              <button class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
+                      title="Delete">
+                <i data-lucide="trash-2" class="h-4 w-4"></i>
+              </button>
+            </form>
 
-  <a href="{{ route('college.scholarships.applicants', $s) }}"
-     class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
-    View Applicants
-  </a>
-</div>
+            <a href="{{ route('college.scholarships.applicants', $s) }}"
+               class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
+              View Applicants
+            </a>
+          </div>
 
         </div>
       </div>

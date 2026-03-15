@@ -24,7 +24,7 @@
          style="display: none;">
         <div class="py-1">
 
-            <a href="{{ route('language.switch', 'en') }}"
+            <a href="{{ route('lang.switch', ['locale' => 'en']) }}" data-lang-link data-locale="en"
                class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors
                       {{ !$isArabic ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-accent/50' }}">
                 <span class="text-base">🇺🇸</span>
@@ -36,7 +36,7 @@
 
             <div class="h-px bg-border mx-3"></div>
 
-            <a href="{{ route('language.switch', 'ar') }}"
+            <a href="{{ route('lang.switch', ['locale' => 'ar']) }}" data-lang-link data-locale="ar"
                class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors
                       {{ $isArabic ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-accent/50' }}"
                dir="rtl">

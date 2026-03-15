@@ -1,12 +1,16 @@
 @extends('layouts.dashboard')
 
 @php
-  $title='Manage Workshop';
+  $title = __('Manage Workshop');
+
   $role='Company';
 
   $nav = [
     ['label'=>'Overview','href'=>'/company','icon'=>'layout-dashboard'],
-    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days'],
+    ['label'=>'My Job Postings','href'=>'/company/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
+    ['label'=>'Browse Alumni','href'=>'/company/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Applications','href'=>'/company/applications','icon'=>'file-text','badge'=>$applicationBadgeCount ?? 0],
+    ['label'=>'Workshops','href'=>'/company/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
   ];
 @endphp
 
