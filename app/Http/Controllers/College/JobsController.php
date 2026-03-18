@@ -263,6 +263,25 @@ class JobsController extends Controller
         ));
     }
 
+    public function updateApplicantStatus(Job $job, JobApplication $application, Request $request)
+    {
+    $this->ensureCollegeOwnsJob($job);
+
+    if ((int) $application->job_id !== (int) $job->id) {
+        abort(404);
+    }
+
+    $data = $request->validate([
+        'status' => ['required', 'in:pending,reviewed,accepted,rejected'],
+    ]);
+
+    $application->update([
+        'status' => $data['status'],
+    ]);
+
+    return back()->with('toast_success', 'Applicant status updated successfully.');
+    }
+
     private function validateJob(Request $request): array
     {
         return $request->validate([

@@ -15,7 +15,7 @@
     ['label'=>'Reports','href'=>'/college/reports','icon'=>'bar-chart-3'],
   ];
 
-  $statusPill = fn($s) => match($s){
+  $statusPill = fn($s) => match(strtolower((string)$s)){
     'pending' => ['Pending','bg-muted text-foreground'],
     'reviewed' => ['Under Review','bg-blue-500/15 text-blue-400'],
     'accepted' => ['Accepted','bg-green-500/15 text-green-400'],
@@ -34,10 +34,19 @@
       </p>
     </div>
 
-    <a href="{{ route('college.jobs') }}"
-       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-      Back
-    </a>
+    <div class="flex items-center gap-2">
+      @if(($job->organizer_role ?? 'college') !== 'company')
+        <a href="{{ route('college.jobs.edit', $job) }}"
+           class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+          Edit Job
+        </a>
+      @endif
+
+      <a href="{{ route('college.jobs') }}"
+         class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+        Back
+      </a>
+    </div>
   </div>
 
   <div class="rounded-xl border border-border bg-card overflow-hidden">
@@ -48,6 +57,7 @@
             <th class="text-left p-4 font-medium">Applicant</th>
             <th class="text-left p-4 font-medium">Applied</th>
             <th class="text-left p-4 font-medium">Status</th>
+            <th class="text-left p-4 font-medium">Update</th>
           </tr>
         </thead>
         <tbody>
@@ -68,10 +78,29 @@
               <td class="p-4">
                 <span class="text-xs rounded-full px-2 py-1 {{ $cls }}">{{ $label }}</span>
               </td>
+
+              <td class="p-4">
+                <form method="POST" action="{{ route('college.jobs.applicants.updateStatus', [$job, $a]) }}" class="flex items-center gap-2">
+                  @csrf
+
+                  <select name="status"
+                          class="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    <option value="pending" {{ ($a->status ?? 'pending') === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="reviewed" {{ ($a->status ?? '') === 'reviewed' ? 'selected' : '' }}>Under Review</option>
+                    <option value="accepted" {{ ($a->status ?? '') === 'accepted' ? 'selected' : '' }}>Accepted</option>
+                    <option value="rejected" {{ ($a->status ?? '') === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                  </select>
+
+                  <button type="submit"
+                          class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+                    Update
+                  </button>
+                </form>
+              </td>
             </tr>
           @empty
             <tr>
-              <td class="p-6 text-sm text-muted-foreground" colspan="3">No applicants yet.</td>
+              <td class="p-6 text-sm text-muted-foreground" colspan="4">No applicants yet.</td>
             </tr>
           @endforelse
         </tbody>
