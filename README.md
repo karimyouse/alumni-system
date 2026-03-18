@@ -1,106 +1,118 @@
 # PTC Alumni Tracking System
 
-A web-based platform developed to strengthen communication and engagement between the college, alumni, companies, and system administrators. The system provides a centralized environment for managing alumni profiles, job opportunities, workshops, scholarships, announcements, recommendations, notifications, reports, and support requests.
+A modern, multi-role web platform designed to connect **graduates, colleges, companies, and administrators** in one centralized ecosystem.  
+The system helps manage alumni engagement, job opportunities, workshops, scholarships, notifications, support requests, and institutional follow-up through a professional academic interface.
 
-## Project Overview
+---
 
-The **PTC Alumni Tracking System** was designed to address the need for a structured digital platform that connects graduates with their academic institution and the labor market. It supports multiple user roles and provides each role with dedicated features and dashboards.
+## Overview
 
-The system improves alumni follow-up, facilitates opportunity sharing, supports institutional reporting, and enhances collaboration between the college and partner companies.
+The **PTC Alumni Tracking System** was developed to provide Palestine Technical College with a practical and scalable solution for alumni affairs management.  
+It addresses the gap between graduates, the college, and employers by offering a structured digital platform that supports communication, opportunity sharing, and long-term alumni tracking.
 
-## Main Objectives
+This project simulates a real institutional environment with separate dashboards, realistic workflows, approval processes, notifications, and role-based permissions.
 
-- Build a centralized alumni management system
-- Improve communication between alumni, college, and companies
-- Enable companies to publish job opportunities and workshops
-- Allow the college to manage content and monitor alumni engagement
-- Provide administrators with control over system settings, users, and reports
-- Offer a professional, modern, and user-friendly interface
+---
+
+## Key Features
+
+- Multi-role authentication system
+- Separate dashboard for each user role
+- Alumni profile and opportunity tracking
+- Job posting and application workflow
+- Workshop publishing and registration
+- Scholarships management
+- Recommendations and leaderboard
+- Real-time notification workflow
+- Support request and tracking system
+- Admin system settings management
+- Arabic and English language support
+- Dark and light mode support
+- Role-based dashboard themes
+- Responsive and modern UI
+
+---
 
 ## User Roles
 
 ### Alumni
 Alumni users can:
-- Sign in and manage their profiles
-- Browse and apply for job opportunities
+
+- Sign in and manage their profile
+- Browse available job opportunities
+- Apply for jobs
 - Register for workshops
-- View available scholarships
+- View and apply for scholarships
 - Receive recommendations
-- Track their applications
+- Track submitted applications
 - View leaderboard rankings
 - Receive notifications
 
 ### College
 College users can:
-- Manage alumni data
-- Publish and manage workshops
+
+- Manage alumni records
+- Publish and manage college workshops
 - Publish and manage scholarships
-- Post college job opportunities
-- Review and approve or reject company-submitted jobs and workshops
-- View applicants and registrations
+- Publish college job opportunities
+- Review company-submitted jobs and workshops
+- Approve or reject content before publishing
+- View job applicants and workshop registrations
 - Publish announcements
-- View reports
+- Access reports
 
 ### Company
 Company users can:
-- Register and log in
-- Post job opportunities
+
+- Register and access company dashboard
+- Publish job opportunities
 - Propose workshops
 - Browse alumni
-- Review applications
-- Receive notifications when content is approved or rejected
+- Review received applications
+- Receive approval or rejection notifications from the college
 
-### Admin / Super Admin
+### Admin
 Admin users can:
+
 - Manage users
-- Manage content
-- Review reports
-- Manage system settings
-- Update institution name
-- Change the public/admin primary color
-- Track backup status
+- Manage platform content
+- Access reports
+- Update system settings
+- Change institution name
+- Customize admin/public primary color
+- Track last backup status
 - Access support center features
 
-## Core Features
+---
 
-- Multi-role authentication system
-- Public homepage with system overview
-- Separate dashboard for each role
-- Alumni profile management
-- Job posting and application workflow
-- Workshop creation and registration
-- Scholarship publishing and application
-- Notifications system
-- Recommendations feature
-- Leaderboard
-- Support request and ticket tracking
-- Admin settings panel
-- Role-based theme styling
-- Arabic and English language support
-- Dark and light mode support
+## Workflow Logic
 
-## Approval Workflow
+The system includes a realistic academic workflow:
 
-The system includes a structured approval workflow:
+- **Company-submitted jobs and workshops** require **college approval**
+- **College-created jobs and workshops** can be managed directly by the college
+- **Alumni only see approved content**
+- **Notifications** are triggered when:
+  - a company submits new content
+  - the college approves or rejects content
+  - new opportunities become available to alumni
 
-- **Company jobs and workshops** require college review before becoming visible to alumni
-- **College jobs and workshops** are published directly by the college
-- The college can:
-  - approve or reject company submissions
-  - view applicants/registrations
-  - edit and delete only college-owned content
+---
 
-## Theme and UI Logic
+## UI / UX Highlights
 
-The platform uses a modern academic design with:
+- Clean academic interface
+- Distinct login color theme for each role
+- Dedicated color identity for each dashboard
+- Admin-controlled color reflected in:
+  - Admin dashboard
+  - Public homepage
+- Responsive layout for desktop and mobile
+- Consistent visual hierarchy and modern styling
 
-- Role-based dashboard themes
-- Dedicated role colors in the login form
-- Admin color customization through system settings
-- Public homepage color linked to the admin primary color setting
-- Responsive layout for desktop and mobile screens
+---
 
-## Technologies Used
+## Technology Stack
 
 ### Backend
 - Laravel
@@ -114,24 +126,25 @@ The platform uses a modern academic design with:
 - Vite
 - Lucide Icons
 
-### Other Tools
+### Development Environment
+- WAMP Server
 - Mailtrap for email testing
-- WAMP Server for local development
+
+---
 
 ## Project Structure
 
-The project is organized using Laravel’s MVC architecture:
-
-- `app/Http/Controllers` → Controllers
-- `app/Models` → Models
-- `resources/views` → Blade views
-- `routes` → Web routes
-- `database/migrations` → Database schema
-- `database/seeders` → Sample and system data
-
-## Installation Guide
-
-### 1. Clone the project
 ```bash
-git clone <your-repository-url>
-cd alumni-tracking-system
+app/
+ ├── Http/Controllers
+ ├── Models
+database/
+ ├── migrations
+ ├── seeders
+resources/
+ ├── views
+ ├── js
+ ├── css
+routes/
+ ├── web.php
+public/
