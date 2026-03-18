@@ -93,7 +93,9 @@ class WorkshopsController extends Controller
 
         $attrs = $this->buildWorkshopAttributes($data, null);
 
-        Workshop::create($attrs);
+        $workshop = Workshop::create($attrs);
+
+        $this->notifyAlumniAboutCollegeWorkshop($workshop);
 
         return redirect()
             ->route('college.workshops')
@@ -227,6 +229,27 @@ class WorkshopsController extends Controller
                     'status' => 'approved',
                     'title' => 'New workshop available',
                     'message' => '"' . $workshop->title . '" is now available for registration.',
+                    'icon' => 'calendar-days',
+                    'url' => route('alumni.workshops'),
+                ]));
+            }
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function notifyAlumniAboutCollegeWorkshop(Workshop $workshop): void
+    {
+        try {
+            $alumniUsers = User::query()->where('role', 'alumni')->get();
+
+            foreach ($alumniUsers as $alumnus) {
+                $alumnus->notify(new ContentReviewNotification([
+                    'kind' => 'content_review',
+                    'content_type' => 'workshop',
+                    'content_id' => $workshop->id,
+                    'status' => 'approved',
+                    'title' => 'New workshop available',
+                    'message' => '"' . $workshop->title . '" has been posted by the college and is now available for registration.',
                     'icon' => 'calendar-days',
                     'url' => route('alumni.workshops'),
                 ]));

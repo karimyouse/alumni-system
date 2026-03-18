@@ -26,12 +26,12 @@
 
 
     <style>
-      :root{
-        --primary: {{ $appTheme['primary_hsl'] ?? '217 91% 60%' }};
-        --ring: {{ $appTheme['primary_hsl'] ?? '217 91% 60%' }};
-        --primary-foreground: 0 0% 100%;
-      }
-    </style>
+  :root{
+    --primary: 217 91% 60%;
+    --ring: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+  }
+</style>
 
     @include('partials.client-translations')
     @include('partials.asset-bundle')

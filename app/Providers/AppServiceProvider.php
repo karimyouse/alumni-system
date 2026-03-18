@@ -63,19 +63,17 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-
         Schema::defaultStringLength(191);
 
         View::composer('*', function ($view) {
-
-            
-            $fallbackSettings = (object)[
+            $fallbackSettings = (object) [
                 'institution_name' => 'Alumni System',
                 'primary_color' => '#2563eb',
             ];
 
             $fallbackTheme = [
                 'primary_hsl' => '217 91% 60%',
+                'primary_hex' => '#2563eb',
             ];
 
             try {
@@ -91,13 +89,14 @@ class AppServiceProvider extends ServiceProvider
                 $primaryHsl = $this->hexToHsl($primaryHex);
 
                 $view->with('appSettings', $settings)
-                     ->with('appTheme', ['primary_hsl' => $primaryHsl]);
+                    ->with('appTheme', [
+                        'primary_hsl' => $primaryHsl,
+                        'primary_hex' => $primaryHex,
+                    ]);
             } catch (\Throwable $e) {
-
                 $view->with('appSettings', $fallbackSettings)
-                     ->with('appTheme', $fallbackTheme);
+                    ->with('appTheme', $fallbackTheme);
             }
-
 
             $navUnreadCount = 0;
             $navNotifications = collect([]);
@@ -106,9 +105,7 @@ class AppServiceProvider extends ServiceProvider
                 if (Auth::check() && Schema::hasTable('notifications')) {
                     $u = Auth::user();
 
-
                     $navUnreadCount = $u->unreadNotifications()->count();
-
 
                     $navNotifications = $u->notifications()
                         ->latest()
@@ -116,11 +113,11 @@ class AppServiceProvider extends ServiceProvider
                         ->get();
                 }
             } catch (\Throwable $e) {
-
+                //
             }
 
             $view->with('navUnreadCount', $navUnreadCount)
-                 ->with('navNotifications', $navNotifications);
+                ->with('navNotifications', $navNotifications);
         });
     }
 }

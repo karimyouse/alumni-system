@@ -5,6 +5,7 @@ namespace App\Http\Controllers\College;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\Job;
+use App\Models\JobApplication;
 use App\Models\Scholarship;
 use App\Models\SuccessStory;
 use App\Models\User;
@@ -40,19 +41,31 @@ class JobsController extends Controller
         $jobs = $query->paginate(10)->withQueryString();
 
         $jobs->getCollection()->transform(function ($job) {
-            $job->is_company_submission = !is_null($job->company_user_id ?? null);
+            $job->is_company_submission = $this->isCompanySubmittedJob($job);
+
             $job->display_owner_name = $job->is_company_submission
-                ? ($job->company?->name ?? ($job->company_name ?? 'Company'))
+                ? ($job->company?->name ?? ($job->company_name ?: 'Company'))
                 : 'PTC College';
+
+            $appsQuery = JobApplication::query()->where('job_id', $job->id);
+
+            $job->display_applicants_count = (clone $appsQuery)->count();
+            $job->display_accepted_count = (clone $appsQuery)->where('status', 'accepted')->count();
 
             return $job;
         });
 
         $counts = [
             'all' => Job::count(),
-            'approved' => Schema::hasColumn('jobs', 'approval_status') ? Job::where('approval_status', 'approved')->count() : 0,
-            'pending'  => Schema::hasColumn('jobs', 'approval_status') ? Job::where('approval_status', 'pending')->count() : 0,
-            'rejected' => Schema::hasColumn('jobs', 'approval_status') ? Job::where('approval_status', 'rejected')->count() : 0,
+            'approved' => Schema::hasColumn('jobs', 'approval_status')
+                ? Job::where('approval_status', 'approved')->count()
+                : 0,
+            'pending' => Schema::hasColumn('jobs', 'approval_status')
+                ? Job::where('approval_status', 'pending')->count()
+                : 0,
+            'rejected' => Schema::hasColumn('jobs', 'approval_status')
+                ? Job::where('approval_status', 'rejected')->count()
+                : 0,
         ];
 
         return view('college.jobs', array_merge(
@@ -72,14 +85,7 @@ class JobsController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'company_name' => ['nullable', 'string', 'max:255'],
-            'location' => ['nullable', 'string', 'max:255'],
-            'type' => ['nullable', 'string', 'max:50'],
-            'salary' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'string', 'max:5000'],
-        ]);
+        $data = $this->validateJob($request);
 
         $attrs = [
             'company_user_id' => null,
@@ -90,6 +96,14 @@ class JobsController extends Controller
             'salary' => $data['salary'] ?: null,
             'description' => $data['description'] ?: null,
         ];
+
+        if (Schema::hasColumn('jobs', 'organizer_user_id')) {
+            $attrs['organizer_user_id'] = Auth::id();
+        }
+
+        if (Schema::hasColumn('jobs', 'organizer_role')) {
+            $attrs['organizer_role'] = 'college';
+        }
 
         if (Schema::hasColumn('jobs', 'status')) {
             $attrs['status'] = 'active';
@@ -123,7 +137,9 @@ class JobsController extends Controller
             $attrs['is_featured'] = false;
         }
 
-        Job::create($attrs);
+        $job = Job::create($attrs);
+
+        $this->notifyAlumniAboutCollegeJob($job);
 
         return redirect()
             ->route('college.jobs')
@@ -155,6 +171,14 @@ class JobsController extends Controller
             'salary' => $data['salary'] ?: null,
             'description' => $data['description'] ?: null,
         ];
+
+        if (Schema::hasColumn('jobs', 'organizer_user_id') && empty($job->organizer_user_id)) {
+            $update['organizer_user_id'] = Auth::id();
+        }
+
+        if (Schema::hasColumn('jobs', 'organizer_role')) {
+            $update['organizer_role'] = 'college';
+        }
 
         if (Schema::hasColumn('jobs', 'approval_status')) {
             $update['approval_status'] = 'approved';
@@ -200,7 +224,6 @@ class JobsController extends Controller
         ])->save();
 
         $this->notifyCompany($job, true);
-        $this->notifyAlumniAboutApprovedJob($job);
 
         return back()->with('toast_success', 'Job approved.');
     }
@@ -227,13 +250,17 @@ class JobsController extends Controller
         return back()->with('toast_success', 'Job rejected.');
     }
 
-    public function toggleFeatured(Job $job)
+    public function applicants(Job $job)
     {
-        $job->forceFill([
-            'is_featured' => !(bool) $job->is_featured
-        ])->save();
+        $apps = JobApplication::with('alumni')
+            ->where('job_id', $job->id)
+            ->orderByDesc('id')
+            ->get();
 
-        return back()->with('toast_success', $job->is_featured ? 'Job featured.' : 'Job unfeatured.');
+        return view('college.job-applicants', array_merge(
+            compact('job', 'apps'),
+            $this->buildNavCounts()
+        ));
     }
 
     private function validateJob(Request $request): array
@@ -248,16 +275,29 @@ class JobsController extends Controller
         ]);
     }
 
+    private function isCompanySubmittedJob(Job $job): bool
+    {
+        if (($job->organizer_role ?? null) === 'company') {
+            return true;
+        }
+
+        if (($job->organizer_role ?? null) === 'college') {
+            return false;
+        }
+
+        return !is_null($job->company_user_id ?? null);
+    }
+
     private function ensureCollegeOwnsJob(Job $job): void
     {
-        if (!is_null($job->company_user_id ?? null)) {
+        if ($this->isCompanySubmittedJob($job)) {
             abort(403);
         }
     }
 
     private function ensureCompanySubmittedJob(Job $job): void
     {
-        if (is_null($job->company_user_id ?? null)) {
+        if (!$this->isCompanySubmittedJob($job)) {
             abort(403);
         }
     }
@@ -287,10 +327,12 @@ class JobsController extends Controller
         }
     }
 
-    private function notifyAlumniAboutApprovedJob(Job $job): void
+    private function notifyAlumniAboutCollegeJob(Job $job): void
     {
         try {
-            $alumniUsers = User::query()->where('role', 'alumni')->get();
+            $alumniUsers = User::query()
+                ->where('role', 'alumni')
+                ->get();
 
             foreach ($alumniUsers as $alumnus) {
                 $alumnus->notify(new ContentReviewNotification([
@@ -298,10 +340,10 @@ class JobsController extends Controller
                     'content_type' => 'job',
                     'content_id' => $job->id,
                     'status' => 'approved',
-                    'title' => 'New job opportunity available',
-                    'message' => '"' . $job->title . '" at ' . ($job->company_name ?: 'PTC College') . ' is now available for you.',
+                    'title' => 'New job available',
+                    'message' => '"' . $job->title . '" has been posted by the college and is now available.',
                     'icon' => 'briefcase',
-                    'url' => route('alumni.jobs.show', $job),
+                    'url' => route('alumni.jobs'),
                 ]));
             }
         } catch (\Throwable $e) {

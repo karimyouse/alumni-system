@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class PasswordResetController extends Controller
@@ -87,12 +88,11 @@ class PasswordResetController extends Controller
                 'password_confirmation' => $data['password_confirmation'] ?? '',
             ],
             function ($user) use ($data) {
-
-            $user->forceFill([
-                    'password' => $data['password'],
-                    'remember_token' => Str::random(60),
-                ])->save();
-            }
+    $user->forceFill([
+        'password' => Hash::make($data['password']),
+        'remember_token' => Str::random(60),
+    ])->save();
+}
         );
 
         if ($status !== Password::PASSWORD_RESET) {

@@ -1,5 +1,68 @@
 @extends('layouts.app')
 
+@php
+  $adminPrimaryHsl = $appTheme['primary_hsl'] ?? '217 91% 60%';
+  $adminPrimaryHex = $appSettings->primary_color ?? '#2563eb';
+@endphp
+
+@push('head')
+<style>
+  .role-tab{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:.35rem;
+    min-height:3.5rem;
+    border-radius:.5rem;
+    font-size:.875rem;
+    color:hsl(var(--muted-foreground));
+    transition:all .2s ease;
+    border:1px solid transparent;
+  }
+
+  .role-tab i{
+    width:1rem;
+    height:1rem;
+  }
+
+  .role-tab.active{
+    background: hsl(var(--primary) / 0.14);
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary) / 0.28);
+    box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.10);
+  }
+
+  .role-tab:hover{
+    color:hsl(var(--foreground));
+    background:hsl(var(--accent));
+  }
+
+  .login-shell{
+    transition: all .25s ease;
+  }
+
+  .login-role-glow{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at center, hsl(var(--primary) / 0.14) 0%, transparent 58%);
+    transition: all .25s ease;
+  }
+
+  .login-role-icon{
+    transition: all .25s ease;
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.10), 0 10px 30px hsl(var(--primary) / 0.18);
+  }
+
+  .login-company-extra{
+    border-top:1px solid hsl(var(--border));
+    padding-top:1.25rem;
+  }
+</style>
+@endpush
+
 @section('content')
 <div class="min-h-screen relative flex items-center justify-center">
 
@@ -28,9 +91,11 @@
     </button>
   </div>
 
-  <div class="relative z-10 w-full max-w-md rounded-xl border border-border bg-card/80 backdrop-blur p-6 shadow-xl">
-    <div class="flex flex-col items-center text-center mb-6">
-      <div class="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-3">
+  <div class="relative z-10 w-full max-w-md rounded-xl border border-border bg-card/80 backdrop-blur p-6 shadow-xl login-shell" id="login-shell">
+    <div class="login-role-glow rounded-xl"></div>
+
+    <div class="relative flex flex-col items-center text-center mb-6">
+      <div class="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-3 login-role-icon">
         <i data-lucide="graduation-cap" class="w-6 h-6"></i>
       </div>
       <h1 class="text-2xl font-bold">{{ __("Welcome Back") }}</h1>
@@ -78,7 +143,7 @@
       </button>
     </div>
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-4" id="login-form">
+    <form method="POST" action="{{ route('login') }}" class="space-y-4 relative z-10" id="login-form">
       @csrf
       <input type="hidden" name="role" id="role-input" value="{{ old('role', 'alumni') }}">
 
@@ -131,9 +196,7 @@
         </div>
       @endif
 
-      <div id="company-extra" class="hidden">
-        <div class="my-6 border-t border-border"></div>
-
+      <div id="company-extra" class="hidden login-company-extra">
         <div class="text-center text-sm text-muted-foreground mb-3">
           {{ __("Don't have an account?") }}
         </div>
@@ -161,11 +224,60 @@
   const forgotLink = document.getElementById('forgot-link');
 
   const config = {
-    alumni: { label: @json(__('Academic ID')), placeholder: @json(__('Enter your academic ID')), type: 'text', showCompany: false },
-    college: { label: @json(__('Email Address')), placeholder: @json(__('Enter college email')), type: 'email', showCompany: false },
-    company: { label: @json(__('Email Address')), placeholder: @json(__('Enter company email')), type: 'email', showCompany: true },
-    admin: { label: @json(__('Email Address')), placeholder: @json(__('Enter admin email')), type: 'email', showCompany: false },
+    alumni: {
+      label: @json(__('Academic ID')),
+      placeholder: @json(__('Enter your academic ID')),
+      type: 'text',
+      showCompany: false,
+      primary: '217 91% 60%',
+      ring: '217 91% 60%',
+      foreground: '0 0% 100%',
+      hex: '#2563eb'
+    },
+    college: {
+      label: @json(__('Email Address')),
+      placeholder: @json(__('Enter college email')),
+      type: 'email',
+      showCompany: false,
+      primary: '142 71% 45%',
+      ring: '142 71% 45%',
+      foreground: '0 0% 100%',
+      hex: '#22c55e'
+    },
+    company: {
+      label: @json(__('Email Address')),
+      placeholder: @json(__('Enter company email')),
+      type: 'email',
+      showCompany: true,
+      primary: '262 83% 58%',
+      ring: '262 83% 58%',
+      foreground: '0 0% 100%',
+      hex: '#7c3aed'
+    },
+    admin: {
+      label: @json(__('Email Address')),
+      placeholder: @json(__('Enter admin email')),
+      type: 'email',
+      showCompany: false,
+      primary: @json($adminPrimaryHsl),
+      ring: @json($adminPrimaryHsl),
+      foreground: '0 0% 100%',
+      hex: @json($adminPrimaryHex)
+    },
   };
+
+  function applyRoleTheme(role) {
+    const c = config[role] || config.alumni;
+
+    document.documentElement.style.setProperty('--primary', c.primary, 'important');
+    document.documentElement.style.setProperty('--ring', c.ring, 'important');
+    document.documentElement.style.setProperty('--primary-foreground', c.foreground, 'important');
+
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', c.hex || '#2563eb');
+    }
+  }
 
   function updateForgotHref() {
     if (!forgotLink) return;
@@ -185,6 +297,7 @@
     if (c.showCompany) companyExtra.classList.remove('hidden');
     else companyExtra.classList.add('hidden');
 
+    applyRoleTheme(role);
     updateForgotHref();
   }
 

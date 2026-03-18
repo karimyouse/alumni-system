@@ -1,10 +1,10 @@
 @php
   $items = [];
 
-  if (session('toast_success')) $items[] = ['type'=>'success','title'=>__('Success'),'message'=>session('toast_success')];
-  if (session('toast_error'))   $items[] = ['type'=>'error','title'=>__('Error'),'message'=>session('toast_error')];
-  if (session('toast_info'))    $items[] = ['type'=>'info','title'=>__('Info'),'message'=>session('toast_info')];
-  if (session('toast_warning')) $items[] = ['type'=>'warning','title'=>__('Warning'),'message'=>session('toast_warning')];
+  if (session('toast_success')) $items[] = ['type' => 'success', 'title' => __('Success'), 'message' => session('toast_success')];
+  if (session('toast_error'))   $items[] = ['type' => 'error',   'title' => __('Error'),   'message' => session('toast_error')];
+  if (session('toast_info'))    $items[] = ['type' => 'info',    'title' => __('Info'),    'message' => session('toast_info')];
+  if (session('toast_warning')) $items[] = ['type' => 'warning', 'title' => __('Warning'), 'message' => session('toast_warning')];
 @endphp
 
 @if(count($items))
@@ -15,10 +15,11 @@
         $type = $t['type'];
 
         $accent = match($type) {
-          'success' => 'border-green-500/30 bg-green-500/10 text-green-200',
+          'success' => 'border-primary/30 bg-primary/10 text-primary',
+          'info'    => 'border-primary/30 bg-primary/10 text-primary',
           'error'   => 'border-red-500/30 bg-red-500/10 text-red-200',
           'warning' => 'border-yellow-500/30 bg-yellow-500/10 text-yellow-200',
-          default   => 'border-primary/30 bg-primary/10 text-foreground',
+          default   => 'border-primary/30 bg-primary/10 text-primary',
         };
 
         $icon = match($type) {
@@ -29,8 +30,7 @@
         };
       @endphp
 
-      <div class="toastItem pointer-events-auto overflow-hidden rounded-2xl border border-border bg-card shadow-2xl
-                  transition duration-300"
+      <div class="toastItem pointer-events-auto overflow-hidden rounded-2xl border border-border bg-card shadow-2xl transition duration-300"
            data-timeout="2500">
 
         <div class="border-l-4 {{ $accent }} px-4 py-3">
@@ -40,8 +40,13 @@
             </div>
 
             <div class="min-w-0 flex-1">
-              <div class="text-sm font-semibold">{{ $t['title'] }}</div>
-              <div class="text-sm text-muted-foreground mt-0.5 break-words">
+              <div class="text-sm font-semibold
+                {{ in_array($type, ['success', 'info']) ? 'text-primary' : '' }}">
+                {{ $t['title'] }}
+              </div>
+
+              <div class="text-sm mt-0.5 break-words
+                {{ in_array($type, ['success', 'info']) ? 'text-foreground' : 'text-muted-foreground' }}">
                 {{ $t['message'] }}
               </div>
             </div>
@@ -62,7 +67,8 @@
   <script>
     (function () {
       document.querySelectorAll('.toastItem').forEach((el) => {
-        const ms = parseInt(el.getAttribute('data-timeout') || '3500', 10);
+        const ms = parseInt(el.getAttribute('data-timeout') || '2500', 10);
+
         setTimeout(() => {
           el.classList.add('opacity-0', 'translate-y-2');
           setTimeout(() => el.remove(), 300);

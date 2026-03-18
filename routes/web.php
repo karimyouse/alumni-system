@@ -244,6 +244,7 @@ Route::prefix('college')->middleware(['auth', 'role:college'])->group(function (
     Route::get('/jobs/{job}/edit', [CollegeJobsController::class, 'edit'])->name('college.jobs.edit');
     Route::post('/jobs/{job}/update', [CollegeJobsController::class, 'update'])->name('college.jobs.update');
     Route::post('/jobs/{job}/delete', [CollegeJobsController::class, 'destroy'])->name('college.jobs.delete');
+    Route::get('/jobs/{job}/applicants', [CollegeJobsController::class, 'applicants'])->name('college.jobs.applicants');
     Route::post('/jobs/{job}/approve', [CollegeJobsController::class, 'approve'])->name('college.jobs.approve');
     Route::post('/jobs/{job}/reject', [CollegeJobsController::class, 'reject'])->name('college.jobs.reject');
     Route::post('/jobs/{job}/feature', [CollegeJobsController::class, 'toggleFeatured'])->name('college.jobs.feature');

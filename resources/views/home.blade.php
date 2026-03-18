@@ -1,5 +1,26 @@
 @extends('layouts.app')
 
+@php
+  $adminDefaultHex = '#f59e0b';
+  $currentAdminHex = strtolower($appSettings->primary_color ?? '#2563eb');
+
+  $useCustomHomeTheme = $currentAdminHex !== strtolower($adminDefaultHex);
+
+  $homePrimaryHsl = $useCustomHomeTheme
+      ? ($appTheme['primary_hsl'] ?? '217 91% 60%')
+      : '217 91% 60%';
+@endphp
+
+@push('head')
+<style>
+  :root{
+    --primary: {{ $homePrimaryHsl }} !important;
+    --ring: {{ $homePrimaryHsl }} !important;
+    --primary-foreground: 0 0% 100% !important;
+  }
+</style>
+@endpush
+
 @section('content')
 @php
   $institutionName = $appSettings->institution_name ?? 'Palestine Technical College';

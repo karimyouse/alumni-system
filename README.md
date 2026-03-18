@@ -1,59 +1,137 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PTC Alumni Tracking System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A web-based platform developed to strengthen communication and engagement between the college, alumni, companies, and system administrators. The system provides a centralized environment for managing alumni profiles, job opportunities, workshops, scholarships, announcements, recommendations, notifications, reports, and support requests.
 
-## About Laravel
+## Project Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The **PTC Alumni Tracking System** was designed to address the need for a structured digital platform that connects graduates with their academic institution and the labor market. It supports multiple user roles and provides each role with dedicated features and dashboards.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The system improves alumni follow-up, facilitates opportunity sharing, supports institutional reporting, and enhances collaboration between the college and partner companies.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Main Objectives
 
-## Learning Laravel
+- Build a centralized alumni management system
+- Improve communication between alumni, college, and companies
+- Enable companies to publish job opportunities and workshops
+- Allow the college to manage content and monitor alumni engagement
+- Provide administrators with control over system settings, users, and reports
+- Offer a professional, modern, and user-friendly interface
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## User Roles
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Alumni
+Alumni users can:
+- Sign in and manage their profiles
+- Browse and apply for job opportunities
+- Register for workshops
+- View available scholarships
+- Receive recommendations
+- Track their applications
+- View leaderboard rankings
+- Receive notifications
 
-## Laravel Sponsors
+### College
+College users can:
+- Manage alumni data
+- Publish and manage workshops
+- Publish and manage scholarships
+- Post college job opportunities
+- Review and approve or reject company-submitted jobs and workshops
+- View applicants and registrations
+- Publish announcements
+- View reports
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Company
+Company users can:
+- Register and log in
+- Post job opportunities
+- Propose workshops
+- Browse alumni
+- Review applications
+- Receive notifications when content is approved or rejected
 
-### Premium Partners
+### Admin / Super Admin
+Admin users can:
+- Manage users
+- Manage content
+- Review reports
+- Manage system settings
+- Update institution name
+- Change the public/admin primary color
+- Track backup status
+- Access support center features
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Core Features
 
-## Contributing
+- Multi-role authentication system
+- Public homepage with system overview
+- Separate dashboard for each role
+- Alumni profile management
+- Job posting and application workflow
+- Workshop creation and registration
+- Scholarship publishing and application
+- Notifications system
+- Recommendations feature
+- Leaderboard
+- Support request and ticket tracking
+- Admin settings panel
+- Role-based theme styling
+- Arabic and English language support
+- Dark and light mode support
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Approval Workflow
 
-## Code of Conduct
+The system includes a structured approval workflow:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Company jobs and workshops** require college review before becoming visible to alumni
+- **College jobs and workshops** are published directly by the college
+- The college can:
+  - approve or reject company submissions
+  - view applicants/registrations
+  - edit and delete only college-owned content
 
-## Security Vulnerabilities
+## Theme and UI Logic
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The platform uses a modern academic design with:
 
-## License
+- Role-based dashboard themes
+- Dedicated role colors in the login form
+- Admin color customization through system settings
+- Public homepage color linked to the admin primary color setting
+- Responsive layout for desktop and mobile screens
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Technologies Used
+
+### Backend
+- Laravel
+- PHP
+- MySQL
+
+### Frontend
+- Blade Templates
+- Tailwind CSS
+- JavaScript
+- Vite
+- Lucide Icons
+
+### Other Tools
+- Mailtrap for email testing
+- WAMP Server for local development
+
+## Project Structure
+
+The project is organized using Laravel’s MVC architecture:
+
+- `app/Http/Controllers` → Controllers
+- `app/Models` → Models
+- `resources/views` → Blade views
+- `routes` → Web routes
+- `database/migrations` → Database schema
+- `database/seeders` → Sample and system data
+
+## Installation Guide
+
+### 1. Clone the project
+```bash
+git clone <your-repository-url>
+cd alumni-tracking-system

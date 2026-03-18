@@ -96,8 +96,11 @@
           @forelse($jobs as $j)
             @php
               [$stLabel,$stClass] = $pill($j->approval_status ?? 'approved');
-              $isCompanyJob = ($j->organizer_role ?? null) === 'company';
+
+              $isCompanyJob = (($j->organizer_role ?? null) === 'company')
+                || (!is_null($j->company_user_id ?? null) && ($j->organizer_role ?? null) !== 'college');
             @endphp
+
             <tr class="border-b last:border-0">
               <td class="p-4">
                 <div class="font-semibold">{{ $j->title }}</div>
@@ -112,11 +115,19 @@
 
               <td class="p-4">
                 <span class="text-xs rounded-full px-2 py-1 {{ $stClass }}">{{ $stLabel }}</span>
+
                 <div class="text-[11px] text-muted-foreground mt-1">
                   {{ $isCompanyJob ? 'Company submission' : 'College job' }}
                 </div>
+
+                <div class="text-[11px] text-muted-foreground mt-1">
+                  Accepted applicants: {{ $j->display_accepted_count ?? 0 }}
+                </div>
+
                 @if(($j->approval_status ?? '') === 'rejected' && $j->reject_reason)
-                  <div class="text-[11px] text-muted-foreground mt-1">Reason: {{ $j->reject_reason }}</div>
+                  <div class="text-[11px] text-muted-foreground mt-1">
+                    Reason: {{ $j->reject_reason }}
+                  </div>
                 @endif
               </td>
 
@@ -130,18 +141,24 @@
               </td>
 
               <td class="p-4">
-                @if($isCompanyJob)
-                  <div class="flex flex-col gap-2">
-                    @if(($j->approval_status ?? 'approved') !== 'approved')
+                <div class="flex flex-col gap-2">
+                  <a href="{{ route('college.jobs.applicants', $j) }}"
+                     class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50 text-center">
+                    View Applicants
+                    @if(($j->display_applicants_count ?? 0) > 0)
+                      ({{ $j->display_applicants_count }})
+                    @endif
+                  </a>
+
+                  @if($isCompanyJob)
+                    @if(($j->approval_status ?? 'approved') === 'pending')
                       <form method="POST" action="{{ route('college.jobs.approve', $j) }}">
                         @csrf
                         <button class="w-full rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90">
                           Approve
                         </button>
                       </form>
-                    @endif
 
-                    @if(($j->approval_status ?? 'approved') !== 'rejected')
                       <form method="POST" action="{{ route('college.jobs.reject', $j) }}" class="space-y-2">
                         @csrf
                         <input name="reject_reason"
@@ -152,9 +169,7 @@
                         </button>
                       </form>
                     @endif
-                  </div>
-                @else
-                  <div class="flex flex-col gap-2">
+                  @else
                     <a href="{{ route('college.jobs.edit', $j) }}"
                        class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50 text-center">
                       Edit
@@ -167,8 +182,8 @@
                         Delete
                       </button>
                     </form>
-                  </div>
-                @endif
+                  @endif
+                </div>
               </td>
             </tr>
           @empty
