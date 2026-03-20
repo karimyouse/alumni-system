@@ -42,18 +42,35 @@
     <div class="text-sm text-muted-foreground whitespace-pre-line">{{ $ticket->message }}</div>
   </div>
 
-  <div class="rounded-xl border border-border bg-card p-6">
-    <div class="text-lg font-semibold mb-2">Admin Reply</div>
+  @php
+  $linkifyReply = function (?string $text) {
+      $escaped = e((string) $text);
 
-    @if(!empty($ticket->admin_reply))
-      <div class="text-sm text-muted-foreground whitespace-pre-line">{{ $ticket->admin_reply }}</div>
-      @if($ticket->resolved_at)
-        <div class="text-xs text-muted-foreground mt-3">Resolved at: {{ $ticket->resolved_at->format('M d, Y H:i') }}</div>
-      @endif
-    @else
-      <div class="text-sm text-muted-foreground">No reply yet.</div>
+      $linked = preg_replace(
+          '/(https?:\/\/[^\s<]+)/u',
+          '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline break-all hover:opacity-80">$1</a>',
+          $escaped
+      );
+
+      return nl2br($linked ?? $escaped);
+  };
+@endphp
+
+<div class="rounded-xl border border-border bg-card p-6">
+  <div class="text-lg font-semibold mb-2">Admin Reply</div>
+
+  @if(!empty($ticket->admin_reply))
+    <div class="text-sm text-muted-foreground whitespace-pre-line break-words">
+      {!! $linkifyReply($ticket->admin_reply) !!}
+    </div>
+
+    @if($ticket->resolved_at)
+      <div class="text-xs text-muted-foreground mt-3">Resolved at: {{ $ticket->resolved_at->format('M d, Y H:i') }}</div>
     @endif
-  </div>
+  @else
+    <div class="text-sm text-muted-foreground">No reply yet.</div>
+  @endif
+</div>
 
 </div>
 @endsection

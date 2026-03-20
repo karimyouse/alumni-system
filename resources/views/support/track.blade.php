@@ -91,19 +91,35 @@
           <div class="text-sm text-muted-foreground whitespace-pre-line">{{ $ticket->message }}</div>
         </div>
 
-        <div class="rounded-xl border border-border p-4 bg-accent/10">
-          <div class="text-sm font-semibold mb-1">{{ __("Admin Reply") }}</div>
+        @php
+  $linkifyReply = function (?string $text) {
+      $escaped = e((string) $text);
 
-          @if(!empty($ticket->admin_reply))
-            <div class="text-sm text-muted-foreground whitespace-pre-line">{{ $ticket->admin_reply }}</div>
-            <div class="text-xs text-muted-foreground mt-2">
-              {{ __("Replied at:") }}
-              {{ $ticket->admin_replied_at?->format('M d, Y h:i A') ?? ($ticket->updated_at?->format('M d, Y h:i A') ?? '—') }}
-            </div>
-          @else
-            <div class="text-sm text-muted-foreground">{{ __("No reply yet. Please check again later.") }}</div>
-          @endif
-        </div>
+      $linked = preg_replace(
+          '/(https?:\/\/[^\s<]+)/u',
+          '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline break-all hover:opacity-80">$1</a>',
+          $escaped
+      );
+
+      return nl2br($linked ?? $escaped);
+  };
+@endphp
+
+<div class="rounded-xl border border-border p-4 bg-accent/10">
+  <div class="text-sm font-semibold mb-1">{{ __("Admin Reply") }}</div>
+
+  @if(!empty($ticket->admin_reply))
+    <div class="text-sm text-muted-foreground whitespace-pre-line break-words">
+      {!! $linkifyReply($ticket->admin_reply) !!}
+    </div>
+    <div class="text-xs text-muted-foreground mt-2">
+      {{ __("Replied at:") }}
+      {{ $ticket->admin_replied_at?->format('M d, Y h:i A') ?? ($ticket->updated_at?->format('M d, Y h:i A') ?? '—') }}
+    </div>
+  @else
+    <div class="text-sm text-muted-foreground">{{ __("No reply yet. Please check again later.") }}</div>
+  @endif
+</div>
       </div>
     @endif
 
