@@ -14,6 +14,7 @@ use App\Models\WorkshopRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -41,36 +42,49 @@ class ProfileController extends Controller
         $userId = (int) $user->id;
 
         $data = $request->validate([
-            'name' => ['required','string','max:255'],
-            'phone' => ['nullable','string','max:50'],
-            'location' => ['nullable','string','max:120'],
-            'major' => ['nullable','string','max:120'],
-            'graduation_year' => ['nullable','string','max:10'],
-            'gpa' => ['nullable','numeric','min:0','max:4'],
-            'bio' => ['nullable','string','max:1000'],
-            'skills' => ['nullable','string','max:500'],
-            'linkedin' => ['nullable','string','max:255'],
-            'portfolio' => ['nullable','string','max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'location' => ['nullable', 'string', 'max:120'],
+            'major' => ['nullable', 'string', 'max:120'],
+            'graduation_year' => ['nullable', 'string', 'max:10'],
+            'gpa' => ['nullable', 'numeric', 'min:0', 'max:4'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'skills' => ['nullable', 'string', 'max:500'],
+            'linkedin' => ['nullable', 'string', 'max:255'],
+            'portfolio' => ['nullable', 'string', 'max:255'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $user->update([
             'name' => $data['name'],
         ]);
 
-        AlumniProfile::updateOrCreate(
+        $profile = AlumniProfile::firstOrCreate(
             ['user_id' => $user->id],
-            [
-                'phone' => $data['phone'] ?? null,
-                'location' => $data['location'] ?? null,
-                'major' => $data['major'] ?? null,
-                'graduation_year' => $data['graduation_year'] ?? null,
-                'gpa' => $data['gpa'] ?? null,
-                'bio' => $data['bio'] ?? null,
-                'skills' => $data['skills'] ?? null,
-                'linkedin' => $data['linkedin'] ?? null,
-                'portfolio' => $data['portfolio'] ?? null,
-            ]
+            []
         );
+
+        $updateData = [
+            'phone' => $data['phone'] ?? null,
+            'location' => $data['location'] ?? null,
+            'major' => $data['major'] ?? null,
+            'graduation_year' => $data['graduation_year'] ?? null,
+            'gpa' => $data['gpa'] ?? null,
+            'bio' => $data['bio'] ?? null,
+            'skills' => $data['skills'] ?? null,
+            'linkedin' => $data['linkedin'] ?? null,
+            'portfolio' => $data['portfolio'] ?? null,
+        ];
+
+        if ($request->hasFile('profile_photo')) {
+            if (!empty($profile->profile_photo) && Storage::disk('public')->exists($profile->profile_photo)) {
+                Storage::disk('public')->delete($profile->profile_photo);
+            }
+
+            $updateData['profile_photo'] = $request->file('profile_photo')->store('profile-photos', 'public');
+        }
+
+        $profile->update($updateData);
 
         return redirect()
             ->route('alumni.profile')

@@ -8,7 +8,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AlumniProfile extends Model
 {
     protected $fillable = [
-        'user_id','phone','location','major','graduation_year','gpa','bio','skills','linkedin','portfolio'
+        'user_id',
+        'phone',
+        'location',
+        'major',
+        'graduation_year',
+        'gpa',
+        'bio',
+        'skills',
+        'linkedin',
+        'portfolio',
+        'profile_photo',
     ];
 
     public function user(): BelongsTo

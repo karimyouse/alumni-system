@@ -30,6 +30,7 @@
   $academicId = $user->academic_id ?? '';
   $majorValue = $profile->major ?? '—';
   $gradYear = $profile->graduation_year ?? '—';
+  $profilePhotoUrl = !empty($profile->profile_photo) ? asset('storage/' . $profile->profile_photo) : null;
 @endphp
 
 @section('content')
@@ -59,7 +60,10 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ route('alumni.profile.update') }}" id="alumni-profile-form">
+  <form method="POST"
+        action="{{ route('alumni.profile.update') }}"
+        id="alumni-profile-form"
+        enctype="multipart/form-data">
     @csrf
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -68,8 +72,29 @@
         <div class="rounded-xl border border-border bg-card h-full">
           <div class="p-6">
             <div class="flex flex-col items-center text-center">
-              <div class="h-24 w-24 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-semibold mb-4">
-                {{ $initials ?: 'A' }}
+              <div class="mb-4">
+                @if($profilePhotoUrl)
+                  <img src="{{ $profilePhotoUrl }}"
+                       alt="{{ $userName }}"
+                       class="h-24 w-24 rounded-full object-cover border border-border shadow-sm">
+                @else
+                  <div class="h-24 w-24 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-semibold">
+                    {{ $initials ?: 'A' }}
+                  </div>
+                @endif
+              </div>
+
+              <div id="profile-photo-upload-wrap" class="hidden w-full mb-4">
+                <label class="text-sm font-medium block text-left mb-2">{{ __("Profile Photo") }}</label>
+                <input type="file"
+                       name="profile_photo"
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                       data-editable="true"
+                       disabled
+                       class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-primary">
+                <p class="text-xs text-muted-foreground mt-2">
+                  {{ __("Allowed: JPG, PNG, WEBP. Max size: 2MB.") }}
+                </p>
               </div>
 
               <h2 class="text-2xl font-semibold">{{ old('name', $user->name) }}</h2>
@@ -267,6 +292,7 @@
     const toggleText = document.getElementById('profile-edit-toggle-text');
     const saveRow = document.getElementById('profile-save-row');
     const editableFields = document.querySelectorAll('[data-editable="true"]');
+    const photoUploadWrap = document.getElementById('profile-photo-upload-wrap');
 
     if (!toggleBtn || !toggleText || !saveRow || !editableFields.length) return;
 
@@ -278,6 +304,11 @@
       });
 
       saveRow.classList.toggle('hidden', !editing);
+
+      if (photoUploadWrap) {
+        photoUploadWrap.classList.toggle('hidden', !editing);
+      }
+
       toggleText.textContent = editing ? @json(__('Cancel Editing')) : @json(__('Edit Profile'));
     }
 
