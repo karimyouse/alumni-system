@@ -190,10 +190,10 @@ class SupportController extends Controller
             $email = trim((string)($user->email ?? ''));
             if ($email === '') return null;
 
-            // ✅ This will work after User implements CanResetPassword
+            
             $token = Password::broker()->createToken($user);
 
-            // route: /reset-password/{token}?email=...
+
             return route('password.reset', [
                 'token' => $token,
                 'email' => $email,

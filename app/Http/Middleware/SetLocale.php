@@ -28,7 +28,7 @@ class SetLocale
         try {
             Carbon::setLocale($locale);
         } catch (\Throwable $e) {
-            // Ignore locale issues and continue rendering.
+            
         }
 
         return $next($request);

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-// ✅ add these
+
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Auth\Passwords\CanResetPassword;
 
@@ -21,7 +21,7 @@ class User extends Authenticatable implements CanResetPasswordContract
         'role',
         'academic_id',
 
-        // ✅ Admin fields
+        
         'last_login_at',
         'is_suspended',
     ];

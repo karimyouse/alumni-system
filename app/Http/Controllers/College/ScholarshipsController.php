@@ -10,6 +10,7 @@ use App\Models\SuccessStory;
 use App\Models\User;
 use App\Models\Workshop;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class ScholarshipsController extends Controller
@@ -60,7 +61,7 @@ class ScholarshipsController extends Controller
             'deadline' => $data['deadline'] ?: null,
             'amount' => $data['amount'] ?: null,
             'description' => $data['description'] ?: null,
-            'created_by_user_id' => auth()->id(),
+            'created_by_user_id' => Auth::id(),
             'status' => 'active',
         ]);
 
