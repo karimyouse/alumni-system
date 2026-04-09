@@ -70,6 +70,9 @@ class AlumniBrowseController extends Controller
             $status = $this->resolveAvailabilityStatus($profile);
 
             $user->display_initials = $initials;
+            $user->display_photo_url = !empty($profile->profile_photo)
+                ? asset('storage/' . ltrim($profile->profile_photo, '/'))
+                : null;
             $user->display_major_year = trim((string) ($profile->major ?? '—')) . ' (' . trim((string) ($profile->graduation_year ?? '—')) . ')';
             $user->display_location = $profile->location ?: '—';
             $user->display_skills = $skills->take(4)->values();
@@ -130,6 +133,9 @@ class AlumniBrowseController extends Controller
             'profile' => $profile,
             'skills' => $skills,
             'initials' => $initials,
+            'photoUrl' => !empty($profile->profile_photo)
+                ? asset('storage/' . ltrim($profile->profile_photo, '/'))
+                : null,
             'statusLabel' => $status['label'],
             'statusClass' => $status['class'],
         ], $this->buildNavCounts()));

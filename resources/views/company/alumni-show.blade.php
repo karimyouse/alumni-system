@@ -48,9 +48,15 @@
   <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
     <div class="rounded-xl border border-border bg-card p-6">
       <div class="flex flex-col items-center text-center">
-        <div class="w-24 h-24 rounded-full bg-secondary flex items-center justify-center text-3xl font-semibold">
-          {{ $initials }}
-        </div>
+        @if($photoUrl)
+          <img src="{{ $photoUrl }}"
+               alt="{{ $alumnus->name }}"
+               class="w-24 h-24 rounded-full object-cover border border-border shadow-sm">
+        @else
+          <div class="w-24 h-24 rounded-full bg-secondary flex items-center justify-center text-3xl font-semibold">
+            {{ $initials }}
+          </div>
+        @endif
 
         <div class="mt-4 text-xl font-semibold">{{ $alumnus->name }}</div>
         <div class="text-sm text-muted-foreground mt-1">{{ $profile->major ?? '—' }}</div>

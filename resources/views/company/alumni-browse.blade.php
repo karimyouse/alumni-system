@@ -78,9 +78,15 @@
     @forelse($alumni as $alumnus)
       <div class="rounded-xl border border-border bg-card p-5">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-base font-semibold flex-shrink-0">
-            {{ $alumnus->display_initials }}
-          </div>
+          @if($alumnus->display_photo_url)
+            <img src="{{ $alumnus->display_photo_url }}"
+                 alt="{{ $alumnus->name }}"
+                 class="w-12 h-12 rounded-full object-cover border border-border shadow-sm flex-shrink-0">
+          @else
+            <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-base font-semibold flex-shrink-0">
+              {{ $alumnus->display_initials }}
+            </div>
+          @endif
 
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-3 flex-wrap">
