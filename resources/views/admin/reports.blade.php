@@ -59,11 +59,11 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button type="button" onclick="window.print()"
-              class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center gap-2">
+      <a href="{{ route('admin.reports.exportPdf') }}" target="_blank" rel="noopener"
+         class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center gap-2">
         <i data-lucide="download" class="h-4 w-4"></i>
         Export PDF
-      </button>
+      </a>
 
       <a href="{{ route('admin.reports.exportExcel') }}"
          class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center gap-2">

@@ -25,12 +25,19 @@
       <p class="text-sm text-muted-foreground">Analytics and statistical reports</p>
     </div>
 
-    <button type="button"
-            onclick="window.print()"
-            class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-      <i data-lucide="download" class="h-4 w-4"></i>
-      Export Report
-    </button>
+    <div class="flex items-center gap-2">
+      <a href="{{ route('college.reports.exportPdf') }}" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+        <i data-lucide="download" class="h-4 w-4"></i>
+        Export PDF
+      </a>
+
+      <a href="{{ route('college.reports.exportExcel') }}"
+         class="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+        <i data-lucide="download" class="h-4 w-4"></i>
+        Export Excel
+      </a>
+    </div>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

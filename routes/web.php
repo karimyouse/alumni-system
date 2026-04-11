@@ -278,6 +278,8 @@ Route::prefix('college')->middleware(['auth', 'role:college'])->group(function (
     Route::post('/success-stories/{story}/delete', [CollegeSuccessStoriesController::class, 'destroy'])->name('college.successStories.delete');
 
     Route::get('/reports', [CollegeReportsController::class, 'index'])->name('college.reports');
+    Route::get('/reports/export-pdf', [CollegeReportsController::class, 'exportPdf'])->name('college.reports.exportPdf');
+    Route::get('/reports/export-excel', [CollegeReportsController::class, 'exportExcel'])->name('college.reports.exportExcel');
 });
 
 /**
@@ -329,6 +331,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,super_admin'])->group(fu
     Route::post('/content/{type}/{id}/reject', [AdminContentController::class, 'reject'])->name('admin.content.reject');
 
     Route::get('/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
+    Route::get('/reports/export-pdf', [AdminReportsController::class, 'exportPdf'])->name('admin.reports.exportPdf');
     Route::get('/reports/export-excel', [AdminReportsController::class, 'exportExcel'])->name('admin.reports.exportExcel');
     Route::get('/reports/export', [AdminReportsController::class, 'exportExcel'])->name('admin.reports.export');
 
