@@ -19,6 +19,7 @@ class WorkshopsController extends Controller
         $userId = (int) Auth::id();
 
         $workshopsQuery = Workshop::query()
+            ->with(['company.companyProfile'])
             ->when(
                 Schema::hasColumn('workshops', 'proposal_status'),
                 fn ($q) => $q->where('proposal_status', 'approved')

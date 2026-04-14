@@ -14,11 +14,21 @@
     justify-content:center;
     gap:.35rem;
     min-height:3.5rem;
+    padding:.55rem .45rem;
     border-radius:.5rem;
     font-size:.875rem;
+    line-height:1.15;
+    text-align:center;
     color:hsl(var(--muted-foreground));
     transition:all .2s ease;
     border:1px solid transparent;
+  }
+
+  .role-tab span{
+    max-width:100%;
+    white-space:nowrap;
+    word-break:normal;
+    overflow-wrap:normal;
   }
 
   .role-tab i{
@@ -60,6 +70,31 @@
     border-top:1px solid hsl(var(--border));
     padding-top:1.25rem;
   }
+
+  @media (max-width: 640px){
+    .login-shell{
+      border-radius:.75rem;
+    }
+
+    .login-role-tabs{
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:.35rem;
+    }
+
+    .login-role-tabs .role-tab{
+      min-height:3.25rem;
+      padding:.55rem .5rem;
+      font-size:.8125rem;
+    }
+  }
+
+  @media (max-width: 360px){
+    .login-role-tabs .role-tab{
+      font-size:.75rem;
+      padding-left:.35rem;
+      padding-right:.35rem;
+    }
+  }
 </style>
 @endpush
 
@@ -91,7 +126,7 @@
     </button>
   </div>
 
-  <div class="relative z-10 w-full max-w-md rounded-xl border border-border bg-card/80 backdrop-blur p-6 shadow-xl login-shell" id="login-shell">
+  <div class="relative z-10 w-full max-w-md rounded-xl border border-border bg-card/80 backdrop-blur p-5 sm:p-6 shadow-xl login-shell" id="login-shell">
     <div class="login-role-glow rounded-xl"></div>
 
     <div class="relative flex flex-col items-center text-center mb-6">
@@ -125,7 +160,7 @@
       </div>
     @endif
 
-    <div class="grid grid-cols-4 gap-1 rounded-lg bg-muted p-1 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 rounded-lg bg-muted p-1 mb-6 login-role-tabs">
       <button type="button" data-role="alumni" class="role-tab active">
         <i data-lucide="graduation-cap"></i><span>{{ __("Alumni") }}</span>
       </button>
@@ -163,7 +198,7 @@
       </div>
 
       <div>
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
           <label class="text-sm font-medium">{{ __("Password") }}</label>
 
           <a href="{{ route('password.request') }}" id="forgot-link" class="text-sm text-primary hover:underline">

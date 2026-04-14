@@ -26,13 +26,13 @@
 
 <div class="space-y-6">
 
-  <div class="flex items-start justify-between gap-4">
-    <div>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
       <h1 class="text-2xl font-bold">User Management</h1>
       <p class="text-sm text-muted-foreground">Manage all user accounts</p>
     </div>
 
-    <form method="GET" action="{{ route('admin.users') }}" class="w-full max-w-xs">
+    <form method="GET" action="{{ route('admin.users') }}" class="w-full sm:max-w-xs">
       <input type="hidden" name="tab" value="{{ $tab }}">
       <div class="relative">
         <i data-lucide="search" class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
@@ -51,10 +51,10 @@
     ];
   @endphp
 
-  <div class="flex items-center gap-2">
+  <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
     @foreach($tabs as $t)
       <a href="{{ route('admin.users', ['tab'=>$t['key'], 'q'=>$q]) }}"
-         class="rounded-md px-3 py-1.5 text-sm border border-border transition
+         class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm border border-border transition
          {{ $tab === $t['key'] ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground' }}">
         {{ $t['label'] }} ({{ $t['count'] }})
       </a>
@@ -63,7 +63,7 @@
 
 
   <div class="rounded-xl border border-border bg-card">
-    <div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-border text-xs text-muted-foreground">
+    <div class="hidden grid-cols-12 gap-4 px-6 py-3 border-b border-border text-xs text-muted-foreground sm:grid">
       <div class="col-span-5">User</div>
       <div class="col-span-2">Status</div>
       <div class="col-span-3">Last Login</div>
@@ -88,9 +88,9 @@
           $lastLogin = $u->last_login_at ? $u->last_login_at->format('M d, Y') : '—';
         @endphp
 
-        <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center">
-          <div class="col-span-5 flex items-center gap-3 min-w-0">
-            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
+        <div class="grid grid-cols-1 gap-4 px-4 py-4 sm:grid-cols-12 sm:px-6 sm:items-center">
+          <div class="flex min-w-0 items-center gap-3 sm:col-span-5">
+            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
               {{ $initials }}
             </div>
             <div class="min-w-0">
@@ -100,17 +100,19 @@
             </div>
           </div>
 
-          <div class="col-span-2">
+          <div class="flex items-center justify-between gap-3 sm:block sm:col-span-2">
+            <span class="text-xs text-muted-foreground sm:hidden">Status</span>
             <span class="inline-flex items-center rounded-full px-2 py-1 text-xs {{ $statusClass }}">
               {{ $statusText }}
             </span>
           </div>
 
-          <div class="col-span-3 text-sm text-muted-foreground">
+          <div class="flex items-center justify-between gap-3 text-sm text-muted-foreground sm:block sm:col-span-3">
+            <span class="text-xs text-muted-foreground sm:hidden">Last Login</span>
             {{ $lastLogin }}
           </div>
 
-          <div class="col-span-2 flex items-center justify-end gap-2">
+          <div class="flex items-center justify-start gap-2 sm:col-span-2 sm:justify-end">
 
             <a href="{{ route('admin.users.show', $u) }}"
                class="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50">
@@ -133,7 +135,7 @@
                 <i data-lucide="more-horizontal" class="h-4 w-4 text-muted-foreground"></i>
               </summary>
 
-              <div class="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card shadow-xl z-50 overflow-hidden">
+              <div class="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-xl z-50 overflow-hidden">
                 <div class="px-3 py-2 text-xs text-muted-foreground border-b border-border">Actions</div>
 
                 <a href="{{ route('admin.users.show', $u) }}" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/40">
@@ -144,7 +146,7 @@
                 <form method="POST" action="{{ route('admin.users.role', $u) }}" class="px-3 py-2 border-t border-border">
                   @csrf
                   <div class="text-xs text-muted-foreground mb-1">Change role</div>
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <select name="role" class="w-full rounded-md border border-input bg-background/60 px-2 py-1 text-sm">
                       @foreach(['alumni','college','company','admin','super_admin'] as $r)
                         <option value="{{ $r }}" {{ ($u->role === $r) ? 'selected' : '' }}>

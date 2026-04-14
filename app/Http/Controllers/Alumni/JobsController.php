@@ -21,7 +21,8 @@ class JobsController extends Controller
         $q = trim((string) $request->query('q', ''));
         $userId = (int) Auth::id();
 
-        $jobsQuery = Job::query();
+        $jobsQuery = Job::query()
+            ->with(['company.companyProfile']);
 
         if (Schema::hasColumn('jobs', 'status')) {
             $jobsQuery->where('status', 'active');
@@ -70,6 +71,8 @@ class JobsController extends Controller
 
     public function show(Job $job)
     {
+        $job->loadMissing(['company.companyProfile']);
+
         if (Schema::hasColumn('jobs', 'status') && $job->status !== 'active') {
             abort(404);
         }

@@ -24,7 +24,7 @@
   </div>
 
 
-  <div class="inline-flex rounded-lg bg-muted p-1 gap-1" id="tabs">
+  <div class="grid grid-cols-2 rounded-lg bg-muted p-1 gap-1 sm:inline-flex sm:grid-cols-none" id="tabs">
     @foreach($tabs as $i => $t)
       <button
         type="button"
@@ -42,30 +42,32 @@
 
     <div class="space-y-3 tab-panel {{ $i>0 ? 'hidden' : '' }}" data-panel="{{ $t['key'] }}">
       @forelse($list as $it)
-        <div class="rounded-xl border border-border bg-card p-5 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+        <div class="rounded-xl border border-border bg-card p-4 sm:p-5">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex min-w-0 items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
               <i data-lucide="{{ $it['icon'] }}" class="h-5 w-5"></i>
             </div>
 
-            <div>
-              <div class="flex items-center gap-2">
-                <div class="font-semibold">{{ $it['title'] }}</div>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="font-semibold leading-snug break-words">{{ $it['title'] }}</div>
                 <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs {{ $it['status_class'] }}">
                   {{ $it['status_label'] }}
                 </span>
               </div>
 
-              <div class="text-xs text-muted-foreground mt-1">
+              <div class="text-xs text-muted-foreground mt-1 break-words">
                 {{ $it['org'] }} &nbsp;•&nbsp; {{ $it['date_text'] }}
               </div>
             </div>
           </div>
 
           <a href="{{ route('alumni.applications.show', ['type'=>$it['type'], 'id'=>$it['id']]) }}"
-   class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+   class="inline-flex w-full items-center justify-center rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 sm:w-auto sm:flex-shrink-0">
   View Details
 </a>
+          </div>
 
         </div>
       @empty

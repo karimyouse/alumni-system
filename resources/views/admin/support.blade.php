@@ -75,10 +75,10 @@
   </div>
 
 
-  <div class="flex items-center gap-2">
+  <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
     @foreach($tabs as $t)
       <a href="{{ route('admin.support', ['status'=>$t['key']]) }}"
-         class="rounded-md px-3 py-1.5 text-sm border border-border transition
+         class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm border border-border transition
          {{ $status === $t['key'] ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground' }}">
         {{ $t['label'] }} ({{ $t['count'] }})
       </a>
@@ -87,7 +87,7 @@
 
 
   <div class="rounded-xl border border-border bg-card overflow-hidden">
-    <div class="p-6 border-b border-border">
+    <div class="p-4 border-b border-border sm:p-6">
       <div class="text-lg font-semibold">Tickets</div>
     </div>
 
@@ -131,9 +131,9 @@
           <input type="checkbox" id="ticket-modal-{{ $ticket->id }}" class="peer hidden ticket-modal">
 
 
-          <div id="ticket-{{ $ticket->id }}" class="p-6 flex items-center justify-between gap-4">
+          <div id="ticket-{{ $ticket->id }}" class="p-4 flex flex-col gap-4 sm:p-6 xl:flex-row xl:items-center xl:justify-between">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
+              <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
                 {{ $initials }}
               </div>
 
@@ -143,7 +143,7 @@
                     #{{ $ticket->id }}
                   </span>
 
-                  <div class="font-semibold truncate">{{ $titleText }}</div>
+                  <div class="font-semibold truncate sm:whitespace-normal sm:break-words">{{ $titleText }}</div>
 
                   <span class="text-xs rounded-full px-2 py-1 {{ $stClass }}">{{ str_replace('_',' ', $st) }}</span>
                   <span class="text-xs rounded-full px-2 py-1 {{ $prioClass }}">{{ $prio }}</span>
@@ -155,12 +155,12 @@
                   @endif
                 </div>
 
-                <div class="text-xs text-muted-foreground truncate">
+                <div class="text-xs text-muted-foreground truncate sm:whitespace-normal sm:break-words">
                   {{ $name }} ({{ $email }}) • {{ $dateText }}
                 </div>
 
                 @if($roleTxt || $identifierTxt)
-                  <div class="text-xs text-muted-foreground mt-1 truncate">
+                  <div class="text-xs text-muted-foreground mt-1 truncate sm:whitespace-normal sm:break-words">
                     @if($roleTxt) Role: <span class="text-foreground">{{ $roleTxt }}</span>@endif
                     @if($roleTxt && $identifierTxt) • @endif
                     @if($identifierTxt) Identifier: <span class="text-foreground">{{ $identifierTxt }}</span>@endif
@@ -168,7 +168,7 @@
                 @endif
 
                 @if($preview)
-                  <div class="text-xs text-muted-foreground mt-1 truncate">{{ $preview }}</div>
+                  <div class="text-xs text-muted-foreground mt-1 truncate sm:whitespace-normal sm:break-words">{{ $preview }}</div>
                 @endif
 
                 @if($assigned)
@@ -179,16 +179,16 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
-              <form method="POST" action="{{ route('admin.support.status', $ticket) }}" class="flex items-center gap-2">
+            <div class="grid w-full grid-cols-1 gap-2 sm:grid-cols-[1fr_auto] xl:w-auto xl:flex xl:items-center">
+              <form method="POST" action="{{ route('admin.support.status', $ticket) }}" class="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:flex xl:items-center">
                 @csrf
-                <select name="status" class="h-9 rounded-md border border-input bg-background/60 px-2 text-sm">
+                <select name="status" class="h-9 w-full rounded-md border border-input bg-background/60 px-2 text-sm">
                   <option value="open" {{ $st === 'open' ? 'selected' : '' }}>Open</option>
                   <option value="in_progress" {{ $st === 'in_progress' ? 'selected' : '' }}>In Progress</option>
                   <option value="resolved" {{ $st === 'resolved' ? 'selected' : '' }}>Resolved</option>
                 </select>
 
-                <select name="priority" class="h-9 rounded-md border border-input bg-background/60 px-2 text-sm">
+                <select name="priority" class="h-9 w-full rounded-md border border-input bg-background/60 px-2 text-sm">
                   <option value="low" {{ $prio === 'low' ? 'selected' : '' }}>Low</option>
                   <option value="medium" {{ $prio === 'medium' ? 'selected' : '' }}>Medium</option>
                   <option value="high" {{ $prio === 'high' ? 'selected' : '' }}>High</option>
@@ -200,7 +200,7 @@
               </form>
 
               <label for="ticket-modal-{{ $ticket->id }}"
-                     class="cursor-pointer rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center gap-2">
+                     class="cursor-pointer rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center justify-center gap-2">
                 <i data-lucide="message-square" class="h-4 w-4"></i>
                 Respond
               </label>
@@ -217,7 +217,7 @@
                           rounded-2xl border border-border bg-card shadow-2xl
                           overflow-hidden flex flex-col z-[60]">
 
-                <div class="p-6 border-b border-border flex items-start justify-between gap-4 flex-shrink-0">
+                <div class="p-4 border-b border-border flex items-start justify-between gap-4 flex-shrink-0 sm:p-6">
                   <div class="min-w-0">
                     <div class="text-lg font-semibold">Ticket #{{ $ticket->id }}</div>
                     <div class="text-xs text-muted-foreground truncate">{{ $name }} • {{ $email }}</div>
@@ -252,7 +252,7 @@
                   </label>
                 </div>
 
-                <div class="p-6 space-y-4 overflow-y-auto">
+                <div class="p-4 space-y-4 overflow-y-auto sm:p-6">
                   <div class="rounded-xl border border-border p-4">
                     <div class="text-sm font-semibold mb-1">{{ $titleText }}</div>
                     <div class="text-sm text-muted-foreground whitespace-pre-line">{{ $ticket->message }}</div>
@@ -303,9 +303,9 @@
                       @endif
                     </div>
 
-                    <div class="flex items-center justify-end gap-2">
+                    <div class="grid grid-cols-1 gap-2 sm:flex sm:items-center sm:justify-end">
                       <label for="ticket-modal-{{ $ticket->id }}"
-                             class="cursor-pointer rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+                             class="cursor-pointer rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 text-center">
                         Cancel
                       </label>
 

@@ -19,14 +19,14 @@
 @section('content')
 <div class="space-y-6">
 
-  <div class="flex items-start justify-between gap-4 flex-wrap">
-    <div>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
       <h1 class="text-2xl font-bold">Scholarships</h1>
       <p class="text-sm text-muted-foreground">Manage scholarship programs</p>
     </div>
 
     <a href="{{ route('college.scholarships.create') }}"
-       class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+       class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 sm:w-auto">
       <i data-lucide="plus" class="h-4 w-4"></i>
       Add Scholarship
     </a>
@@ -39,12 +39,12 @@
                class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm"
                placeholder="Search by title">
       </div>
-      <div class="flex gap-2">
+      <div class="grid grid-cols-2 gap-2 md:flex">
         <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
           Search
         </button>
         <a href="{{ route('college.scholarships') }}"
-           class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+           class="inline-flex items-center justify-center rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
           Reset
         </a>
       </div>
@@ -53,10 +53,10 @@
 
   <div class="space-y-4">
     @forelse($scholarships as $s)
-      <div class="rounded-xl border border-border bg-card px-5 py-5">
-        <div class="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
+      <div class="rounded-xl border border-border bg-card px-4 py-4 sm:px-5 sm:py-5">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
-          <div class="flex items-center gap-4 min-w-0 flex-1">
+          <div class="flex items-start gap-4 min-w-0 flex-1">
             <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
               <i data-lucide="graduation-cap" class="h-5 w-5"></i>
             </div>
@@ -91,7 +91,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2 flex-wrap justify-end">
+          <div class="grid w-full grid-cols-[auto_auto_1fr] gap-2 sm:flex sm:w-auto sm:flex-shrink-0 sm:items-center sm:justify-end">
             <a href="{{ route('college.scholarships.edit', $s) }}"
                class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
                title="Edit">
@@ -108,7 +108,7 @@
             </form>
 
             <a href="{{ route('college.scholarships.applicants', $s) }}"
-               class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
+               class="inline-flex items-center justify-center rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 transition">
               View Applicants
             </a>
           </div>

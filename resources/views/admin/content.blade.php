@@ -53,10 +53,10 @@
   </div>
 
 
-  <div class="flex flex-wrap items-center gap-2">
+  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center">
     @foreach($tabs as $t)
       <a href="{{ route('admin.content', ['tab'=>$t['key'], 'status'=>$status]) }}"
-         class="rounded-md px-3 py-1.5 text-sm border border-border transition inline-flex items-center gap-2
+         class="rounded-md px-3 py-2 text-sm border border-border transition inline-flex items-center justify-center gap-2
          {{ $tab === $t['key'] ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground' }}">
         <i data-lucide="{{ $t['icon'] }}" class="h-4 w-4"></i>
         {{ $t['label'] }} ({{ $t['count'] }})
@@ -65,11 +65,11 @@
   </div>
 
 
-  <div class="flex items-center gap-2">
-    <div class="text-sm text-muted-foreground">Status:</div>
+  <div class="flex flex-wrap items-center gap-2">
+    <div class="w-full text-sm text-muted-foreground sm:w-auto">Status:</div>
     @foreach($statusTabs as $s)
       <a href="{{ route('admin.content', ['tab'=>$tab, 'status'=>$s['key']]) }}"
-         class="rounded-md px-3 py-1.5 text-sm border border-border transition
+         class="inline-flex flex-1 items-center justify-center rounded-md px-3 py-2 text-sm border border-border transition sm:flex-none
          {{ $status === $s['key'] ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground' }}">
         {{ $s['label'] }}
       </a>
@@ -78,7 +78,7 @@
 
 
   <div class="rounded-xl border border-border bg-card overflow-hidden">
-    <div class="p-6 border-b border-border">
+    <div class="p-4 border-b border-border sm:p-6">
       <div class="text-lg font-semibold">Items</div>
       <div class="text-sm text-muted-foreground">View details + approve/reject with admin note</div>
     </div>
@@ -114,25 +114,25 @@
             ?? null;
         @endphp
 
-        <div class="p-6 flex items-center justify-between gap-4">
+        <div class="p-4 flex flex-col gap-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
               <i data-lucide="{{ $tab === 'workshops' ? 'calendar-days' : ($tab === 'scholarships' ? 'graduation-cap' : ($tab === 'announcements' ? 'megaphone' : 'award')) }}"
                  class="h-5 w-5"></i>
             </div>
 
             <div class="min-w-0">
-              <div class="font-semibold truncate">{{ $itemTitle }}</div>
-              <div class="text-xs text-muted-foreground truncate">{{ $meta }}</div>
+              <div class="font-semibold truncate sm:whitespace-normal sm:break-words">{{ $itemTitle }}</div>
+              <div class="text-xs text-muted-foreground truncate sm:whitespace-normal sm:break-words">{{ $meta }}</div>
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="grid w-full grid-cols-[auto_1fr_auto_auto] gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end">
             <span class="text-xs rounded-full px-2 py-1 {{ $stClass }}">{{ strtolower((string)$st) }}</span>
 
 
             <button type="button"
-                    class="h-9 rounded-md border border-border px-3 text-sm hover:bg-accent/50 inline-flex items-center gap-2"
+                    class="h-9 rounded-md border border-border px-3 text-sm hover:bg-accent/50 inline-flex items-center justify-center gap-2"
                     data-title="{{ e($itemTitle) }}"
                     data-meta="{{ e($meta) }}"
                     data-status="{{ e(strtolower((string)$st)) }}"
@@ -183,8 +183,8 @@
   <div class="fixed inset-0 bg-black/60 z-[9998]" onclick="closeAllModals()"></div>
 
   <div class="fixed z-[9999] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-2xl rounded-2xl border border-border bg-card shadow-2xl">
-    <div class="p-6 border-b border-border flex items-center justify-between">
-      <div>
+    <div class="p-4 border-b border-border flex items-start justify-between gap-3 sm:p-6">
+      <div class="min-w-0">
         <div class="text-lg font-semibold" id="vmTitle">Item</div>
         <div class="text-xs text-muted-foreground" id="vmMeta">—</div>
       </div>
@@ -196,7 +196,7 @@
       </button>
     </div>
 
-    <div class="p-6 space-y-4">
+    <div class="p-4 space-y-4 sm:p-6">
       <div class="flex items-center gap-2">
         <span class="text-xs rounded-full px-2 py-1" id="vmStatus">—</span>
       </div>
@@ -222,8 +222,8 @@
   <div class="fixed inset-0 bg-black/60 z-[9998]" onclick="closeAllModals()"></div>
 
   <div class="fixed z-[9999] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-xl rounded-2xl border border-border bg-card shadow-2xl">
-    <div class="p-6 border-b border-border flex items-center justify-between">
-      <div>
+    <div class="p-4 border-b border-border flex items-start justify-between gap-3 sm:p-6">
+      <div class="min-w-0">
         <div class="text-lg font-semibold">Reject Item</div>
         <div class="text-xs text-muted-foreground" id="rmTitle">—</div>
       </div>
@@ -235,7 +235,7 @@
       </button>
     </div>
 
-    <form method="POST" id="rejectForm" class="p-6 space-y-4">
+    <form method="POST" id="rejectForm" class="p-4 space-y-4 sm:p-6">
       @csrf
       <div>
         <label class="text-sm font-medium">Admin Note (optional)</label>
@@ -244,7 +244,7 @@
                   placeholder="Write the reason for rejection..."></textarea>
       </div>
 
-      <div class="flex items-center justify-end gap-2">
+      <div class="grid grid-cols-1 gap-2 sm:flex sm:items-center sm:justify-end">
         <button type="button"
                 class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50"
                 onclick="closeAllModals()">

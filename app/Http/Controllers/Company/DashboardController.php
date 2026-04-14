@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
+use App\Models\CompanyProfile;
 use App\Models\Job;
 use App\Models\JobApplication;
 use App\Models\User;
 use App\Models\Workshop;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
@@ -16,6 +18,7 @@ class DashboardController extends Controller
     {
         $company = Auth::user();
         $companyId = (int) $company->id;
+        $companyProfile = $company->companyProfile;
 
         $jobsQuery = Job::query()
             ->where('organizer_role', 'company')
@@ -130,6 +133,7 @@ class DashboardController extends Controller
 
         return view('company.index', array_merge([
             'companyName' => $company->name ?? 'Company',
+            'companyProfile' => $companyProfile,
             'jobsCount' => $jobsCount,
             'activeJobsCount' => $activeJobsCount,
             'applicationsCount' => $applicationsCount,
@@ -143,6 +147,52 @@ class DashboardController extends Controller
             'recentApplications' => $recentApplications,
             'recommendedCandidates' => $recommendedCandidates,
         ], $this->buildNavCounts()));
+    }
+
+    public function editProfile()
+    {
+        $company = Auth::user();
+        $companyProfile = $company->companyProfile;
+
+        return view('company.profile', array_merge([
+            'companyName' => $company->name ?? 'Company',
+            'companyProfile' => $companyProfile,
+        ], $this->buildNavCounts()));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $company = Auth::user();
+
+        $data = $request->validate([
+            'company_name' => ['required', 'string', 'max:255'],
+            'contact_person_name' => ['nullable', 'string', 'max:255'],
+            'industry' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'website' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        $profile = CompanyProfile::firstOrNew(['user_id' => $company->id]);
+        $existingStatus = $profile->exists ? ($profile->status ?? 'approved') : 'approved';
+
+        $profile->fill([
+            'company_name' => $data['company_name'],
+            'contact_person_name' => $data['contact_person_name'] ?? null,
+            'industry' => $data['industry'] ?? null,
+            'location' => $data['location'] ?? null,
+            'website' => $data['website'] ?? null,
+            'description' => $data['description'] ?? null,
+            'status' => $existingStatus,
+        ]);
+
+        $profile->save();
+
+        $company->update(['name' => $data['company_name']]);
+
+        return redirect()
+            ->route('company.profile.edit')
+            ->with('toast_success', 'Company profile updated successfully.');
     }
 
     private function buildNavCounts(): array

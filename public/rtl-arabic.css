@@ -148,3 +148,32 @@ html[lang="ar"] body.dashboard-sidebar-collapsed #dashboardSidebar [data-sidebar
 html[lang="ar"] body.dashboard-sidebar-collapsed #dashboardSidebar form button[data-sidebar-item] {
     justify-content: center !important;
 }
+
+@media (max-width: 767.98px) {
+    html[lang="ar"] body {
+        overflow-x: hidden;
+    }
+
+    html[lang="ar"] #dashboardContent > header {
+        text-align: right;
+    }
+
+    html[lang="ar"] #dashboardContent > header h1,
+    html[lang="ar"] .truncate {
+        min-width: 0;
+    }
+
+    html[lang="ar"] [data-lang-menu],
+    html[lang="ar"] #notifMenu {
+        max-width: calc(100vw - 1.5rem);
+    }
+
+    html[lang="ar"] table {
+        min-width: 42rem;
+    }
+
+    html[lang="ar"] .overflow-auto,
+    html[lang="ar"] .overflow-x-auto {
+        direction: rtl;
+    }
+}

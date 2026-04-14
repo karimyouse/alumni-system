@@ -24,29 +24,29 @@
 @section('content')
 <div class="space-y-6">
 
-  <div class="flex items-start justify-between gap-4 flex-wrap">
-    <div>
-      <h1 class="text-2xl font-bold">{{ $job->title }}</h1>
-      <p class="text-sm text-muted-foreground">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
+      <h1 class="text-2xl font-bold leading-tight break-words">{{ $job->title }}</h1>
+      <p class="text-sm text-muted-foreground break-words">
         {{ $job->company_name }} • {{ $job->location ?: '—' }} • {{ $job->type ?: '—' }}
       </p>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center">
       <a href="{{ route('company.jobs.edit', $job) }}"
-         class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+         class="inline-flex items-center justify-center rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
         Edit Job
       </a>
 
       <a href="{{ route('company.jobs') }}"
-         class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+         class="inline-flex items-center justify-center rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
         Back
       </a>
     </div>
   </div>
 
   <div class="rounded-xl border border-border bg-card overflow-hidden">
-    <div class="overflow-auto">
+    <div class="hidden overflow-auto md:block">
       <table class="w-full">
         <thead class="border-b bg-muted/40">
           <tr>
@@ -98,6 +98,55 @@
           @endforelse
         </tbody>
       </table>
+    </div>
+
+    <div class="divide-y divide-border md:hidden">
+      @forelse($apps as $a)
+        @php [$label,$cls] = $statusPill($a->status ?? 'pending'); @endphp
+
+        <div class="p-4 space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+              <i data-lucide="user" class="h-5 w-5"></i>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold leading-snug break-words">{{ $a->alumni?->name ?? 'Alumni' }}</div>
+              <div class="text-xs text-muted-foreground mt-1 break-words">
+                {{ $a->alumni?->academic_id ?? '' }} • {{ $a->alumni?->email ?? '' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 text-sm">
+            <div class="flex justify-between gap-3">
+              <span class="text-muted-foreground">Applied</span>
+              <span class="text-right break-words">{{ $a->applied_date ?? $a->created_at?->format('M d, Y') }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-muted-foreground">Status</span>
+              <span class="text-xs rounded-full px-2 py-1 {{ $cls }}">{{ $label }}</span>
+            </div>
+          </div>
+
+          <form method="POST" action="{{ route('company.applications.status', $a) }}" class="grid grid-cols-1 gap-2">
+            @csrf
+            <select name="status" class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm">
+              <option value="pending"  {{ ($a->status==='pending')?'selected':'' }}>Pending</option>
+              <option value="reviewed" {{ ($a->status==='reviewed')?'selected':'' }}>Under Review</option>
+              <option value="accepted" {{ ($a->status==='accepted')?'selected':'' }}>Accepted</option>
+              <option value="rejected" {{ ($a->status==='rejected')?'selected':'' }}>Rejected</option>
+            </select>
+
+            <button class="rounded-md border border-border px-3 py-2 text-sm hover:bg-accent/50">
+              Update
+            </button>
+          </form>
+        </div>
+      @empty
+        <div class="p-6 text-sm text-muted-foreground">No applicants yet.</div>
+      @endforelse
     </div>
   </div>
 

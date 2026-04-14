@@ -27,10 +27,10 @@
 @section('content')
 <div class="space-y-6">
 
-  <div class="flex items-center justify-between gap-4">
-    <div>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="min-w-0">
       <h1 class="text-2xl font-bold">Scholarships</h1>
-      <p class="text-muted-foreground">Explore available scholarships</p>
+      <p class="text-sm text-muted-foreground sm:text-base">Explore available scholarships</p>
     </div>
   </div>
 
@@ -41,15 +41,16 @@
         $applied = in_array($s->id, $appliedIds ?? []);
       @endphp
 
-      <div class="rounded-xl border border-border bg-card p-6 flex items-center justify-between gap-4">
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+      <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="flex min-w-0 items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
             <i data-lucide="graduation-cap" class="h-5 w-5"></i>
           </div>
 
-          <div>
+          <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
-              <h3 class="font-semibold text-lg">{{ $s->title }}</h3>
+              <h3 class="font-semibold text-lg leading-snug break-words">{{ $s->title }}</h3>
               <span class="text-xs rounded-full px-2 py-1 {{ $pillCls }}">
                 {{ $pillTxt }}
               </span>
@@ -69,22 +70,22 @@
             </div>
 
             @if(!empty($s->description))
-              <p class="text-sm text-muted-foreground mt-2 max-w-3xl">
+              <p class="text-sm text-muted-foreground mt-2 max-w-3xl break-words">
                 {{ $s->description }}
               </p>
             @endif
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-shrink-0 sm:items-center">
           <a href="{{ route('alumni.scholarships.show', $s) }}"
-             class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+             class="inline-flex items-center justify-center rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
             View
           </a>
 
           @if($applied)
             <button type="button"
-                    class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground opacity-70 cursor-not-allowed"
+                    class="w-full rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground opacity-70 cursor-not-allowed sm:w-auto"
                     disabled>
               Applied
             </button>
@@ -92,11 +93,12 @@
             <form method="POST" action="{{ route('alumni.scholarships.apply', $s) }}">
               @csrf
               <button type="submit"
-                      class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+                      class="w-full rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 sm:w-auto">
                 Apply
               </button>
             </form>
           @endif
+        </div>
         </div>
       </div>
     @empty

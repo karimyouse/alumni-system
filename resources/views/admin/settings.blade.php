@@ -40,20 +40,20 @@
 <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
   @csrf
 
-  <div class="flex items-start justify-between gap-4">
-    <div>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
       <h1 class="text-2xl font-bold">System Settings</h1>
       <p class="text-sm text-muted-foreground">Configure system settings</p>
     </div>
 
     <button type="submit"
-            class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 inline-flex items-center gap-2">
+            class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 sm:w-auto">
       <i data-lucide="save" class="h-4 w-4"></i>
       Save
     </button>
   </div>
 
-  <div class="rounded-xl border border-border bg-card p-6">
+  <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
     <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
       <i data-lucide="palette" class="h-4 w-4"></i>
       Appearance
@@ -94,7 +94,7 @@
     </div>
   </div>
 
-  <div class="rounded-xl border border-border bg-card p-6">
+  <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
     <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
       <i data-lucide="mail" class="h-4 w-4"></i>
       Email Notifications
@@ -102,8 +102,8 @@
     <p class="text-sm text-muted-foreground mb-6">Configure email settings</p>
 
     @php $s1 = $switch('email_new_user_notifications', (bool) $settings->email_new_user_notifications); @endphp
-    <div class="flex items-center justify-between py-4 border-t border-border">
-      <div>
+    <div class="flex items-start justify-between gap-4 py-4 border-t border-border">
+      <div class="min-w-0">
         <div class="text-sm font-medium">New User Notifications</div>
         <div class="text-xs text-muted-foreground">Email admin when new users register</div>
       </div>
@@ -115,8 +115,8 @@
     </div>
 
     @php $s2 = $switch('email_content_approval_alerts', (bool) $settings->email_content_approval_alerts); @endphp
-    <div class="flex items-center justify-between py-4 border-t border-border">
-      <div>
+    <div class="flex items-start justify-between gap-4 py-4 border-t border-border">
+      <div class="min-w-0">
         <div class="text-sm font-medium">Content Approval Alerts</div>
         <div class="text-xs text-muted-foreground">Email when content needs approval</div>
       </div>
@@ -128,8 +128,8 @@
     </div>
 
     @php $s3 = $switch('email_weekly_reports', (bool) $settings->email_weekly_reports); @endphp
-    <div class="flex items-center justify-between py-4 border-t border-border">
-      <div>
+    <div class="flex items-start justify-between gap-4 py-4 border-t border-border">
+      <div class="min-w-0">
         <div class="text-sm font-medium">Weekly Reports</div>
         <div class="text-xs text-muted-foreground">Send weekly summary emails</div>
       </div>
@@ -141,15 +141,15 @@
     </div>
   </div>
 
-  <div class="rounded-xl border border-border bg-card p-6">
+  <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
     <div class="text-lg font-semibold mb-1 inline-flex items-center gap-2">
       <i data-lucide="database" class="h-4 w-4"></i>
       Data Management
     </div>
     <p class="text-sm text-muted-foreground mb-6">Backup and restore options</p>
 
-    <div class="flex items-center justify-between py-4 border-t border-border">
-      <div>
+    <div class="flex flex-col gap-3 py-4 border-t border-border sm:flex-row sm:items-center sm:justify-between">
+      <div class="min-w-0">
         <div class="text-sm font-medium">Last Backup</div>
         <div class="text-xs text-muted-foreground">{{ $lastBackupText }}</div>
       </div>
@@ -157,15 +157,15 @@
       <button type="submit"
               name="backup_now"
               value="1"
-              class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 inline-flex items-center gap-2">
+              class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 sm:w-auto">
         <i data-lucide="hard-drive" class="h-4 w-4"></i>
         Backup Now
       </button>
     </div>
 
     @php $s4 = $switch('auto_backup', (bool) $settings->auto_backup); @endphp
-    <div class="flex items-center justify-between py-4 border-t border-border">
-      <div>
+    <div class="flex items-start justify-between gap-4 py-4 border-t border-border">
+      <div class="min-w-0">
         <div class="text-sm font-medium">Auto Backup</div>
         <div class="text-xs text-muted-foreground">Daily automatic backups</div>
       </div>

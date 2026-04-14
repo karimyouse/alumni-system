@@ -19,14 +19,14 @@
 @section('content')
 <div class="space-y-6">
 
-  <div class="flex items-start justify-between gap-4 flex-wrap">
-    <div>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
       <h1 class="text-2xl font-bold">Success Stories</h1>
       <p class="text-sm text-muted-foreground">Showcase alumni achievements</p>
     </div>
 
     <a href="{{ route('college.successStories.create') }}"
-       class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
+       class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 sm:w-auto">
       <i data-lucide="plus" class="h-4 w-4"></i>
       Add Story
     </a>
@@ -34,10 +34,10 @@
 
   <div class="space-y-4">
     @forelse($stories as $story)
-      <div class="rounded-xl border border-border bg-card px-5 py-5">
-        <div class="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
+      <div class="rounded-xl border border-border bg-card px-4 py-4 sm:px-5 sm:py-5">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
-          <div class="flex items-center gap-4 min-w-0 flex-1">
+          <div class="flex items-start gap-4 min-w-0 flex-1">
             <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-sm font-semibold text-foreground flex-shrink-0">
               {{ $story->display_initials }}
             </div>
@@ -53,7 +53,7 @@
                 </span>
               </div>
 
-              <div class="mt-1 text-sm text-muted-foreground">
+              <div class="mt-1 text-sm text-muted-foreground break-words">
                 {{ $story->name }} - Class of {{ $story->graduation_year }}
               </div>
 
@@ -68,7 +68,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2 flex-wrap justify-end">
+          <div class="flex w-full items-center gap-2 flex-wrap justify-start sm:w-auto sm:flex-shrink-0 sm:justify-end">
             <a href="{{ route('college.successStories.edit', $story) }}"
                class="h-10 w-10 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent/50 transition"
                title="Edit">

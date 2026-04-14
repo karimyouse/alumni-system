@@ -26,7 +26,7 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     @forelse($topThree as $item)
-      <div class="rounded-xl border {{ $item['rank'] === 1 ? 'border-yellow-500/40' : 'border-border' }} bg-card p-6 text-center relative">
+      <div class="rounded-xl border {{ $item['rank'] === 1 ? 'border-yellow-500/40' : 'border-border' }} bg-card p-4 text-center relative sm:p-6">
         <div class="absolute -top-3 left-1/2 -translate-x-1/2">
           <span class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-background border border-border text-xs font-semibold">
             {{ $item['rank'] }}
@@ -43,7 +43,7 @@
           {{ $item['initials'] }}
         </div>
 
-        <div class="mt-3 font-semibold">
+        <div class="mt-3 font-semibold break-words">
           {{ $item['name'] }}
           @if($item['is_me'])
             <span class="text-xs text-primary">(You)</span>
@@ -65,7 +65,7 @@
   </div>
 
   <div class="rounded-xl border border-border bg-card">
-    <div class="p-6 border-b border-border flex items-center justify-between gap-3">
+    <div class="p-4 border-b border-border flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <div class="flex items-center gap-2">
         <i data-lucide="trophy" class="h-4 w-4"></i>
         <h2 class="font-semibold">Full Rankings</h2>
@@ -80,7 +80,7 @@
 
     <div class="p-6 space-y-3">
       @forelse($ranked as $item)
-        <div class="flex items-center justify-between rounded-lg p-4 {{ $item['is_me'] ? 'bg-primary/10 border border-primary/20' : 'bg-accent/40' }}">
+        <div class="flex flex-col gap-3 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between {{ $item['is_me'] ? 'bg-primary/10 border border-primary/20' : 'bg-accent/40' }}">
           <div class="flex items-center gap-3 min-w-0">
             <div class="w-6 text-xs text-muted-foreground font-semibold">{{ $item['rank'] }}</div>
 
@@ -96,7 +96,7 @@
                 @endif
               </div>
 
-              <div class="text-xs text-muted-foreground">
+              <div class="text-xs text-muted-foreground break-words">
                 {{ $item['activities'] }} activities •
                 {{ $item['applications_count'] }} applications •
                 {{ $item['workshops_count'] }} workshops •
@@ -105,7 +105,7 @@
             </div>
           </div>
 
-          <div class="text-right">
+          <div class="text-left sm:text-right">
             <div class="text-sm font-semibold text-primary">{{ number_format($item['points']) }}</div>
             <div class="text-xs text-muted-foreground">points</div>
           </div>

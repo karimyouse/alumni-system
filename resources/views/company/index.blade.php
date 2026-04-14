@@ -23,9 +23,20 @@
         <p class="text-sm text-muted-foreground mt-1">
           Find qualified graduates and grow your team with top talent.
         </p>
+        @if(empty($companyProfile?->description) || empty($companyProfile?->industry) || empty($companyProfile?->website))
+          <p class="mt-2 text-xs text-muted-foreground">
+            Complete your company profile so alumni can review your details before applying.
+          </p>
+        @endif
       </div>
 
       <div class="flex items-center gap-2 flex-wrap">
+    <a href="{{ route('company.profile.edit') }}"
+     class="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+    <i data-lucide="building-2" class="h-4 w-4"></i>
+    Company Profile
+    </a>
+
     <a href="{{ route('company.workshops.create') }}"
      class="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
     <i data-lucide="calendar-days" class="h-4 w-4"></i>

@@ -45,15 +45,16 @@
         $canRegister = (!$isReg && !$isFull);
       @endphp
 
-      <div class="rounded-xl border border-border bg-card p-6 flex items-center justify-between">
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+      <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="flex min-w-0 items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
             <i data-lucide="calendar-days" class="h-5 w-5"></i>
           </div>
 
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="font-semibold text-lg">{{ $w->title }}</h3>
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="font-semibold text-lg leading-snug break-words">{{ $w->title }}</h3>
 
               @if($isReg)
                 <span class="text-xs rounded-full bg-green-500/15 text-green-400 px-2 py-1">Registered</span>
@@ -71,7 +72,7 @@
                 <i data-lucide="clock" class="h-3 w-3"></i> {{ $w->time }}
               </span>
 
-              <span class="inline-flex items-center gap-1">
+              <span class="inline-flex items-center gap-1 break-words">
                 <i data-lucide="map-pin" class="h-3 w-3"></i> {{ $w->location }}
               </span>
 
@@ -87,24 +88,33 @@
           </div>
         </div>
 
-        <div>
+        <div class="w-full sm:w-auto sm:flex-shrink-0">
           @if($isReg)
             <form method="POST" action="{{ route('alumni.workshops.cancel', $w) }}">
               @csrf
-              <button class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+              <button class="w-full rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 sm:w-auto">
                 Cancel Registration
               </button>
             </form>
           @else
             <form method="POST" action="{{ route('alumni.workshops.register', $w) }}">
               @csrf
-              <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              <button class="w-full rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
                       {{ $canRegister ? '' : 'disabled' }}>
                 Register
               </button>
             </form>
           @endif
         </div>
+        </div>
+
+        @if(($w->company || $w->company_user_id) && (($w->organizer_role ?? null) === 'company' || $w->company_user_id))
+          @include('partials.company-trust-card', [
+            'company' => $w->company,
+            'fallbackName' => $w->company?->name,
+            'variant' => 'embedded',
+          ])
+        @endif
       </div>
     @endforeach
   </div>

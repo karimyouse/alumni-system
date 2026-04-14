@@ -45,4 +45,9 @@ class User extends Authenticatable implements CanResetPasswordContract
     {
         return $this->hasOne(\App\Models\AlumniProfile::class, 'user_id');
     }
+
+    public function companyProfile()
+    {
+        return $this->hasOne(\App\Models\CompanyProfile::class, 'user_id');
+    }
 }

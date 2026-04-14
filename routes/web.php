@@ -288,6 +288,8 @@ Route::prefix('college')->middleware(['auth', 'role:college'])->group(function (
 Route::prefix('company')->middleware(['auth', 'role:company', 'company.approved'])->group(function () {
 
     Route::get('/', [CompanyDashboardController::class, 'index'])->name('company.dashboard');
+    Route::get('/profile', [CompanyDashboardController::class, 'editProfile'])->name('company.profile.edit');
+    Route::post('/profile', [CompanyDashboardController::class, 'updateProfile'])->name('company.profile.update');
 
     Route::get('/jobs', [CompanyJobsController::class, 'index'])->name('company.jobs');
     Route::get('/jobs/create', [CompanyJobsController::class, 'create'])->name('company.jobs.create');

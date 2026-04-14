@@ -41,7 +41,7 @@ class ApplicationsController extends Controller
     {
         $userId = (int) Auth::id();
 
-        $jobApps = JobApplication::with('job')
+        $jobApps = JobApplication::with('job.company.companyProfile')
             ->where('alumni_user_id', $userId)
             ->latest()
             ->get()
@@ -77,7 +77,7 @@ class ApplicationsController extends Controller
                 ];
             })->values();
 
-        $wsRegs = WorkshopRegistration::with('workshop')
+        $wsRegs = WorkshopRegistration::with('workshop.company.companyProfile')
             ->where('alumni_user_id', $userId)
             ->latest()
             ->get()
@@ -125,7 +125,7 @@ class ApplicationsController extends Controller
         $userId = Auth::id();
 
         if ($type === 'jobs') {
-            $app = JobApplication::with('job')
+            $app = JobApplication::with('job.company.companyProfile')
                 ->where('alumni_user_id', $userId)
                 ->findOrFail($id);
 
@@ -148,7 +148,7 @@ class ApplicationsController extends Controller
             ]);
         }
 
-        $app = WorkshopRegistration::with('workshop')
+        $app = WorkshopRegistration::with('workshop.company.companyProfile')
             ->where('alumni_user_id', $userId)
             ->findOrFail($id);
 

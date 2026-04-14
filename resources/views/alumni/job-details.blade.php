@@ -19,10 +19,10 @@
 @section('content')
 <div class="space-y-6 max-w-4xl">
 
-  <div class="flex items-start justify-between gap-4">
-    <div>
-      <h1 class="text-2xl font-bold">{{ $job->title }}</h1>
-      <p class="text-sm text-muted-foreground">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
+      <h1 class="text-2xl font-bold leading-tight break-words">{{ $job->title }}</h1>
+      <p class="text-sm text-muted-foreground break-words">
         {{ $job->company_name ?? 'Company' }}
         @if($job->location) • {{ $job->location }} @endif
         @if($job->type) • {{ $job->type }} @endif
@@ -30,12 +30,12 @@
     </div>
 
     <a href="{{ route('alumni.jobs') }}"
-       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
+       class="inline-flex w-full items-center justify-center rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 sm:w-auto">
       Back
     </a>
   </div>
 
-  <div class="rounded-xl border border-border bg-card p-6 space-y-4">
+  <div class="rounded-xl border border-border bg-card p-4 space-y-4 sm:p-6">
     <div class="grid md:grid-cols-3 gap-4 text-sm">
       <div>
         <div class="text-muted-foreground">Company</div>
@@ -70,35 +70,47 @@
 
     <div>
       <div class="font-semibold mb-2">Description</div>
-      <div class="text-sm text-muted-foreground whitespace-pre-line">
+      <div class="text-sm text-muted-foreground whitespace-pre-line break-words">
         {{ $job->description ?? '—' }}
       </div>
     </div>
 
-    <div class="flex flex-wrap gap-2 pt-2">
+  </div>
 
+  @if($job->company || $job->company_name)
+    @include('partials.company-trust-card', [
+      'company' => $job->company,
+      'fallbackName' => $job->company_name,
+    ])
+  @endif
 
-      @if($isApplied)
-        <button class="rounded-md bg-secondary px-4 py-2 text-sm text-secondary-foreground cursor-not-allowed" disabled>
-          Applied
-        </button>
-      @else
-        <form method="POST" action="{{ route('alumni.jobs.apply', $job) }}">
+  <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="text-sm text-muted-foreground">
+        Review the company details above before sending your application.
+      </div>
+
+      <div class="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+        @if($isApplied)
+          <button class="w-full rounded-md bg-secondary px-4 py-2 text-sm text-secondary-foreground cursor-not-allowed sm:w-auto" disabled>
+            Applied
+          </button>
+        @else
+          <form method="POST" action="{{ route('alumni.jobs.apply', $job) }}">
+            @csrf
+            <button class="w-full rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 sm:w-auto">
+              Apply Now
+            </button>
+          </form>
+        @endif
+
+        <form method="POST" action="{{ route('alumni.jobs.save', $job) }}">
           @csrf
-          <button class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
-            Apply Now
+          <button class="w-full rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50 sm:w-auto">
+            {{ $isSaved ? 'Unsave' : 'Save Job' }}
           </button>
         </form>
-      @endif
-
-
-      <form method="POST" action="{{ route('alumni.jobs.save', $job) }}">
-        @csrf
-        <button class="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent/50">
-          {{ $isSaved ? 'Unsave' : 'Save Job' }}
-        </button>
-      </form>
-
+      </div>
     </div>
   </div>
 
