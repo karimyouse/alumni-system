@@ -98,24 +98,28 @@ html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] {
     text-align: right !important;
 }
 
-html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item] {
+html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item],
+html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] {
+    direction: rtl;
     justify-content: flex-start !important;
+    text-align: right !important;
 }
 
-html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item] > span:first-child,
-html[lang="ar"] #dashboardSidebar [data-sidebar-brand],
-
-
 html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item] > span:first-child {
+    direction: rtl;
+    display: flex;
+    align-items: center;
     width: 100%;
     margin-left: 0;
+    margin-right: 0;
     justify-content: flex-start !important;
+    text-align: right !important;
 }
 
 html[lang="ar"] #dashboardSidebar [data-sidebar-badge] {
     width: auto !important;
-    margin-left: 0 !important;
     margin-right: auto !important;
+    margin-left: 0 !important;
     flex: 0 0 auto !important;
 }
 
@@ -144,12 +148,15 @@ html[lang="ar"] #dashboardSidebar .sidebar-item-icon {
     margin-left: 0 !important;
 }
 
-html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] {
-    flex-direction: row-reverse;
+html[lang="ar"] #dashboardSidebar .border-t > div:first-child {
+    direction: rtl;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: right !important;
 }
 
-html[lang="ar"] #dashboardSidebar .border-t > div:first-child {
-    align-items: flex-start !important;
+html[lang="ar"] #dashboardSidebar [data-sidebar-brand] {
+    direction: rtl;
     justify-content: flex-start !important;
     text-align: right !important;
 }
@@ -169,6 +176,13 @@ html[lang="ar"] #dashboardSidebar form {
 html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] {
     width: 100%;
     justify-content: flex-start !important;
+    text-align: right !important;
+}
+
+html[lang="ar"] #dashboardSidebar form button[data-sidebar-item] [data-sidebar-footer-label],
+html[lang="ar"] #dashboardSidebar nav a[data-sidebar-item] [data-sidebar-text] {
+    display: block;
+    min-width: 0;
     text-align: right !important;
 }
 
@@ -204,6 +218,11 @@ html[lang="ar"] body.dashboard-sidebar-collapsed #dashboardSidebar form button[d
 
     html[lang="ar"] .overflow-auto,
     html[lang="ar"] .overflow-x-auto {
+        direction: ltr;
+    }
+
+    html[lang="ar"] .overflow-auto > *,
+    html[lang="ar"] .overflow-x-auto > * {
         direction: rtl;
     }
 }

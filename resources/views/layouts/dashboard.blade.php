@@ -286,7 +286,7 @@
 
       <div class="border-b p-4 flex-shrink-0 flex items-center justify-between gap-2">
         <a href="{{ $brandHref }}"
-           class="flex items-start gap-3 min-w-0 flex-1 {{ $isRtl ? 'flex-row-reverse text-right' : '' }}"
+           class="flex items-start gap-3 min-w-0 flex-1 {{ $isRtl ? 'text-right' : '' }}"
            data-sidebar-brand>
           <div class="brand-icon-box flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground flex-shrink-0">
             <i data-lucide="graduation-cap" class="h-5 w-5"></i>
@@ -328,8 +328,8 @@
 
           <a href="{{ $item['href'] }}"
              data-sidebar-item
-             class="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition {{ $active ? 'sidebar-active' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground' }} {{ $isRtl ? 'flex-row-reverse text-right' : '' }}">
-            <span class="flex items-center gap-3 min-w-0 flex-1 {{ $isRtl ? 'flex-row-reverse text-right justify-start' : '' }}">
+             class="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition {{ $active ? 'sidebar-active' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground' }} {{ $isRtl ? 'text-right' : '' }}">
+            <span class="flex items-center gap-3 min-w-0 flex-1 {{ $isRtl ? 'text-right justify-start' : '' }}">
               <i data-lucide="{{ $item['icon'] ?? 'circle' }}" class="h-4 w-4 sidebar-item-icon flex-shrink-0"></i>
               <span class="truncate" data-sidebar-text>{{ $item['label'] }}</span>
             </span>
@@ -345,7 +345,7 @@
       </nav>
 
       <div class="border-t p-4 flex-shrink-0">
-        <div class="flex items-center gap-2 mb-4 w-full {{ $isRtl ? 'flex-row-reverse text-right' : '' }}">
+        <div class="flex items-center gap-2 mb-4 w-full {{ $isRtl ? 'text-right' : '' }}">
           <div class="dashboard-user-avatar w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
             {{ $initials }}
           </div>
@@ -361,7 +361,7 @@
           @csrf
           <button type="submit"
                   data-sidebar-item
-                  class="w-full inline-flex items-center rounded-md px-3 py-2 text-sm hover:bg-accent/50 transition {{ $isRtl ? 'flex-row-reverse justify-start text-right gap-2' : 'justify-start gap-2' }}">
+                  class="w-full inline-flex items-center rounded-md px-3 py-2 text-sm hover:bg-accent/50 transition {{ $isRtl ? 'justify-start text-right gap-2' : 'justify-start gap-2' }}">
             <i data-lucide="log-out" class="h-4 w-4 sidebar-item-icon flex-shrink-0"></i>
             <span class="w-full {{ $isRtl ? 'text-right' : 'text-left' }}" data-sidebar-footer-label>{{ __('nav.logout') }}</span>
           </button>
