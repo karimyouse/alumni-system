@@ -635,5 +635,14 @@
   "ui.update_scholarship": "Update scholarship details",
   "ui.user_profile": "User Profile",
   "ui.your_major": "Your major",
-  "Profile & Security": "Profile & Security"
+  "Profile & Security": "Profile & Security",
+  "Change Password": "Change Password",
+  "Enter your current password before setting a new one.": "Enter your current password before setting a new one.",
+  "Last changed :date.": "Last changed :date.",
+  "Current Password": "Current Password",
+  "Confirm New Password": "Confirm New Password",
+  "Use at least 8 characters with letters and numbers.": "Use at least 8 characters with letters and numbers.",
+  "Update Password": "Update Password",
+  "The current password is incorrect.": "The current password is incorrect.",
+  "Password changed successfully.": "Password changed successfully."
 }

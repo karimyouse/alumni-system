@@ -655,5 +655,14 @@
   "Under Review": "قيد المراجعة",
   "Review and manage alumni applications": "مراجعة وإدارة طلبات الخريجين"
 ,
-  "Profile & Security": "الملف والأمان"
+  "Profile & Security": "الملف والأمان",
+  "Change Password": "تغيير كلمة المرور",
+  "Enter your current password before setting a new one.": "أدخل كلمة المرور الحالية قبل تعيين كلمة مرور جديدة.",
+  "Last changed :date.": "آخر تغيير بتاريخ :date.",
+  "Current Password": "كلمة المرور الحالية",
+  "Confirm New Password": "تأكيد كلمة المرور الجديدة",
+  "Use at least 8 characters with letters and numbers.": "استخدم 8 أحرف على الأقل مع حروف وأرقام.",
+  "Update Password": "تحديث كلمة المرور",
+  "The current password is incorrect.": "كلمة المرور الحالية غير صحيحة.",
+  "Password changed successfully.": "تم تغيير كلمة المرور بنجاح."
 }

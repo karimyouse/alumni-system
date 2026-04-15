@@ -21,7 +21,7 @@ class AccountPasswordController extends Controller
 
         if (!Hash::check($data['current_password'], $user->password)) {
             return back()
-                ->withErrors(['current_password' => 'The current password is incorrect.'])
+                ->withErrors(['current_password' => __('The current password is incorrect.')])
                 ->withInput();
         }
 
@@ -35,6 +35,6 @@ class AccountPasswordController extends Controller
 
         $user->forceFill($update)->save();
 
-        return back()->with('toast_success', 'Password changed successfully.');
+        return back()->with('toast_success', __('Password changed successfully.'));
     }
 }
