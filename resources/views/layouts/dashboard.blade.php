@@ -253,6 +253,10 @@
     $userRole = $user?->role ? str_replace('_', ' ', $user->role) : '';
     $subLine = ($user?->role === 'alumni') ? ($user?->academic_id ?? '') : ($user?->email ?? '');
     $initials = $user?->name ? collect(explode(' ', $user->name))->map(fn($n)=>mb_substr($n,0,1))->join('') : 'U';
+    $sidebarPhotoPath = $user?->role === 'alumni'
+      ? ($user?->alumniProfile?->profile_photo ?? null)
+      : ($user?->profile_photo ?? null);
+    $sidebarPhotoUrl = $sidebarPhotoPath ? asset('storage/' . ltrim($sidebarPhotoPath, '/')) : null;
     $appName = __('app.brand');
     $institutionName = $appSettings->institution_name ?? 'Palestine Technical College';
     $isRtl = app()->getLocale() === 'ar';
@@ -274,6 +278,14 @@
       'company' => '/company',
       'admin', 'super_admin' => '/admin',
       default => '/',
+    };
+
+    $accountProfileHref = match($user?->role) {
+      'alumni' => route('alumni.profile'),
+      'college' => route('college.profile'),
+      'company' => route('company.profile.edit'),
+      'admin', 'super_admin' => route('admin.profile'),
+      default => null,
     };
   @endphp
 
@@ -346,9 +358,15 @@
 
       <div class="border-t p-4 flex-shrink-0">
         <div class="flex items-center gap-2 mb-4 w-full {{ $isRtl ? 'text-right' : '' }}">
-          <div class="dashboard-user-avatar w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
-            {{ $initials }}
-          </div>
+          @if($sidebarPhotoUrl)
+            <img src="{{ $sidebarPhotoUrl }}"
+                 alt="{{ $user?->name }}"
+                 class="dashboard-user-avatar h-8 w-8 rounded-full border border-border object-cover flex-shrink-0">
+          @else
+            <div class="dashboard-user-avatar w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
+              {{ $initials }}
+            </div>
+          @endif
 
           <div class="flex-1 min-w-0 w-full {{ $isRtl ? 'text-right items-end' : 'text-left items-start' }} flex flex-col"
                data-sidebar-user-meta>
@@ -356,6 +374,15 @@
             <p class="text-xs text-muted-foreground truncate w-full {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $subLine }}</p>
           </div>
         </div>
+
+        @if($accountProfileHref)
+          <a href="{{ $accountProfileHref }}"
+             data-sidebar-item
+             class="mb-2 w-full inline-flex items-center rounded-md px-3 py-2 text-sm hover:bg-accent/50 transition {{ $isRtl ? 'justify-start text-right gap-2' : 'justify-start gap-2' }}">
+            <i data-lucide="shield-check" class="h-4 w-4 sidebar-item-icon flex-shrink-0"></i>
+            <span class="w-full {{ $isRtl ? 'text-right' : 'text-left' }}" data-sidebar-footer-label>{{ __('Profile & Security') }}</span>
+          </a>
+        @endif
 
         <form method="POST" action="/logout" class="w-full">
           @csrf

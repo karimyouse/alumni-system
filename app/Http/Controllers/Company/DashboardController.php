@@ -11,6 +11,7 @@ use App\Models\Workshop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -171,6 +172,7 @@ class DashboardController extends Controller
             'location' => ['nullable', 'string', 'max:255'],
             'website' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $profile = CompanyProfile::firstOrNew(['user_id' => $company->id]);
@@ -188,7 +190,17 @@ class DashboardController extends Controller
 
         $profile->save();
 
-        $company->update(['name' => $data['company_name']]);
+        $userUpdate = ['name' => $data['company_name']];
+
+        if ($request->hasFile('profile_photo')) {
+            if (!empty($company->profile_photo) && Storage::disk('public')->exists($company->profile_photo)) {
+                Storage::disk('public')->delete($company->profile_photo);
+            }
+
+            $userUpdate['profile_photo'] = $request->file('profile_photo')->store('profile-photos', 'public');
+        }
+
+        $company->update($userUpdate);
 
         return redirect()
             ->route('company.profile.edit')

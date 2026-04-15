@@ -41,65 +41,96 @@
   @endif
 
   <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-    <form method="POST" action="{{ route('company.profile.update') }}"
-          class="rounded-xl border border-border bg-card p-4 space-y-4 sm:p-6">
-      @csrf
+    <div class="space-y-6">
+      <form method="POST" action="{{ route('company.profile.update') }}"
+            enctype="multipart/form-data"
+            class="rounded-xl border border-border bg-card p-4 space-y-4 sm:p-6">
+        @csrf
 
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="sm:col-span-2">
-          <label class="text-sm font-medium">Company Name <span class="text-destructive">*</span></label>
-          <input type="text" name="company_name"
-                 value="{{ old('company_name', $companyProfile?->company_name ?? $companyName) }}"
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="text-sm font-medium">Profile Photo</label>
+            <input type="file"
+                   name="profile_photo"
+                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-primary">
+            <p class="mt-1 text-xs text-muted-foreground">Allowed: JPG, PNG, WEBP. Max size: 2MB.</p>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="text-sm font-medium">Company Name <span class="text-destructive">*</span></label>
+            <input type="text" name="company_name"
+                   value="{{ old('company_name', $companyProfile?->company_name ?? $companyName) }}"
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">Industry</label>
+            <input type="text" name="industry"
+                   value="{{ old('industry', $companyProfile?->industry) }}"
+                   placeholder="Technology, Training, Design..."
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">Location</label>
+            <input type="text" name="location"
+                   value="{{ old('location', $companyProfile?->location) }}"
+                   placeholder="Gaza, Ramallah, Remote..."
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">Website</label>
+            <input type="text" name="website"
+                   value="{{ old('website', $companyProfile?->website) }}"
+                   placeholder="https://company.com"
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">Contact Person</label>
+            <input type="text" name="contact_person_name"
+                   value="{{ old('contact_person_name', $companyProfile?->contact_person_name) }}"
+                   placeholder="Hiring manager name"
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
         </div>
 
         <div>
-          <label class="text-sm font-medium">Industry</label>
-          <input type="text" name="industry"
-                 value="{{ old('industry', $companyProfile?->industry) }}"
-                 placeholder="Technology, Training, Design..."
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+          <label class="text-sm font-medium">Company Description</label>
+          <textarea name="description" rows="6"
+                    placeholder="Tell alumni what your company does, who you serve, and why this opportunity is trustworthy."
+                    class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">{{ old('description', $companyProfile?->description) }}</textarea>
         </div>
 
-        <div>
-          <label class="text-sm font-medium">Location</label>
-          <input type="text" name="location"
-                 value="{{ old('location', $companyProfile?->location) }}"
-                 placeholder="Gaza, Ramallah, Remote..."
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-        </div>
+        <button type="submit"
+                class="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 sm:w-auto">
+          Save Profile
+        </button>
+      </form>
 
-        <div>
-          <label class="text-sm font-medium">Website</label>
-          <input type="text" name="website"
-                 value="{{ old('website', $companyProfile?->website) }}"
-                 placeholder="https://company.com"
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-        </div>
-
-        <div>
-          <label class="text-sm font-medium">Contact Person</label>
-          <input type="text" name="contact_person_name"
-                 value="{{ old('contact_person_name', $companyProfile?->contact_person_name) }}"
-                 placeholder="Hiring manager name"
-                 class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-        </div>
-      </div>
-
-      <div>
-        <label class="text-sm font-medium">Company Description</label>
-        <textarea name="description" rows="6"
-                  placeholder="Tell alumni what your company does, who you serve, and why this opportunity is trustworthy."
-                  class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">{{ old('description', $companyProfile?->description) }}</textarea>
-      </div>
-
-      <button type="submit"
-              class="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 sm:w-auto">
-        Save Profile
-      </button>
-    </form>
+      @include('partials.account-password-card')
+    </div>
 
     <div class="space-y-4">
+      @php($companyPhotoUrl = auth()->user()?->profile_photo ? asset('storage/' . ltrim(auth()->user()->profile_photo, '/')) : null)
+      <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
+        <div class="flex items-center gap-3">
+          @if($companyPhotoUrl)
+            <img src="{{ $companyPhotoUrl }}" alt="{{ $companyName }}" class="h-14 w-14 rounded-full border border-border object-cover">
+          @else
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+              {{ collect(explode(' ', $companyName))->filter()->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('') ?: 'CO' }}
+            </div>
+          @endif
+          <div class="min-w-0">
+            <div class="font-semibold break-words">{{ $companyName }}</div>
+            <div class="text-sm text-muted-foreground break-all">{{ auth()->user()?->email }}</div>
+          </div>
+        </div>
+      </div>
+
       @include('partials.company-trust-card', [
         'company' => auth()->user(),
         'profile' => $companyProfile,

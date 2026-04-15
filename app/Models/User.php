@@ -20,6 +20,8 @@ class User extends Authenticatable implements CanResetPasswordContract
         'password',
         'role',
         'academic_id',
+        'profile_photo',
+        'password_changed_at',
 
         
         'last_login_at',
@@ -38,6 +40,7 @@ class User extends Authenticatable implements CanResetPasswordContract
             'password' => 'hashed',
             'is_suspended' => 'boolean',
             'last_login_at' => 'datetime',
+            'password_changed_at' => 'datetime',
         ];
     }
 

@@ -284,6 +284,8 @@
 
     </div>
   </form>
+
+  @include('partials.account-password-card')
 </div>
 
 <script>

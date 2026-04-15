@@ -27,8 +27,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     @forelse($topThree as $item)
       <div class="rounded-xl border {{ $item['rank'] === 1 ? 'border-yellow-500/40' : 'border-border' }} bg-card p-4 text-center relative sm:p-6">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-background border border-border text-xs font-semibold">
+        <div class="mb-3 flex justify-center sm:absolute sm:-top-3 sm:left-1/2 sm:z-10 sm:mb-0 sm:-translate-x-1/2">
+          <span class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-xs font-semibold leading-none shadow-sm sm:h-7 sm:w-7">
             {{ $item['rank'] }}
           </span>
         </div>

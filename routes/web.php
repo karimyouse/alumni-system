@@ -8,6 +8,7 @@ use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\SupportTicketsController;
 use App\Http\Controllers\SupportTrackController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AccountPasswordController;
 
 // Auth
 use App\Http\Controllers\Auth\LoginController;
@@ -41,6 +42,7 @@ use App\Http\Controllers\College\AnnouncementsController as CollegeAnnouncements
 use App\Http\Controllers\College\SuccessStoriesController as CollegeSuccessStoriesController;
 use App\Http\Controllers\College\ReportsController as CollegeReportsController;
 use App\Http\Controllers\College\JobsController as CollegeJobsController;
+use App\Http\Controllers\College\ProfileController as CollegeProfileController;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -50,6 +52,7 @@ use App\Http\Controllers\Admin\ContentController as AdminContentController;
 use App\Http\Controllers\Admin\ReportsController as AdminReportsController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SupportController as AdminSupportController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -170,6 +173,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/notifications/read-all', [NotificationsController::class, 'readAll'])
         ->name('notifications.readAll');
+
+    Route::post('/account/password', [AccountPasswordController::class, 'update'])
+        ->middleware('throttle:10,1')
+        ->name('account.password.update');
 });
 
 
@@ -224,6 +231,8 @@ Route::prefix('alumni')->middleware(['auth', 'role:alumni'])->group(function () 
 Route::prefix('college')->middleware(['auth', 'role:college'])->group(function () {
 
     Route::get('/', [CollegeDashboardController::class, 'index'])->name('college.dashboard');
+    Route::get('/profile', [CollegeProfileController::class, 'show'])->name('college.profile');
+    Route::post('/profile', [CollegeProfileController::class, 'update'])->name('college.profile.update');
 
     Route::get('/alumni', [CollegeAlumniController::class, 'index'])->name('college.alumni');
     Route::get('/alumni/{alumnus}', [CollegeAlumniController::class, 'show'])->name('college.alumni.show');
@@ -320,6 +329,8 @@ Route::prefix('company')->middleware(['auth', 'role:company', 'company.approved'
 Route::prefix('admin')->middleware(['auth', 'role:admin,super_admin'])->group(function () {
 
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/profile', [AdminProfileController::class, 'show'])->name('admin.profile');
+    Route::post('/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
     Route::get('/users', [AdminUsersController::class, 'index'])->name('admin.users');
     Route::get('/users/{user}', [AdminUsersController::class, 'show'])->name('admin.users.show');
