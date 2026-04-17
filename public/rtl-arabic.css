@@ -81,6 +81,30 @@ html[lang="ar"] .space-x-2 > * + * {
     margin-right: 0.5rem !important;
 }
 
+html[lang="ar"] .inline-flex > .mr-1,
+html[lang="ar"] .inline-flex > svg.mr-1 {
+    margin-right: 0 !important;
+    margin-left: 0.25rem !important;
+}
+
+html[lang="ar"] .inline-flex > .mr-2,
+html[lang="ar"] .inline-flex > svg.mr-2 {
+    margin-right: 0 !important;
+    margin-left: 0.5rem !important;
+}
+
+html[lang="ar"] .inline-flex > .ml-1,
+html[lang="ar"] .inline-flex > svg.ml-1 {
+    margin-left: 0 !important;
+    margin-right: 0.25rem !important;
+}
+
+html[lang="ar"] .inline-flex > .ml-2,
+html[lang="ar"] .inline-flex > svg.ml-2 {
+    margin-left: 0 !important;
+    margin-right: 0.5rem !important;
+}
+
 
 
 

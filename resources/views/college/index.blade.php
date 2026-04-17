@@ -6,7 +6,7 @@
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
+    ['label'=>'Browse Alumni','href'=>'/college/alumni','icon'=>'users','badge'=>$alumniBadgeCount ?? 0],
     ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days','badge'=>$workshopBadgeCount ?? 0],
     ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase','badge'=>$jobBadgeCount ?? 0],
     ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone','badge'=>$announcementBadgeCount ?? 0],
@@ -27,7 +27,7 @@
       <div>
         <h2 class="text-2xl font-bold mb-1">Welcome, {{ $userName }}!</h2>
         <p class="text-muted-foreground">
-          Manage alumni relations and track graduate success from your dashboard.
+          Browse alumni and track graduate success from your dashboard.
         </p>
       </div>
 

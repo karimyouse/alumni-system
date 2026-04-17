@@ -6,7 +6,7 @@
 
   $nav = [
     ['label'=>'Overview','href'=>'/college','icon'=>'layout-dashboard'],
-    ['label'=>'Manage Alumni','href'=>'/college/alumni','icon'=>'users'],
+    ['label'=>'Browse Alumni','href'=>'/college/alumni','icon'=>'users'],
     ['label'=>'Workshops','href'=>'/college/workshops','icon'=>'calendar-days'],
     ['label'=>'Job Postings','href'=>'/college/jobs','icon'=>'briefcase'],
     ['label'=>'Announcements','href'=>'/college/announcements','icon'=>'megaphone'],
