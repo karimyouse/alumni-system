@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class SystemSetting extends Model
 {
@@ -30,4 +32,25 @@ class SystemSetting extends Model
         'require_2fa' => 'boolean',
         'last_backup_at' => 'datetime',
     ];
+
+    public static function enabled(string $key, bool $default = true): bool
+    {
+        try {
+            if (!Schema::hasTable('system_settings') || !Schema::hasColumn('system_settings', $key)) {
+                return $default;
+            }
+
+            $settings = Cache::remember('system_settings_v1', 60, function () {
+                return self::query()->first();
+            });
+
+            if (!$settings || is_null($settings->{$key})) {
+                return $default;
+            }
+
+            return (bool) $settings->{$key};
+        } catch (\Throwable $e) {
+            return $default;
+        }
+    }
 }

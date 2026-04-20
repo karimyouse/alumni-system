@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\Models\Workshop;
 use App\Notifications\ContentReviewNotification;
@@ -252,6 +253,10 @@ class JobsController extends Controller
     private function notifyCollegesAboutJob(Job $job, bool $updated = false): void
     {
         try {
+            if (!SystemSetting::enabled('email_content_approval_alerts')) {
+                return;
+            }
+
             $colleges = User::query()->where('role', 'college')->get();
             $companyName = Auth::user()?->name ?? ($job->company_name ?? 'Company');
 

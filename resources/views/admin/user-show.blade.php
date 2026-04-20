@@ -22,8 +22,8 @@
   $statusLabel = $user->is_suspended ? 'suspended' : 'active';
   $statusClass = $user->is_suspended ? 'bg-red-500/15 text-red-400' : 'bg-blue-500/15 text-blue-400';
 
-  $initials = collect(explode(' ', $name))->map(fn($n)=>mb_substr($n,0,1))->join('');
-  $initials = $initials ?: 'U';
+  $initials = $user->display_initials ?? (collect(explode(' ', $name))->filter()->map(fn($n)=>mb_substr($n,0,1))->take(3)->join('') ?: 'U');
+  $photoUrl = $user->display_photo_url ?? null;
 @endphp
 
 @section('content')
@@ -44,9 +44,15 @@
 
   <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
     <div class="flex items-start gap-4">
-      <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold flex-shrink-0">
-        {{ $initials }}
-      </div>
+      @if($photoUrl)
+        <img src="{{ $photoUrl }}"
+             alt="{{ $name }}"
+             class="w-12 h-12 rounded-full border border-border object-cover shadow-sm flex-shrink-0">
+      @else
+        <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold flex-shrink-0">
+          {{ $initials }}
+        </div>
+      @endif
 
       <div class="min-w-0 flex-1">
         <div class="text-lg font-semibold break-words">{{ $name }}</div>

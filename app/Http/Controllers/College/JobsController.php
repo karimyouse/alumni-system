@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\Job;
 use App\Models\JobApplication;
 use App\Models\Scholarship;
+use App\Models\SystemSetting;
 use App\Models\SuccessStory;
 use App\Models\User;
 use App\Models\Workshop;
@@ -324,6 +325,10 @@ class JobsController extends Controller
     private function notifyCompany(Job $job, bool $approved, ?string $reason = null): void
     {
         try {
+            if (!SystemSetting::enabled('email_content_approval_alerts')) {
+                return;
+            }
+
             $company = $job->company;
             if (!$company) {
                 return;

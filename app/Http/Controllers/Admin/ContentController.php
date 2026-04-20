@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\Notifications\ContentReviewNotification;
 use Illuminate\Http\Request;
@@ -181,6 +182,7 @@ class ContentController extends Controller
     private function notifyOwner(string $type, string $table, object $row, string $status, ?string $adminNote): void
     {
         try {
+            if (!SystemSetting::enabled('email_content_approval_alerts')) return;
             if (!Schema::hasTable('notifications')) return;
 
             $ownerId = $this->resolveOwnerId($type, $table, $row);

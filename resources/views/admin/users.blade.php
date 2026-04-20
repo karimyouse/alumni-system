@@ -77,8 +77,8 @@
           $email = $u->email ?? '—';
           $roleLabel = ucfirst(str_replace('_',' ', $u->role ?? 'user'));
 
-          $initials = collect(explode(' ', $name))->map(fn($n)=>mb_substr($n,0,1))->join('');
-          $initials = $initials ?: 'U';
+          $initials = $u->display_initials ?? (collect(explode(' ', $name))->filter()->map(fn($n)=>mb_substr($n,0,1))->take(3)->join('') ?: 'U');
+          $photoUrl = $u->display_photo_url ?? null;
 
           $isSuspended = (bool)($u->is_suspended ?? false);
 
@@ -90,9 +90,15 @@
 
         <div class="grid grid-cols-1 gap-4 px-4 py-4 sm:grid-cols-12 sm:px-6 sm:items-center">
           <div class="flex min-w-0 items-center gap-3 sm:col-span-5">
-            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
-              {{ $initials }}
-            </div>
+            @if($photoUrl)
+              <img src="{{ $photoUrl }}"
+                   alt="{{ $name }}"
+                   class="w-9 h-9 rounded-full border border-border object-cover shadow-sm flex-shrink-0">
+            @else
+              <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                {{ $initials }}
+              </div>
+            @endif
             <div class="min-w-0">
               <div class="text-sm font-medium truncate">{{ $name }}</div>
               <div class="text-xs text-muted-foreground truncate">{{ $email }}</div>

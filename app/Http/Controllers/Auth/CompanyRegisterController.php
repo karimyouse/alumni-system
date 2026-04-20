@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProfile;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\Notifications\CompanyRegistrationSubmitted;
 use Illuminate\Http\Request;
@@ -59,15 +60,17 @@ class CompanyRegisterController extends Controller
             ]);
 
 
-            $admins = User::query()
-                ->whereIn('role', ['admin', 'super_admin'])
-                ->get();
+            if (SystemSetting::enabled('email_new_user_notifications')) {
+                $admins = User::query()
+                    ->whereIn('role', ['admin', 'super_admin'])
+                    ->get();
 
-            foreach ($admins as $admin) {
-                $admin->notify(new CompanyRegistrationSubmitted(
-                    $data['company_name'],
-                    $data['email']
-                ));
+                foreach ($admins as $admin) {
+                    $admin->notify(new CompanyRegistrationSubmitted(
+                        $data['company_name'],
+                        $data['email']
+                    ));
+                }
             }
         });
 

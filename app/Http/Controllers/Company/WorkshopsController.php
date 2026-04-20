@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\Models\Workshop;
 use App\Models\WorkshopRegistration;
@@ -223,6 +224,10 @@ class WorkshopsController extends Controller
     private function notifyCollegesAboutWorkshop(Workshop $workshop, bool $updated = false): void
     {
         try {
+            if (!SystemSetting::enabled('email_content_approval_alerts')) {
+                return;
+            }
+
             $colleges = User::query()->where('role', 'college')->get();
             $companyName = Auth::user()?->name ?? 'Company';
 

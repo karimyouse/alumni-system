@@ -21,6 +21,7 @@ class UsersController extends Controller
         };
 
         $baseQuery = User::query()
+            ->with('alumniProfile')
             ->where('role', $role)
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
@@ -33,6 +34,13 @@ class UsersController extends Controller
 
         $users = $baseQuery->paginate(10)->withQueryString();
 
+        $users->getCollection()->transform(function (User $user) {
+            $user->display_initials = $this->initials($user->name);
+            $user->display_photo_url = $this->profilePhotoUrl($user);
+
+            return $user;
+        });
+
         $counts = [
             'alumni' => User::where('role', 'alumni')->count(),
             'college' => User::where('role', 'college')->count(),
@@ -44,6 +52,10 @@ class UsersController extends Controller
 
     public function show(User $user)
     {
+        $user->load('alumniProfile');
+        $user->display_initials = $this->initials($user->name);
+        $user->display_photo_url = $this->profilePhotoUrl($user);
+
         return view('admin.user-show', compact('user'));
     }
 
@@ -71,5 +83,23 @@ class UsersController extends Controller
         $user->notify(new AccountSuspended($newState));
 
         return back()->with('toast_success', $newState ? 'User suspended.' : 'User activated.');
+    }
+
+    private function profilePhotoUrl(User $user): ?string
+    {
+        $photoPath = $user->role === 'alumni'
+            ? ($user->alumniProfile?->profile_photo ?? null)
+            : ($user->profile_photo ?? null);
+
+        return $photoPath ? asset('storage/' . ltrim($photoPath, '/')) : null;
+    }
+
+    private function initials(?string $name): string
+    {
+        return collect(explode(' ', (string) $name))
+            ->filter()
+            ->map(fn ($part) => mb_substr($part, 0, 1))
+            ->take(3)
+            ->join('') ?: 'U';
     }
 }
