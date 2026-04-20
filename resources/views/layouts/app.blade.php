@@ -98,10 +98,14 @@
                 }
               });
 
-              if (isHidden) {
-                openMenu();
-              } else {
-                closeMenu();
+            if (isHidden) {
+              var notifMenu = document.getElementById('notifMenu');
+              var notifBtn = document.getElementById('notifBtn');
+              if (notifMenu) notifMenu.classList.add('hidden');
+              if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+              openMenu();
+            } else {
+              closeMenu();
               }
             });
 

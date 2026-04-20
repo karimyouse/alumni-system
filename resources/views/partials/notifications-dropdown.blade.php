@@ -2,7 +2,7 @@
   $navUnreadCount = $navUnreadCount ?? 0;
   $navNotifications = $navNotifications ?? collect([]);
   $isRtl = app()->getLocale() === 'ar';
-  $menuAlignClass = $isRtl ? 'left-0 origin-top-left' : 'right-0 origin-top-right';
+  $menuAlignClass = $isRtl ? 'sm:left-0 sm:right-auto sm:origin-top-left' : 'sm:right-0 sm:left-auto sm:origin-top-right';
   $badgePositionClass = $isRtl ? '-top-1 -left-1' : '-top-1 -right-1';
   $textAlignClass = $isRtl ? 'text-right' : 'text-left';
 
@@ -24,7 +24,7 @@
   <div id="notifWrap" class="relative">
     <button id="notifBtn"
             class="relative h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50"
-            aria-label="Notifications" type="button">
+            aria-label="{{ __('Notifications') }}" aria-expanded="false" type="button">
       <i data-lucide="bell" class="h-4 w-4"></i>
 
       @if($navUnreadCount > 0)
@@ -36,7 +36,7 @@
     </button>
 
     <div id="notifMenu"
-         class="hidden absolute {{ $menuAlignClass }} mt-2 w-[380px] max-w-[92vw] rounded-xl border border-border bg-card shadow-2xl z-[99999] overflow-hidden">
+         class="hidden fixed left-3 right-3 top-16 z-[99999] max-h-[calc(100vh-5rem)] w-auto overflow-hidden rounded-xl border border-border bg-card shadow-2xl sm:absolute sm:top-auto sm:mt-2 sm:w-[380px] sm:max-w-[calc(100vw-2rem)] {{ $menuAlignClass }}">
       <div class="p-4 border-b border-border flex items-center justify-between">
         <div class="font-semibold text-sm">{{ __('Notifications') }}</div>
 
@@ -52,7 +52,7 @@
         @endif
       </div>
 
-      <div class="max-h-[360px] overflow-y-auto divide-y divide-border">
+      <div class="max-h-[calc(100vh-10rem)] overflow-y-auto divide-y divide-border sm:max-h-[360px]">
         @forelse($navNotifications as $n)
           @php
             $data = is_array($n->data) ? $n->data : [];
@@ -96,7 +96,7 @@
               </div>
 
               <div class="flex-1 min-w-0">
-                <div class="text-sm font-medium truncate">{{ $title }}</div>
+                <div class="text-sm font-medium leading-snug break-words sm:truncate">{{ $title }}</div>
                 @if($body)
                   <div class="text-xs text-muted-foreground mt-1 line-clamp-2">{{ $body }}</div>
                 @endif
@@ -123,15 +123,26 @@
 
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
+        document.querySelectorAll('[data-lang-menu]').forEach(function (langMenu) {
+          langMenu.classList.add('hidden');
+        });
+        const isOpening = menu.classList.contains('hidden');
         menu.classList.toggle('hidden');
+        btn.setAttribute('aria-expanded', isOpening ? 'true' : 'false');
       });
 
       document.addEventListener('click', function (e) {
-        if (!wrap.contains(e.target)) menu.classList.add('hidden');
+        if (!wrap.contains(e.target)) {
+          menu.classList.add('hidden');
+          btn.setAttribute('aria-expanded', 'false');
+        }
       });
 
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') menu.classList.add('hidden');
+        if (e.key === 'Escape') {
+          menu.classList.add('hidden');
+          btn.setAttribute('aria-expanded', 'false');
+        }
       });
     })();
   </script>

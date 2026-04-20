@@ -425,7 +425,7 @@
             'buttonClass' => 'h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50',
             'buttonLabel' => __('common.language'),
             'menuWidth' => 'w-40',
-            'menuAlignClass' => $isRtl ? 'left-0 origin-top-left' : 'right-0 origin-top-right',
+            'menuAlignClass' => $isRtl ? 'sm:left-0 sm:right-auto sm:origin-top-left' : 'sm:right-0 sm:left-auto sm:origin-top-right',
             'menuTextAlignClass' => $isRtl ? 'text-right' : 'text-left',
           ])
 
@@ -496,6 +496,10 @@
             });
 
             if (isHidden) {
+              var notifMenu = document.getElementById('notifMenu');
+              var notifBtn = document.getElementById('notifBtn');
+              if (notifMenu) notifMenu.classList.add('hidden');
+              if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
               openMenu();
             } else {
               closeMenu();

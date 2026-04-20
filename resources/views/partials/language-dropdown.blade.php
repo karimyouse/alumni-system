@@ -4,7 +4,7 @@
   $menuWidth = $menuWidth ?? 'w-40';
   $redirectTo = request()->fullUrl();
   $isRtl = app()->getLocale() === 'ar';
-  $menuAlignClass = $menuAlignClass ?? ($isRtl ? 'left-0 origin-top-left' : 'right-0 origin-top-right');
+  $menuAlignClass = $menuAlignClass ?? ($isRtl ? 'sm:left-0 sm:right-auto sm:origin-top-left' : 'sm:right-0 sm:left-auto sm:origin-top-right');
   $menuTextAlignClass = $menuTextAlignClass ?? ($isRtl ? 'text-right' : 'text-left');
 @endphp
 
@@ -18,7 +18,7 @@
     <i data-lucide="globe" class="h-4 w-4"></i>
   </button>
 
-  <div class="hidden absolute {{ $menuAlignClass }} mt-2 {{ $menuWidth }} rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl z-[9999] overflow-hidden"
+  <div class="hidden fixed top-16 z-[99999] w-44 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl {{ $isRtl ? 'left-3' : 'right-3' }} sm:absolute sm:top-auto sm:mt-2 {{ $menuAlignClass }}"
        data-lang-menu>
     @foreach(['en' => __('lang.english'), 'ar' => __('lang.arabic')] as $localeCode => $localeLabel)
       <form method="POST" action="{{ route('lang.switch') }}">

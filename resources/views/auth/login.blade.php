@@ -117,7 +117,7 @@
       'buttonClass' => 'h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent/50',
       'buttonLabel' => __('Language'),
       'menuWidth' => 'w-36',
-      'menuAlignClass' => $isRtl ? 'left-0 origin-top-left' : 'right-0 origin-top-right',
+      'menuAlignClass' => $isRtl ? 'sm:left-0 sm:right-auto sm:origin-top-left' : 'sm:right-0 sm:left-auto sm:origin-top-right',
       'menuTextAlignClass' => app()->getLocale() === 'ar' ? 'text-right' : 'text-left',
     ])
 
