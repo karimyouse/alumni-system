@@ -72,9 +72,13 @@
 
           <div>
             <label class="text-sm font-medium">Email</label>
-            <input value="{{ $user->email }}"
-                   disabled
-                   class="mt-1 w-full rounded-md border border-input bg-background/40 px-3 py-2 text-sm opacity-80">
+            <input type="email"
+                   name="email"
+                   value="{{ old('email', $user->email) }}"
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            @error('email')
+              <div class="mt-1 text-xs text-destructive">{{ $message }}</div>
+            @enderror
           </div>
 
           <div>
@@ -98,7 +102,9 @@
       <div class="flex items-center gap-3">
         @php($adminPhotoUrl = $user->profile_photo ? asset('storage/' . ltrim($user->profile_photo, '/')) : null)
         @if($adminPhotoUrl)
-          <img src="{{ $adminPhotoUrl }}" alt="{{ $user->name }}" class="h-12 w-12 flex-shrink-0 rounded-full border border-border object-cover">
+          <img src="{{ $adminPhotoUrl }}"
+               alt="{{ $user->name }}"
+               class="h-12 w-12 flex-shrink-0 rounded-full border border-border object-cover">
         @else
           <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <i data-lucide="shield-check" class="h-6 w-6"></i>

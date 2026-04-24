@@ -62,6 +62,19 @@
             <input type="text" name="company_name"
                    value="{{ old('company_name', $companyProfile?->company_name ?? $companyName) }}"
                    class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            @error('company_name')
+              <div class="mt-1 text-xs text-destructive">{{ $message }}</div>
+            @enderror
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="text-sm font-medium">Email <span class="text-destructive">*</span></label>
+            <input type="email" name="email"
+                   value="{{ old('email', auth()->user()?->email) }}"
+                   class="mt-1 w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            @error('email')
+              <div class="mt-1 text-xs text-destructive">{{ $message }}</div>
+            @enderror
           </div>
 
           <div>
@@ -118,7 +131,9 @@
       <div class="rounded-xl border border-border bg-card p-4 sm:p-6">
         <div class="flex items-center gap-3">
           @if($companyPhotoUrl)
-            <img src="{{ $companyPhotoUrl }}" alt="{{ $companyName }}" class="h-14 w-14 rounded-full border border-border object-cover">
+            <img src="{{ $companyPhotoUrl }}"
+                 alt="{{ $companyName }}"
+                 class="h-14 w-14 rounded-full border border-border object-cover">
           @else
             <div class="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
               {{ collect(explode(' ', $companyName))->filter()->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('') ?: 'CO' }}

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -43,7 +44,7 @@ class DashboardController extends Controller
             $profileViews = (int) ((clone $jobsQuery)->sum('views') ?? 0);
         }
 
-        $candidatesViewed = (clone $applicationsQuery)
+        $uniqueApplicants = (clone $applicationsQuery)
             ->distinct('alumni_user_id')
             ->count('alumni_user_id');
 
@@ -60,7 +61,7 @@ class DashboardController extends Controller
             });
 
         $recentApplications = (clone $applicationsQuery)
-            ->with(['alumni', 'job'])
+            ->with(['alumni.alumniProfile', 'job'])
             ->orderByDesc('id')
             ->take(4)
             ->get()
@@ -72,6 +73,9 @@ class DashboardController extends Controller
                     ->join('') ?: 'A';
 
                 $application->candidate_name = $name;
+                $application->candidate_photo_url = !empty($application->alumni?->alumniProfile?->profile_photo)
+                    ? asset('storage/' . ltrim($application->alumni->alumniProfile->profile_photo, '/'))
+                    : null;
                 $application->job_title = $application->job?->title ?? 'Job';
                 $application->display_status = ucfirst((string) ($application->status ?? 'pending'));
 
@@ -112,7 +116,7 @@ class DashboardController extends Controller
                 ];
 
                 $completed = collect($completionChecks)->filter()->count();
-                $completionPercent = (int) round(($completed / count($completionChecks)) * 100);
+                $profileStrength = (int) round(($completed / count($completionChecks)) * 100);
 
                 $initials = collect(explode(' ', (string) $user->name))
                     ->filter()
@@ -123,12 +127,15 @@ class DashboardController extends Controller
                     'id' => $user->id,
                     'name' => $user->name ?? 'Alumni',
                     'initials' => $initials,
+                    'photo_url' => !empty($profile?->profile_photo)
+                        ? asset('storage/' . ltrim($profile->profile_photo, '/'))
+                        : null,
                     'graduation_year' => $profile->graduation_year ?? '—',
                     'skills' => $skills->take(3)->values(),
-                    'match' => min($completionPercent, 99),
+                    'profile_strength' => min($profileStrength, 100),
                 ];
             })
-            ->sortByDesc('match')
+            ->sortByDesc('profile_strength')
             ->take(3)
             ->values();
 
@@ -143,7 +150,7 @@ class DashboardController extends Controller
             'acceptedCount' => $acceptedCount,
             'rejectedCount' => $rejectedCount,
             'profileViews' => $profileViews,
-            'candidatesViewed' => $candidatesViewed,
+            'uniqueApplicants' => $uniqueApplicants,
             'latestJobs' => $latestJobs,
             'recentApplications' => $recentApplications,
             'recommendedCandidates' => $recommendedCandidates,
@@ -167,6 +174,7 @@ class DashboardController extends Controller
 
         $data = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($company->id)],
             'contact_person_name' => ['nullable', 'string', 'max:255'],
             'industry' => ['nullable', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
@@ -190,7 +198,14 @@ class DashboardController extends Controller
 
         $profile->save();
 
-        $userUpdate = ['name' => $data['company_name']];
+        $normalizedEmail = strtolower(trim((string) $data['email']));
+        $emailChanged = $normalizedEmail !== (string) $company->email;
+
+        $userUpdate = [
+            'name' => $data['company_name'],
+            'email' => $normalizedEmail,
+            'email_verified_at' => $emailChanged ? null : $company->email_verified_at,
+        ];
 
         if ($request->hasFile('profile_photo')) {
             if (!empty($company->profile_photo) && Storage::disk('public')->exists($company->profile_photo)) {
@@ -200,7 +215,7 @@ class DashboardController extends Controller
             $userUpdate['profile_photo'] = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
-        $company->update($userUpdate);
+        $company->forceFill($userUpdate)->save();
 
         return redirect()
             ->route('company.profile.edit')

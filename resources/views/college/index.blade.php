@@ -113,13 +113,22 @@
             $year = $a->alumniProfile?->graduation_year ?? '—';
             $status = $a->alumniProfile?->employment_status ?? '—';
             $employed = strtolower($status) === 'employed';
+            $photoUrl = !empty($a->alumniProfile?->profile_photo)
+              ? asset('storage/' . ltrim($a->alumniProfile->profile_photo, '/'))
+              : null;
           @endphp
 
           <div class="flex items-center gap-4 p-4 rounded-lg border border-border hover:shadow-sm transition-all"
                data-testid="card-alumni-{{ $a->id }}">
-            <div class="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
-              {{ $initials }}
-            </div>
+            @if($photoUrl)
+              <img src="{{ $photoUrl }}"
+                   alt="{{ $a->name }}"
+                   class="h-10 w-10 rounded-full border border-border object-cover flex-shrink-0">
+            @else
+              <div class="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
+                {{ $initials }}
+              </div>
+            @endif
 
             <div class="flex-1 min-w-0">
               <div class="font-medium">{{ $a->name }}</div>

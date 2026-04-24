@@ -152,9 +152,15 @@
 
               <div class="space-y-2">
                 <label class="text-sm font-medium">{{ __("Email") }}</label>
-                <input value="{{ $emailValue }}"
+                <input name="email"
+                       type="email"
+                       value="{{ old('email', $emailValue) }}"
+                       data-editable="true"
                        disabled
-                       class="w-full rounded-md border border-input bg-background/40 px-3 py-2 text-sm opacity-80">
+                       class="w-full rounded-md border border-input bg-background/60 px-3 py-2 text-sm">
+                @error('email')
+                  <div class="text-xs text-destructive">{{ $message }}</div>
+                @enderror
               </div>
 
               <div class="space-y-2">

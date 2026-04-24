@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -43,6 +44,7 @@ class ProfileController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:50'],
             'location' => ['nullable', 'string', 'max:120'],
             'major' => ['nullable', 'string', 'max:120'],
@@ -55,9 +57,14 @@ class ProfileController extends Controller
             'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $user->update([
+        $normalizedEmail = strtolower(trim((string) $data['email']));
+        $emailChanged = $normalizedEmail !== (string) $user->email;
+
+        $user->forceFill([
             'name' => $data['name'],
-        ]);
+            'email' => $normalizedEmail,
+            'email_verified_at' => $emailChanged ? null : $user->email_verified_at,
+        ])->save();
 
         $profile = AlumniProfile::firstOrCreate(
             ['user_id' => $user->id],

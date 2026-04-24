@@ -21,6 +21,7 @@ class RecommendationsController extends Controller
         $userId = (int) Auth::id();
 
         $received = Recommendation::query()
+            ->with('fromUser.alumniProfile')
             ->where('to_user_id', $userId)
             ->orderByDesc('id')
             ->get()
@@ -35,6 +36,9 @@ class RecommendationsController extends Controller
                     'id' => $r->id,
                     'name' => $name,
                     'initials' => $initials ?: 'A',
+                    'photo_url' => !empty($r->fromUser?->alumniProfile?->profile_photo)
+                        ? asset('storage/' . ltrim($r->fromUser->alumniProfile->profile_photo, '/'))
+                        : null,
                     'role_title' => $r->role_title,
                     'content' => $r->content,
                     'date' => $r->date ?: optional($r->created_at)->format('M d, Y'),
@@ -42,6 +46,7 @@ class RecommendationsController extends Controller
             });
 
         $given = Recommendation::query()
+            ->with('toUser.alumniProfile')
             ->where('from_user_id', $userId)
             ->orderByDesc('id')
             ->get()
@@ -56,6 +61,9 @@ class RecommendationsController extends Controller
                     'id' => $r->id,
                     'name' => $name,
                     'initials' => $initials ?: 'A',
+                    'photo_url' => !empty($r->toUser?->alumniProfile?->profile_photo)
+                        ? asset('storage/' . ltrim($r->toUser->alumniProfile->profile_photo, '/'))
+                        : null,
                     'role_title' => $r->role_title,
                     'content' => $r->content,
                     'date' => $r->date ?: optional($r->created_at)->format('M d, Y'),

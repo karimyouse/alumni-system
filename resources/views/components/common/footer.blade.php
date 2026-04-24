@@ -1,6 +1,6 @@
 @php
   $year = date('Y');
-  $institutionName = $appSettings->institution_name ?? 'Palestine Technical College';
+  $institutionName = __($appSettings->institution_name ?? 'Palestine Technical College');
 @endphp
 
 <footer id="contact" class="bg-card border-t">

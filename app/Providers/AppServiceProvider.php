@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SystemSetting;
+use App\Support\DashboardNavigation;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -118,6 +119,14 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('navUnreadCount', $navUnreadCount)
                 ->with('navNotifications', $navNotifications);
+
+            try {
+                if ($view->getName() === 'layouts.dashboard') {
+                    $view->with('dashboardNav', DashboardNavigation::build(Auth::user(), $navUnreadCount));
+                }
+            } catch (\Throwable $e) {
+                $view->with('dashboardNav', []);
+            }
         });
     }
 }

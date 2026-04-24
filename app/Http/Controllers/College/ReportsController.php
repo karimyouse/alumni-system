@@ -55,7 +55,7 @@ class ReportsController extends Controller
 
         if (Schema::hasTable('alumni_profiles') && Schema::hasColumn('alumni_profiles', 'employment_status')) {
             $employedAlumni = DB::table('alumni_profiles')
-                ->where('employment_status', 'employed')
+                ->whereRaw('LOWER(employment_status) = ?', ['employed'])
                 ->count();
 
             $employmentRate = $totalAlumni > 0
@@ -393,6 +393,10 @@ class ReportsController extends Controller
             }
 
             $query->leftJoin('workshop_registrations', 'workshop_registrations.workshop_id', '=', 'workshops.id')
+                ->when(
+                    Schema::hasColumn('workshop_registrations', 'status'),
+                    fn ($q) => $q->where('workshop_registrations.status', 'registered')
+                )
                 ->addSelect(DB::raw('COUNT(workshop_registrations.id) as registrations'))
                 ->groupBy(...$groupBy)
                 ->orderByDesc('registrations');
@@ -519,7 +523,7 @@ class ReportsController extends Controller
         }
 
         return Schema::hasColumn('scholarships', 'status')
-            ? DB::table('scholarships')->where('status', 'open')->count()
+            ? DB::table('scholarships')->where('status', 'active')->count()
             : DB::table('scholarships')->count();
     }
 

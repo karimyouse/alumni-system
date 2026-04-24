@@ -21,10 +21,16 @@ class LeaderboardController extends Controller
 
         $ranked = User::query()
             ->where('role', 'alumni')
+            ->with('alumniProfile')
             ->get()
             ->map(function ($user) use ($currentUserId) {
                 $applicationsCount = JobApplication::where('alumni_user_id', $user->id)->count();
-                $workshopsCount = WorkshopRegistration::where('alumni_user_id', $user->id)->count();
+                $workshopsQuery = WorkshopRegistration::where('alumni_user_id', $user->id);
+                if (Schema::hasColumn('workshop_registrations', 'status')) {
+                    $workshopsQuery->where('status', 'registered');
+                }
+
+                $workshopsCount = $workshopsQuery->count();
                 $givenRecommendations = Recommendation::where('from_user_id', $user->id)->count();
                 $receivedRecommendations = Recommendation::where('to_user_id', $user->id)->count();
 
@@ -46,6 +52,9 @@ class LeaderboardController extends Controller
                     'user_id' => (int) $user->id,
                     'name' => $name,
                     'initials' => $initials ?: 'A',
+                    'photo_url' => !empty($user->alumniProfile?->profile_photo)
+                        ? asset('storage/' . ltrim($user->alumniProfile->profile_photo, '/'))
+                        : null,
                     'points' => $points,
                     'activities' => $activities,
                     'applications_count' => $applicationsCount,

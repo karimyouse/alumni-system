@@ -23,7 +23,7 @@
 
 @section('content')
 @php
-  $institutionName = $appSettings->institution_name ?? 'Palestine Technical College';
+  $institutionName = __($appSettings->institution_name ?? 'Palestine Technical College');
 
   $stats = [
     ['value' => number_format((int)($homeStats['alumni'] ?? 0)) . '+', 'label' => __('home.stats.alumni')],

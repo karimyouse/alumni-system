@@ -138,7 +138,7 @@
             <i data-lucide="bell" class="h-4 w-4"></i> {{ __("Notifications") }}
           </div>
           <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs">
-            {{ count($notifications ?? []) }}
+            {{ number_format($notificationsCount ?? 0) }}
           </span>
         </div>
 
@@ -192,9 +192,15 @@
           @forelse($topLeaderboard as $entry)
             <div class="flex items-center gap-3 p-3 rounded-lg bg-accent/40">
               <div class="w-8 text-sm font-semibold text-muted-foreground">#{{ $entry['rank'] }}</div>
-              <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
-                {{ $entry['avatar'] }}
-              </div>
+              @if(!empty($entry['photo_url']))
+                <img src="{{ $entry['photo_url'] }}"
+                     alt="{{ $entry['name'] }}"
+                     class="w-9 h-9 rounded-full border border-border object-cover flex-shrink-0">
+              @else
+                <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                  {{ $entry['initials'] }}
+                </div>
+              @endif
               <div class="flex-1">
                 <p class="text-sm font-medium">{{ $entry['name'] }}</p>
               </div>

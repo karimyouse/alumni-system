@@ -88,13 +88,13 @@
 
     <div class="rounded-xl border border-border bg-card p-5">
       <div class="flex items-center justify-between">
-        <div class="text-sm text-muted-foreground">Candidates Viewed</div>
+        <div class="text-sm text-muted-foreground">Unique Applicants</div>
         <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
           <i data-lucide="user-check" class="h-4 w-4"></i>
         </div>
       </div>
-      <div class="text-3xl font-bold mt-4">{{ $candidatesViewed }}</div>
-      <div class="text-sm text-muted-foreground mt-1">Applicants reached</div>
+      <div class="text-3xl font-bold mt-4">{{ $uniqueApplicants }}</div>
+      <div class="text-sm text-muted-foreground mt-1">Distinct alumni who applied</div>
     </div>
   </div>
 
@@ -160,16 +160,22 @@
         <div class="p-6 border-b border-border flex items-center justify-between">
           <div class="text-lg font-semibold">Recent Applications</div>
           <span class="text-xs rounded-full bg-secondary px-2 py-1 text-secondary-foreground">
-            {{ $recentApplications->count() }} new
+            {{ $recentApplications->count() }} latest
           </span>
         </div>
 
         <div class="p-6 space-y-4">
           @forelse($recentApplications as $application)
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                {{ $application->candidate_initials }}
-              </div>
+              @if(!empty($application->candidate_photo_url))
+                <img src="{{ $application->candidate_photo_url }}"
+                     alt="{{ $application->candidate_name }}"
+                     class="w-9 h-9 rounded-full border border-border object-cover flex-shrink-0">
+              @else
+                <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                  {{ $application->candidate_initials }}
+                </div>
+              @endif
 
               <div class="min-w-0 flex-1">
                 <div class="text-sm font-medium truncate">{{ $application->candidate_name }}</div>
@@ -195,7 +201,7 @@
 
       <div class="rounded-xl border border-border bg-card overflow-hidden">
         <div class="p-6 border-b border-border">
-          <div class="text-lg font-semibold">Recommended Candidates</div>
+          <div class="text-lg font-semibold">Top Alumni Profiles</div>
         </div>
 
         <div class="p-6 space-y-4">
@@ -203,9 +209,15 @@
             <div class="rounded-lg border border-border p-4">
               <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                    {{ $candidate['initials'] }}
-                  </div>
+                  @if(!empty($candidate['photo_url']))
+                    <img src="{{ $candidate['photo_url'] }}"
+                         alt="{{ $candidate['name'] }}"
+                         class="w-9 h-9 rounded-full border border-border object-cover flex-shrink-0">
+                  @else
+                    <div class="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                      {{ $candidate['initials'] }}
+                    </div>
+                  @endif
 
                   <div class="min-w-0">
                     <div class="text-sm font-medium truncate">{{ $candidate['name'] }}</div>
@@ -214,7 +226,7 @@
                 </div>
 
                 <span class="text-[11px] rounded-full border border-border px-2 py-1">
-                  {{ $candidate['match'] }}% match
+                  {{ $candidate['profile_strength'] }}% complete
                 </span>
               </div>
 

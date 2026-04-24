@@ -12,6 +12,7 @@ use App\Models\Workshop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -26,12 +27,18 @@ class ProfileController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore(Auth::id())],
             'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $user = Auth::user();
+        $normalizedEmail = strtolower(trim((string) $data['email']));
+        $emailChanged = $normalizedEmail !== (string) $user->email;
+
         $update = [
             'name' => $data['name'],
+            'email' => $normalizedEmail,
+            'email_verified_at' => $emailChanged ? null : $user->email_verified_at,
         ];
 
         if ($request->hasFile('profile_photo')) {
@@ -42,7 +49,7 @@ class ProfileController extends Controller
             $update['profile_photo'] = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
-        $user->update($update);
+        $user->forceFill($update)->save();
 
         return redirect()
             ->route('college.profile')

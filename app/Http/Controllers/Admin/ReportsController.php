@@ -282,9 +282,18 @@ class ReportsController extends Controller
 
     private function engagementRows(): array
     {
+        $workshopRegistrations = 0;
+        if (Schema::hasTable('workshop_registrations')) {
+            $workshopRegistrationsQuery = DB::table('workshop_registrations');
+            if (Schema::hasColumn('workshop_registrations', 'status')) {
+                $workshopRegistrationsQuery->where('status', 'registered');
+            }
+            $workshopRegistrations = $workshopRegistrationsQuery->count();
+        }
+
         return [
             ['Job applications', number_format($this->tableCount('job_applications')), $this->statusSummary('job_applications')],
-            ['Workshop registrations', number_format($this->tableCount('workshop_registrations')), $this->statusSummary('workshop_registrations')],
+            ['Workshop registrations', number_format($workshopRegistrations), $this->statusSummary('workshop_registrations')],
             ['Scholarship applications', number_format($this->tableCount('scholarship_applications')), $this->statusSummary('scholarship_applications')],
             ['Recommendations', number_format($this->tableCount('recommendations')), 'Total recommendations submitted'],
             ['Profile updates in last 30 days', number_format(Schema::hasTable('alumni_profiles') ? DB::table('alumni_profiles')->where('updated_at', '>=', now()->subDays(30))->count() : 0), 'Recently refreshed alumni profiles'],
@@ -360,6 +369,10 @@ class ReportsController extends Controller
             }
 
             $query->leftJoin('workshop_registrations', 'workshop_registrations.workshop_id', '=', 'workshops.id')
+                ->when(
+                    Schema::hasColumn('workshop_registrations', 'status'),
+                    fn ($q) => $q->where('workshop_registrations.status', 'registered')
+                )
                 ->addSelect(DB::raw('COUNT(workshop_registrations.id) as registrations'))
                 ->groupBy(...$groupBy)
                 ->orderByDesc('registrations');
@@ -389,7 +402,7 @@ class ReportsController extends Controller
             : $storiesTotal;
         $scholarshipsTotal = Schema::hasTable('scholarships') ? DB::table('scholarships')->count() : 0;
         $scholarshipsOpen = Schema::hasTable('scholarships') && Schema::hasColumn('scholarships', 'status')
-            ? DB::table('scholarships')->where('status', 'open')->count()
+            ? DB::table('scholarships')->where('status', 'active')->count()
             : $scholarshipsTotal;
 
         return [

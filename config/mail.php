@@ -1,5 +1,16 @@
 <?php
 
+$legacyMailEncryption = strtolower((string) env('MAIL_ENCRYPTION', ''));
+$mailScheme = env('MAIL_SCHEME');
+
+if (($mailScheme === null || $mailScheme === '') && $legacyMailEncryption !== '') {
+    $mailScheme = match ($legacyMailEncryption) {
+        'ssl', 'smtps' => 'smtps',
+        'tls', 'starttls' => 'smtp',
+        default => $legacyMailEncryption,
+    };
+}
+
 return [
 
     /*
@@ -39,13 +50,13 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
+            'scheme' => $mailScheme,
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            'timeout' => env('MAIL_TIMEOUT'),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 

@@ -119,6 +119,10 @@
 
           $initials = collect(explode(' ', $name))->map(fn($n)=>mb_substr($n,0,1))->join('');
           $initials = $initials ?: 'U';
+          $photoPath = ($ticket->user?->role ?? null) === 'alumni'
+            ? ($ticket->user?->alumniProfile?->profile_photo ?? null)
+            : ($ticket->user?->profile_photo ?? null);
+          $photoUrl = !empty($photoPath) ? asset('storage/' . ltrim($photoPath, '/')) : null;
 
           $preview = !empty($ticket->message) ? Str::limit($ticket->message, 90) : null;
           $assigned = $ticket->admin?->name ?? null;
@@ -133,9 +137,15 @@
 
           <div id="ticket-{{ $ticket->id }}" class="p-4 flex flex-col gap-4 sm:p-6 xl:flex-row xl:items-center xl:justify-between">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                {{ $initials }}
-              </div>
+              @if($photoUrl)
+                <img src="{{ $photoUrl }}"
+                     alt="{{ $name }}"
+                     class="w-10 h-10 rounded-full border border-border object-cover flex-shrink-0">
+              @else
+                <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                  {{ $initials }}
+                </div>
+              @endif
 
               <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">

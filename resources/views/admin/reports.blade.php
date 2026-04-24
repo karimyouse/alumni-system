@@ -13,10 +13,10 @@
   ];
 
   $cards = [
-    ['label'=>'Total Users','value'=>$totalUsers ?? 0,'sub'=>'All registered users','trend'=>'+12% from last month','icon'=>'users'],
-    ['label'=>'Active Jobs','value'=>$activeJobs ?? 0,'sub'=>'Open positions','trend'=>'+8% from last month','icon'=>'briefcase'],
-    ['label'=>'Workshops','value'=>$workshops ?? 0,'sub'=>'Held this year','trend'=>null,'icon'=>'calendar-days'],
-    ['label'=>'Companies','value'=>$companies ?? 0,'sub'=>'Partner companies','trend'=>'+3% from last month','icon'=>'building-2'],
+    ['label'=>'Total Users','value'=>$totalUsers ?? 0,'sub'=>'All registered users','icon'=>'users'],
+    ['label'=>'Active Jobs','value'=>$activeJobs ?? 0,'sub'=>'Open positions','icon'=>'briefcase'],
+    ['label'=>'Workshops','value'=>$workshops ?? 0,'sub'=>'Approved this year','icon'=>'calendar-days'],
+    ['label'=>'Companies','value'=>$companies ?? 0,'sub'=>'Approved partner companies','icon'=>'building-2'],
   ];
 
   $growthArr = collect($growth ?? [])->map(function ($g) {
@@ -84,9 +84,6 @@
         </div>
         <div class="text-3xl font-bold mt-3">{{ number_format($c['value']) }}</div>
         <div class="text-xs text-muted-foreground mt-1">{{ $c['sub'] }}</div>
-        @if(!empty($c['trend']))
-          <div class="text-xs text-green-500 mt-1">{{ $c['trend'] }}</div>
-        @endif
       </div>
     @endforeach
   </div>

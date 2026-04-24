@@ -18,7 +18,7 @@ class SupportController extends Controller
     {
         $status = $request->query('status', 'all');
 
-        $query = SupportTicket::with(['user','admin'])->orderByDesc('id');
+        $query = SupportTicket::with(['user.alumniProfile','admin'])->orderByDesc('id');
 
         if ($status !== 'all') {
             $query->where('status', $status);

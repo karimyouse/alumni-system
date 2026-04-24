@@ -49,9 +49,15 @@
         @forelse($received as $rec)
           <div class="p-4 rounded-lg border border-border" data-testid="card-received-rec-{{ $rec->id }}">
             <div class="flex items-start gap-3">
-              <div class="h-12 w-12 rounded-full bg-secondary flex items-center justify-center text-sm font-semibold text-foreground flex-shrink-0">
-                {{ $rec->initials }}
-              </div>
+              @if(!empty($rec->photo_url))
+                <img src="{{ $rec->photo_url }}"
+                     alt="{{ $rec->name }}"
+                     class="h-12 w-12 rounded-full border border-border object-cover flex-shrink-0">
+              @else
+                <div class="h-12 w-12 rounded-full bg-secondary flex items-center justify-center text-sm font-semibold text-foreground flex-shrink-0">
+                  {{ $rec->initials }}
+                </div>
+              @endif
 
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -90,9 +96,15 @@
         @forelse($given as $rec)
           <div class="p-4 rounded-lg border border-border" data-testid="card-given-rec-{{ $rec->id }}">
             <div class="flex items-start gap-3">
-              <div class="h-12 w-12 rounded-full bg-secondary flex items-center justify-center text-sm font-semibold text-foreground flex-shrink-0">
-                {{ $rec->initials }}
-              </div>
+              @if(!empty($rec->photo_url))
+                <img src="{{ $rec->photo_url }}"
+                     alt="{{ $rec->name }}"
+                     class="h-12 w-12 rounded-full border border-border object-cover flex-shrink-0">
+              @else
+                <div class="h-12 w-12 rounded-full bg-secondary flex items-center justify-center text-sm font-semibold text-foreground flex-shrink-0">
+                  {{ $rec->initials }}
+                </div>
+              @endif
 
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-3 flex-wrap">

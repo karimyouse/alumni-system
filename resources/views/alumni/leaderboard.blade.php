@@ -39,9 +39,15 @@
           </div>
         @endif
 
-        <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto text-xs font-semibold">
-          {{ $item['initials'] }}
-        </div>
+        @if(!empty($item['photo_url']))
+          <img src="{{ $item['photo_url'] }}"
+               alt="{{ $item['name'] }}"
+               class="w-10 h-10 rounded-full border border-border object-cover mx-auto">
+        @else
+          <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto text-xs font-semibold">
+            {{ $item['initials'] }}
+          </div>
+        @endif
 
         <div class="mt-3 font-semibold break-words">
           {{ $item['name'] }}
@@ -84,9 +90,15 @@
           <div class="flex items-center gap-3 min-w-0">
             <div class="w-6 text-xs text-muted-foreground font-semibold">{{ $item['rank'] }}</div>
 
-            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
-              {{ $item['initials'] }}
-            </div>
+            @if(!empty($item['photo_url']))
+              <img src="{{ $item['photo_url'] }}"
+                   alt="{{ $item['name'] }}"
+                   class="w-9 h-9 rounded-full border border-border object-cover flex-shrink-0">
+            @else
+              <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                {{ $item['initials'] }}
+              </div>
+            @endif
 
             <div class="min-w-0">
               <div class="text-sm font-semibold truncate">

@@ -20,7 +20,7 @@ class DashboardController extends Controller
 
         $employmentRate = 0;
         if (Schema::hasTable('alumni_profiles') && Schema::hasColumn('alumni_profiles', 'employment_status')) {
-            $employed = AlumniProfile::where('employment_status', 'Employed')->count();
+            $employed = AlumniProfile::whereRaw('LOWER(employment_status) = ?', ['employed'])->count();
             $employmentRate = $totalAlumni > 0 ? (int) round(($employed / $totalAlumni) * 100) : 0;
         }
 
@@ -104,7 +104,7 @@ class DashboardController extends Controller
             $employedPercent = 0;
             if (Schema::hasColumn('alumni_profiles', 'employment_status')) {
                 $employedCount = AlumniProfile::where('major', $major)
-                    ->where('employment_status', 'Employed')
+                    ->whereRaw('LOWER(employment_status) = ?', ['employed'])
                     ->count();
 
                 $employedPercent = $alumniCount > 0

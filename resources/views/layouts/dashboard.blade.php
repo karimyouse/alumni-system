@@ -227,6 +227,7 @@
     #dashboardSidebar {
       overflow-y: auto;
     }
+
   </style>
 
   @stack('head')
@@ -258,7 +259,7 @@
       : ($user?->profile_photo ?? null);
     $sidebarPhotoUrl = $sidebarPhotoPath ? asset('storage/' . ltrim($sidebarPhotoPath, '/')) : null;
     $appName = __('app.brand');
-    $institutionName = $appSettings->institution_name ?? 'Palestine Technical College';
+    $institutionName = __($appSettings->institution_name ?? 'Palestine Technical College');
     $isRtl = app()->getLocale() === 'ar';
 
     $roleLabels = [
@@ -287,6 +288,8 @@
       'admin', 'super_admin' => route('admin.profile'),
       default => null,
     };
+
+    $sidebarNav = !empty($dashboardNav ?? []) ? $dashboardNav : ($nav ?? []);
   @endphp
 
   <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden bg-black/50 md:hidden"></div>
@@ -331,7 +334,7 @@
       </div>
 
       <nav class="flex-1 p-3 space-y-1 overflow-y-auto {{ $isRtl ? 'text-right' : '' }}">
-        @foreach(($nav ?? []) as $item)
+        @foreach($sidebarNav as $item)
           @php
             $hrefPath = ltrim($item['href'], '/');
             $active = request()->is($hrefPath) || request()->is($hrefPath.'/*');
@@ -357,31 +360,44 @@
       </nav>
 
       <div class="border-t p-4 flex-shrink-0">
-        <div class="flex items-center gap-2 mb-4 w-full {{ $isRtl ? 'text-right' : '' }}">
-          @if($sidebarPhotoUrl)
-            <img src="{{ $sidebarPhotoUrl }}"
-                 alt="{{ $user?->name }}"
-                 class="dashboard-user-avatar h-8 w-8 rounded-full border border-border object-cover flex-shrink-0">
-          @else
-            <div class="dashboard-user-avatar w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
-              {{ $initials }}
-            </div>
-          @endif
-
-          <div class="flex-1 min-w-0 w-full {{ $isRtl ? 'text-right items-end' : 'text-left items-start' }} flex flex-col"
-               data-sidebar-user-meta>
-            <p class="text-sm font-medium truncate w-full {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $user?->name }}</p>
-            <p class="text-xs text-muted-foreground truncate w-full {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $subLine }}</p>
-          </div>
-        </div>
-
         @if($accountProfileHref)
           <a href="{{ $accountProfileHref }}"
-             data-sidebar-item
-             class="mb-2 w-full inline-flex items-center rounded-md px-3 py-2 text-sm hover:bg-accent/50 transition {{ $isRtl ? 'justify-start text-right gap-2' : 'justify-start gap-2' }}">
-            <i data-lucide="shield-check" class="h-4 w-4 sidebar-item-icon flex-shrink-0"></i>
-            <span class="w-full {{ $isRtl ? 'text-right' : 'text-left' }}" data-sidebar-footer-label>{{ __('Profile & Security') }}</span>
+             class="mb-4 flex items-center gap-2 w-full rounded-md px-2 py-2 hover:bg-accent/50 transition {{ $isRtl ? 'text-right' : '' }}"
+             data-sidebar-item>
+            @if($sidebarPhotoUrl)
+              <img src="{{ $sidebarPhotoUrl }}"
+                   alt="{{ $user?->name }}"
+                   class="dashboard-user-avatar h-8 w-8 rounded-full border border-border object-cover flex-shrink-0">
+            @else
+              <div class="dashboard-user-avatar w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
+                {{ $initials }}
+              </div>
+            @endif
+
+            <div class="flex-1 min-w-0 w-full {{ $isRtl ? 'text-right items-end' : 'text-left items-start' }} flex flex-col"
+                 data-sidebar-user-meta>
+              <p class="text-sm font-medium truncate w-full {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $user?->name }}</p>
+              <p class="text-xs text-muted-foreground truncate w-full {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $subLine }}</p>
+            </div>
           </a>
+        @else
+          <div class="flex items-center gap-2 mb-4 w-full {{ $isRtl ? 'text-right' : '' }}">
+            @if($sidebarPhotoUrl)
+              <img src="{{ $sidebarPhotoUrl }}"
+                   alt="{{ $user?->name }}"
+                   class="dashboard-user-avatar h-8 w-8 rounded-full border border-border object-cover flex-shrink-0">
+            @else
+              <div class="dashboard-user-avatar w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
+                {{ $initials }}
+              </div>
+            @endif
+
+            <div class="flex-1 min-w-0 w-full {{ $isRtl ? 'text-right items-end' : 'text-left items-start' }} flex flex-col"
+                 data-sidebar-user-meta>
+              <p class="text-sm font-medium truncate w-full {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $user?->name }}</p>
+              <p class="text-xs text-muted-foreground truncate w-full {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $subLine }}</p>
+            </div>
+          </div>
         @endif
 
         <form method="POST" action="/logout" class="w-full">

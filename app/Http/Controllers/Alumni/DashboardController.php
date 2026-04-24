@@ -69,14 +69,18 @@ class DashboardController extends Controller
 
         $upcomingWorkshops = (clone $workshopsQuery)->take(2)->get();
 
-        $topLeaderboard = $leaderboardData->take(3)->map(function ($item) {
+        $topLeaderboard = $leaderboardData->take(3)->map(function ($item) use ($userId) {
             return [
                 'rank' => $item['rank'],
                 'name' => $item['name'],
                 'points' => $item['points'],
-                'avatar' => $item['initials'],
+                'initials' => $item['initials'],
+                'photo_url' => $item['photo_url'],
+                'is_me' => $item['user_id'] === $userId,
             ];
         })->values();
+
+        $notificationsCount = $user->unreadNotifications()->count();
 
         $notifications = collect($user->unreadNotifications()->latest()->take(3)->get())
             ->map(function ($notification) {
@@ -108,6 +112,7 @@ class DashboardController extends Controller
             'recentJobs' => $recentJobs,
             'upcomingWorkshops' => $upcomingWorkshops,
             'notifications' => $notifications,
+            'notificationsCount' => $notificationsCount,
             'topLeaderboard' => $topLeaderboard,
 
             'jobBadgeCount' => $navBadges['jobBadgeCount'],
@@ -164,10 +169,16 @@ class DashboardController extends Controller
     {
         return User::query()
             ->where('role', 'alumni')
+            ->with('alumniProfile')
             ->get()
             ->map(function ($user) {
                 $applicationsCount = JobApplication::where('alumni_user_id', $user->id)->count();
-                $workshopsCount = WorkshopRegistration::where('alumni_user_id', $user->id)->count();
+                $workshopsQuery = WorkshopRegistration::where('alumni_user_id', $user->id);
+                if (Schema::hasColumn('workshop_registrations', 'status')) {
+                    $workshopsQuery->where('status', 'registered');
+                }
+
+                $workshopsCount = $workshopsQuery->count();
                 $givenRecommendations = Recommendation::where('from_user_id', $user->id)->count();
                 $receivedRecommendations = Recommendation::where('to_user_id', $user->id)->count();
 
@@ -189,6 +200,9 @@ class DashboardController extends Controller
                     'user_id' => (int) $user->id,
                     'name' => $name,
                     'initials' => $initials ?: 'A',
+                    'photo_url' => !empty($user->alumniProfile?->profile_photo)
+                        ? asset('storage/' . ltrim($user->alumniProfile->profile_photo, '/'))
+                        : null,
                     'points' => $points,
                     'activities' => $activities,
                 ];
