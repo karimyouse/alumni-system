@@ -19,6 +19,9 @@
         {{ __('Last changed :date.', ['date' => $passwordChangedAt->format('M d, Y')]) }}
       </p>
     @endif
+    <p class="mt-1 text-xs text-muted-foreground">
+      {{ __('session.password_notice') }}
+    </p>
   </div>
 
   <div class="grid gap-4 sm:grid-cols-2">

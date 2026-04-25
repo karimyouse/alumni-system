@@ -21,6 +21,7 @@ class User extends Authenticatable implements CanResetPasswordContract
         'role',
         'academic_id',
         'profile_photo',
+        'allow_multiple_sessions',
         'password_changed_at',
 
         
@@ -40,8 +41,14 @@ class User extends Authenticatable implements CanResetPasswordContract
             'password' => 'hashed',
             'is_suspended' => 'boolean',
             'last_login_at' => 'datetime',
+            'allow_multiple_sessions' => 'boolean',
             'password_changed_at' => 'datetime',
         ];
+    }
+
+    public function allowsMultipleSessions(): bool
+    {
+        return (bool) ($this->allow_multiple_sessions ?? false);
     }
 
     public function alumniProfile()

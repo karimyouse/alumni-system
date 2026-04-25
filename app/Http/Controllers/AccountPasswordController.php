@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SessionSecurity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class AccountPasswordController extends Controller
 {
-    public function update(Request $request)
+    public function update(Request $request, SessionSecurity $sessionSecurity)
     {
         $user = Auth::user();
 
@@ -27,6 +29,7 @@ class AccountPasswordController extends Controller
 
         $update = [
             'password' => Hash::make($data['password']),
+            'remember_token' => Str::random(60),
         ];
 
         if (Schema::hasColumn('users', 'password_changed_at')) {
@@ -34,7 +37,9 @@ class AccountPasswordController extends Controller
         }
 
         $user->forceFill($update)->save();
+        $request->session()->regenerate();
+        $sessionSecurity->invalidateAllSessionsFor($user, $sessionSecurity->currentSessionId($request));
 
-        return back()->with('toast_success', __('Password changed successfully.'));
+        return back()->with('toast_success', __('session.password_changed_others'));
     }
 }

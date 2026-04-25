@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SystemSetting;
 use App\Support\DashboardNavigation;
+use App\Support\SessionSecurity;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -127,6 +128,34 @@ class AppServiceProvider extends ServiceProvider
             } catch (\Throwable $e) {
                 $view->with('dashboardNav', []);
             }
+        });
+
+        View::composer('partials.session-security-card', function ($view) {
+            $supportsDatabaseSessions = false;
+            $activeSessions = collect();
+            $allowMultipleSessions = false;
+
+            try {
+                if (Auth::check()) {
+                    $user = Auth::user();
+                    $sessionSecurity = app(SessionSecurity::class);
+
+                    $supportsDatabaseSessions = $sessionSecurity->supportsDatabaseSessions();
+                    $allowMultipleSessions = method_exists($user, 'allowsMultipleSessions')
+                        ? $user->allowsMultipleSessions()
+                        : (bool) ($user->allow_multiple_sessions ?? false);
+                    $activeSessions = $sessionSecurity->activeSessionsFor(
+                        $user,
+                        $sessionSecurity->currentSessionId(request())
+                    );
+                }
+            } catch (\Throwable $e) {
+                $activeSessions = collect();
+            }
+
+            $view->with('sessionSecuritySupportsDatabaseSessions', $supportsDatabaseSessions)
+                ->with('sessionSecurityAllowMultipleSessions', $allowMultipleSessions)
+                ->with('sessionSecurityActiveSessions', $activeSessions);
         });
     }
 }

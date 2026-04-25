@@ -9,6 +9,7 @@ use App\Http\Controllers\SupportTicketsController;
 use App\Http\Controllers\SupportTrackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountPasswordController;
+use App\Http\Controllers\AccountSessionController;
 
 // Auth
 use App\Http\Controllers\Auth\LoginController;
@@ -177,6 +178,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/account/password', [AccountPasswordController::class, 'update'])
         ->middleware('throttle:10,1')
         ->name('account.password.update');
+
+    Route::post('/account/session-preference', [AccountSessionController::class, 'updatePreference'])
+        ->middleware('throttle:10,1')
+        ->name('account.sessions.preference.update');
+
+    Route::post('/account/sessions/logout-others', [AccountSessionController::class, 'logoutOtherDevices'])
+        ->middleware('throttle:10,1')
+        ->name('account.sessions.logoutOthers');
+
+    Route::post('/account/sessions/logout-all', [AccountSessionController::class, 'logoutAllDevices'])
+        ->middleware('throttle:10,1')
+        ->name('account.sessions.logoutAll');
 });
 
 

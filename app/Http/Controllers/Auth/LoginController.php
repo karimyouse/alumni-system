@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\SessionSecurity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +16,7 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function login(Request $request, SessionSecurity $sessionSecurity)
     {
         $data = $request->validate([
             'role' => ['required', 'string'],
@@ -63,7 +64,10 @@ class LoginController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        
+        if (!$user->allowsMultipleSessions()) {
+            $sessionSecurity->invalidateAllSessionsFor($user, $sessionSecurity->currentSessionId($request));
+        }
+
         $user->forceFill(['last_login_at' => now()])->save();
 
         return redirect()

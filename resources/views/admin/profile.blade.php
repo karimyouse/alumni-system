@@ -96,6 +96,7 @@
       </form>
 
       @include('partials.account-password-card')
+      @include('partials.session-security-card')
     </div>
 
     <div class="rounded-xl border border-border bg-card p-4 h-fit sm:p-6">

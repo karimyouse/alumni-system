@@ -124,6 +124,7 @@
       </form>
 
       @include('partials.account-password-card')
+      @include('partials.session-security-card')
     </div>
 
     <div class="space-y-4">
