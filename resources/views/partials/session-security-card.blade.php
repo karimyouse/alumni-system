@@ -54,49 +54,127 @@
     </form>
 
     <div class="space-y-4 rounded-lg border border-border bg-background/20 p-4">
-      <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div class="font-medium">{{ __('session.active_devices') }}</div>
           <p class="text-sm text-muted-foreground">
             {{ __('session.active_devices_help') }}
           </p>
         </div>
-        <div class="text-sm text-muted-foreground">
+        <div class="inline-flex w-fit items-center rounded-full border border-border bg-card px-3 py-1 text-sm text-muted-foreground">
           {{ __('session.active_count', ['count' => $activeSessions->count()]) }}
         </div>
       </div>
 
-      <div class="space-y-3">
-        @forelse($activeSessions as $session)
-          <div class="rounded-lg border border-border bg-card px-4 py-3">
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2">
-                  <div class="font-medium">{{ $session['label'] }}</div>
+      @if($activeSessions->isEmpty())
+        <div class="rounded-md border border-dashed border-border px-3 py-4 text-sm text-muted-foreground">
+          {{ __('session.empty') }}
+        </div>
+      @else
+        <div class="hidden overflow-hidden rounded-lg border border-border md:block">
+          <table class="min-w-full divide-y divide-border">
+            <thead class="bg-background/60">
+              <tr class="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <th class="px-4 py-3 font-medium">{{ __('session.os') }}</th>
+                <th class="px-4 py-3 font-medium">{{ __('session.browser') }}</th>
+                <th class="px-4 py-3 font-medium">{{ __('session.ip_address') }}</th>
+                <th class="px-4 py-3 font-medium">{{ __('session.last_session') }}</th>
+                <th class="px-4 py-3 text-right font-medium">{{ __('session.action') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border bg-card">
+              @foreach($activeSessions as $session)
+                <tr class="align-top">
+                  <td class="px-4 py-4 text-sm">
+                    <div class="font-medium">{{ $session['platform'] }}</div>
+                    <div class="mt-1 text-xs text-muted-foreground">{{ $session['device_type'] }}</div>
+                  </td>
+                  <td class="px-4 py-4 text-sm">
+                    <div class="font-medium">{{ $session['browser'] }}</div>
+                    <div class="mt-1 max-w-xs break-all text-xs text-muted-foreground">{{ $session['user_agent'] }}</div>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-muted-foreground">{{ $session['ip_address'] }}</td>
+                  <td class="px-4 py-4 text-sm">
+                    @if($session['is_current'])
+                      <span class="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        {{ __('session.this_device') }}
+                      </span>
+                    @else
+                      <span class="text-muted-foreground">{{ $session['last_activity_human'] }}</span>
+                    @endif
+                  </td>
+                  <td class="px-4 py-4">
+                    <div class="flex justify-end">
+                      @if($session['can_delete'])
+                        <form method="POST"
+                              action="{{ route('account.sessions.remove', ['sessionId' => $session['id']]) }}"
+                              onsubmit="return confirm(@json(__('session.remove_device_confirm')));">
+                          @csrf
+                          <button type="submit"
+                                  class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                                  title="{{ __('session.remove_device') }}"
+                                  aria-label="{{ __('session.remove_device') }}">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                          </button>
+                        </form>
+                      @else
+                        <span class="inline-flex min-w-[7rem] items-center justify-center whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                          {{ __('session.current') }}
+                        </span>
+                      @endif
+                    </div>
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+
+        <div class="space-y-3 md:hidden">
+          @foreach($activeSessions as $session)
+            <div class="rounded-lg border border-border bg-card px-4 py-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="font-medium">{{ $session['platform'] }}</div>
+                  <div class="mt-1 text-sm text-muted-foreground">{{ $session['browser'] }}</div>
+                </div>
+
+                @if($session['can_delete'])
+                  <form method="POST"
+                        action="{{ route('account.sessions.remove', ['sessionId' => $session['id']]) }}"
+                        onsubmit="return confirm(@json(__('session.remove_device_confirm')));">
+                    @csrf
+                    <button type="submit"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                            title="{{ __('session.remove_device') }}"
+                            aria-label="{{ __('session.remove_device') }}">
+                      <i data-lucide="trash-2" class="h-4 w-4"></i>
+                    </button>
+                  </form>
+                @else
+                  <span class="inline-flex min-w-[7rem] items-center justify-center whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    {{ __('session.current') }}
+                  </span>
+                @endif
+              </div>
+
+              <div class="mt-3 grid gap-2 text-xs text-muted-foreground">
+                <div>{{ __('session.ip_address') }}: {{ $session['ip_address'] }}</div>
+                <div>
+                  {{ __('session.last_session') }}:
                   @if($session['is_current'])
-                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                      {{ __('session.current') }}
-                    </span>
+                    {{ __('session.this_device') }}
+                  @else
+                    {{ $session['last_activity_human'] }}
                   @endif
                 </div>
-
-                <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  <span>{{ __('session.last_activity') }}: {{ $session['last_activity_human'] }}</span>
-                  <span>{{ __('session.ip_address') }}: {{ $session['ip_address'] }}</span>
-                </div>
+                <div class="break-all">{{ $session['user_agent'] }}</div>
               </div>
             </div>
-
-            <div class="mt-2 break-all text-xs text-muted-foreground">
-              {{ $session['user_agent'] }}
-            </div>
-          </div>
-        @empty
-          <div class="rounded-md border border-dashed border-border px-3 py-4 text-sm text-muted-foreground">
-            {{ __('session.empty') }}
-          </div>
-        @endforelse
-      </div>
+          @endforeach
+        </div>
+      @endif
 
       <div class="flex flex-col gap-3 sm:flex-row">
         <form method="POST" action="{{ route('account.sessions.logoutOthers') }}" class="w-full sm:w-auto">

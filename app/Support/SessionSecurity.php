@@ -53,6 +53,18 @@ class SessionSecurity
             ->map(fn (object $session) => $this->mapSession($session, $currentSessionId));
     }
 
+    public function removeSessionFor(User $user, string $sessionId): bool
+    {
+        if (!$this->supportsDatabaseSessions()) {
+            return false;
+        }
+
+        return DB::table($this->sessionTable())
+            ->where('user_id', $user->getAuthIdentifier())
+            ->where('id', $sessionId)
+            ->delete() > 0;
+    }
+
     private function mapSession(object $session, ?string $currentSessionId): array
     {
         $userAgent = trim((string) ($session->user_agent ?? ''));
@@ -64,16 +76,17 @@ class SessionSecurity
         $label = collect([$platform, $browser, $deviceType])
             ->filter(fn (?string $value) => filled($value) && !str_starts_with($value, 'Unknown'))
             ->unique()
-            ->implode(' • ');
+            ->implode(' / ');
 
         return [
             'id' => (string) $session->id,
             'is_current' => (string) $session->id === (string) $currentSessionId,
+            'can_delete' => (string) $session->id !== (string) $currentSessionId,
             'label' => $label !== '' ? $label : 'Unknown device',
             'platform' => $platform,
             'browser' => $browser,
             'device_type' => $deviceType,
-            'ip_address' => $session->ip_address ?: '—',
+            'ip_address' => $session->ip_address ?: '-',
             'user_agent' => Str::limit($userAgent !== '' ? $userAgent : 'Unknown user agent', 180),
             'last_activity_at' => $lastActivity,
             'last_activity_human' => $lastActivity->diffForHumans(),

@@ -57,4 +57,18 @@ class AccountSessionController extends Controller
             ->route('login')
             ->with('toast_success', __('session.logout_all_toast'));
     }
+
+    public function removeDevice(Request $request, string $sessionId, SessionSecurity $sessionSecurity): RedirectResponse
+    {
+        if ($sessionId === $sessionSecurity->currentSessionId($request)) {
+            return back()->with('toast_error', __('session.remove_current_blocked'));
+        }
+
+        $removed = $sessionSecurity->removeSessionFor($request->user(), $sessionId);
+
+        return back()->with(
+            $removed ? 'toast_success' : 'toast_error',
+            $removed ? __('session.remove_device_toast') : __('session.remove_missing')
+        );
+    }
 }

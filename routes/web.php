@@ -187,6 +187,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:10,1')
         ->name('account.sessions.logoutOthers');
 
+    Route::post('/account/sessions/{sessionId}/remove', [AccountSessionController::class, 'removeDevice'])
+        ->middleware('throttle:10,1')
+        ->name('account.sessions.remove');
+
     Route::post('/account/sessions/logout-all', [AccountSessionController::class, 'logoutAllDevices'])
         ->middleware('throttle:10,1')
         ->name('account.sessions.logoutAll');
