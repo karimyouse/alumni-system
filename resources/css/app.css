@@ -335,6 +335,47 @@
 }
 
 @layer utilities {
+  .reveal-section.reveal-ready {
+    overflow: clip;
+  }
+
+  .reveal-section .reveal-item {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.7s ease;
+    will-change: opacity, transform, filter;
+  }
+
+  .reveal-section.reveal-ready .reveal-item {
+    opacity: 0;
+    transform: translateY(36px);
+    filter: blur(8px);
+  }
+
+  .reveal-section.reveal-ready.is-visible .reveal-item,
+  .reveal-section.reveal-ready .reveal-item.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  .reveal-section--light.reveal-ready .reveal-item {
+    filter: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-section .reveal-item,
+    .reveal-section.reveal-ready .reveal-item {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+  }
+
   .overflow-auto,
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;

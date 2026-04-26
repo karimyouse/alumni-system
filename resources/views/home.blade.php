@@ -131,9 +131,9 @@
       </div>
     </section>
 
-    <section id="about" class="py-20 bg-card" data-testid="section-about">
+    <section id="about" class="py-20 bg-card reveal-section" data-testid="section-about">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 reveal-item">
           <h2 class="text-3xl md:text-4xl font-bold mb-4" data-testid="text-about-title">
             {{ __('home.about.title') }}
           </h2>
@@ -144,7 +144,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           @foreach($whyMatters as $item)
-            <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm text-center">
+            <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm text-center reveal-item" style="transition-delay: {{ $loop->index * 90 }}ms;">
               <div class="flex flex-col space-y-1.5 p-6">
                 <div class="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
                   <i data-lucide="{{ $item['icon'] }}" class="h-6 w-6 text-primary"></i>
@@ -160,9 +160,9 @@
       </div>
     </section>
 
-    <section class="py-20" data-testid="section-portals">
+    <section class="py-20 reveal-section" data-testid="section-portals">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 reveal-item">
           <h2 class="text-3xl md:text-4xl font-bold mb-4" data-testid="text-portals-title">
             {{ __('home.portals.title') }}
           </h2>
@@ -173,7 +173,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           @foreach($portals as $portal)
-            <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm hover-elevate transition-all duration-300">
+            <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm hover-elevate transition-all duration-300 reveal-item" style="transition-delay: {{ $loop->index * 90 }}ms;">
               <div class="flex flex-col space-y-1.5 p-6">
                 <div class="w-12 h-12 rounded-lg {{ $portal['color'] }} flex items-center justify-center mb-2">
                   <i data-lucide="{{ $portal['icon'] }}" class="h-6 w-6"></i>
@@ -189,9 +189,9 @@
       </div>
     </section>
 
-    <section class="py-20 bg-card" data-testid="section-features">
+    <section class="py-20 bg-card reveal-section" data-testid="section-features">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 reveal-item">
           <h2 class="text-3xl md:text-4xl font-bold mb-4" data-testid="text-features-title">
             {{ __('home.features.title') }}
           </h2>
@@ -199,7 +199,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           @foreach($features as $feature)
-            <div class="flex gap-4 p-6 rounded-lg bg-background border hover-elevate transition-all duration-300">
+            <div class="flex gap-4 p-6 rounded-lg bg-background border hover-elevate transition-all duration-300 reveal-item" style="transition-delay: {{ $loop->index * 90 }}ms;">
               <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <i data-lucide="{{ $feature['icon'] }}" class="h-5 w-5 text-primary"></i>
               </div>
@@ -213,11 +213,11 @@
       </div>
     </section>
 
-    <section class="py-16 bg-primary text-primary-foreground" data-testid="section-stats">
+    <section class="py-16 bg-primary text-primary-foreground reveal-section reveal-section--light" data-testid="section-stats">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
           @foreach($stats as $i => $stat)
-            <div class="text-center">
+            <div class="text-center reveal-item" style="transition-delay: {{ $loop->index * 100 }}ms;">
               <div class="text-4xl md:text-5xl font-bold mb-2" data-testid="text-stat-{{ $i }}">
                 {{ $stat['value'] }}
               </div>
@@ -228,15 +228,15 @@
       </div>
     </section>
 
-    <section class="py-20" data-testid="section-cta">
+    <section class="py-20 reveal-section" data-testid="section-cta">
       <div class="max-w-4xl mx-auto px-4 md:px-6 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 reveal-item">
           {{ __('home.cta.title') }}
         </h2>
-        <p class="text-lg text-muted-foreground mb-8">
+        <p class="text-lg text-muted-foreground mb-8 reveal-item" style="transition-delay: 90ms;">
           {{ __('home.cta.description') }}
         </p>
-        <a href="{{ route('login') }}">
+        <a href="{{ route('login') }}" class="reveal-item inline-flex" style="transition-delay: 180ms;">
           <x-ui.button size="lg" class="gap-2" data-testid="button-cta-login">
             {{ __('home.hero.login') }}
             <i data-lucide="arrow-right" class="h-4 w-4"></i>
