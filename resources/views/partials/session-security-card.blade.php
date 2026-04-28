@@ -53,9 +53,9 @@
       </button>
     </form>
 
-    <div class="space-y-4 rounded-lg border border-border bg-background/20 p-4">
+    <div class="space-y-4 rounded-lg border border-border bg-background/20 p-4 sm:p-5">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div class="min-w-0">
           <div class="font-medium">{{ __('session.active_devices') }}</div>
           <p class="text-sm text-muted-foreground">
             {{ __('session.active_devices_help') }}
@@ -71,15 +71,15 @@
           {{ __('session.empty') }}
         </div>
       @else
-        <div class="hidden overflow-hidden rounded-lg border border-border md:block">
-          <table class="min-w-full divide-y divide-border">
+        <div class="hidden overflow-x-auto rounded-lg border border-border xl:block">
+          <table class="min-w-[52rem] table-fixed divide-y divide-border">
             <thead class="bg-background/60">
               <tr class="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th class="px-4 py-3 font-medium">{{ __('session.os') }}</th>
-                <th class="px-4 py-3 font-medium">{{ __('session.browser') }}</th>
-                <th class="px-4 py-3 font-medium">{{ __('session.ip_address') }}</th>
-                <th class="px-4 py-3 font-medium">{{ __('session.last_session') }}</th>
-                <th class="px-4 py-3 text-right font-medium">{{ __('session.action') }}</th>
+                <th class="w-[16%] px-4 py-3 font-medium">{{ __('session.os') }}</th>
+                <th class="w-[34%] px-4 py-3 font-medium">{{ __('session.browser') }}</th>
+                <th class="w-[18%] px-4 py-3 font-medium">{{ __('session.ip_address') }}</th>
+                <th class="w-[16%] px-4 py-3 font-medium">{{ __('session.last_session') }}</th>
+                <th class="w-[16%] px-4 py-3 text-right font-medium">{{ __('session.action') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border bg-card">
@@ -91,9 +91,11 @@
                   </td>
                   <td class="px-4 py-4 text-sm">
                     <div class="font-medium">{{ $session['browser'] }}</div>
-                    <div class="mt-1 max-w-xs break-all text-xs text-muted-foreground">{{ $session['user_agent'] }}</div>
+                    <div class="mt-1 break-words text-xs leading-5 text-muted-foreground" title="{{ $session['user_agent'] }}">
+                      {{ $session['user_agent'] }}
+                    </div>
                   </td>
-                  <td class="px-4 py-4 text-sm text-muted-foreground">{{ $session['ip_address'] }}</td>
+                  <td class="px-4 py-4 text-sm text-muted-foreground break-words">{{ $session['ip_address'] }}</td>
                   <td class="px-4 py-4 text-sm">
                     @if($session['is_current'])
                       <span class="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
@@ -119,7 +121,7 @@
                           </button>
                         </form>
                       @else
-                        <span class="inline-flex min-w-[7rem] items-center justify-center whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                        <span class="inline-flex min-w-[8.5rem] items-center justify-center whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                           {{ __('session.current') }}
                         </span>
                       @endif
@@ -131,12 +133,17 @@
           </table>
         </div>
 
-        <div class="space-y-3 md:hidden">
+        <div class="space-y-3 xl:hidden">
           @foreach($activeSessions as $session)
             <div class="rounded-lg border border-border bg-card px-4 py-4">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <div class="font-medium">{{ $session['platform'] }}</div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <div class="font-medium">{{ $session['platform'] }}</div>
+                    <span class="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                      {{ $session['device_type'] }}
+                    </span>
+                  </div>
                   <div class="mt-1 text-sm text-muted-foreground">{{ $session['browser'] }}</div>
                 </div>
 
@@ -159,8 +166,8 @@
                 @endif
               </div>
 
-              <div class="mt-3 grid gap-2 text-xs text-muted-foreground">
-                <div>{{ __('session.ip_address') }}: {{ $session['ip_address'] }}</div>
+              <div class="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                <div class="break-words">{{ __('session.ip_address') }}: {{ $session['ip_address'] }}</div>
                 <div>
                   {{ __('session.last_session') }}:
                   @if($session['is_current'])
@@ -169,7 +176,7 @@
                     {{ $session['last_activity_human'] }}
                   @endif
                 </div>
-                <div class="break-all">{{ $session['user_agent'] }}</div>
+                <div class="break-words sm:col-span-2">{{ $session['user_agent'] }}</div>
               </div>
             </div>
           @endforeach
